@@ -1,0 +1,15 @@
+.my-alert {
+  height: max-content;
+  width: 300px;
+  right: 0px;
+  animation: translate 300ms;
+}
+
+@keyframes translate {
+  from {
+    right: -320px;
+  }
+  to {
+    right: 0px;
+  }
+}

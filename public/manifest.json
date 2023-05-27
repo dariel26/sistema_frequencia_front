@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "SFE-MED",
+  "name": "Sistema de Frequência MED-UFSC-ARU",
   "icons": [
     {
       "src": "favicon.ico",
