@@ -1,27 +1,22 @@
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
-import FiltroUser from "../filters/User";
+import links from "../links";
+import Home from "../views/Home";
 import Login from "../views/Login";
+import Users from "../views/Users";
 
-export default function Router() {
+function Router() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Navigate to={routes.sistemaFrequencia} />} />
-        <Route path={routes.login} element={<Login />} />
-        <Route
-          path={routes.sistemaFrequencia}
-          element={
-            <FiltroUser>
-              <div>Bem vindo ao sistema</div>
-            </FiltroUser>
-          }
-        />
+        <Route path="/" element={<Navigate to={links.sistemaFrequencia} />} />
+        <Route path={links.login} element={<Login />} />
+        <Route path={links.sistemaFrequencia} element={<Home />}>
+          <Route path={links.usuarios} element={<Users />} />
+          <Route index element={<Navigate to={links.usuarios} />} />
+        </Route>
       </Routes>
     </BrowserRouter>
   );
 }
 
-export const routes = {
-  login: "/login",
-  sistemaFrequencia: "/sistema-frequencia",
-};
+export default Router;

@@ -1,12 +1,12 @@
 import { createContext, useEffect } from "react";
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import { routes } from "../router/Router";
+import links from "../links";
 import apiSFE from "../service/api";
 
 export const UserContext = createContext();
 
-export default function FiltroUser(props) {
+export default function FilterUser(props) {
   const [infoUser, setInfoUser] = useState(userModel({}));
   const [waiting, setWaiting] = useState(true);
 
@@ -31,7 +31,7 @@ export default function FiltroUser(props) {
       })
       .catch((_) => {
         setInfoUser({});
-        setWaiting(false);        
+        setWaiting(false);
       });
   }, []);
 
@@ -40,7 +40,7 @@ export default function FiltroUser(props) {
       {waiting ? (
         <div>Redirecionando...</div>
       ) : infoUser.info?.papel === undefined ? (
-        <Navigate to={routes.login} />
+        <Navigate to={links.login} />
       ) : (
         props.children
       )}

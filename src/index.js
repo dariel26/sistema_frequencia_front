@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import reportWebVitals from './reportWebVitals';
 import Router from './router/Router';
 import './index.css';
+import './custom.scss';
 import Alert from './filters/alert/Alert';
 
 const root = ReactDOM.createRoot(document.getElementById('root'));

@@ -1,0 +1,49 @@
+@media screen and (max-width: 900px) {
+  #my-left {
+    width: 0px !important;
+  }
+
+  #my-fixed-left {
+    display: flex !important;
+  }
+
+  #my-top-close {
+    display: flex !important;
+  }
+
+  #my-top-button {
+    display: flex !important;
+  }
+
+  #my-right {
+    width: 100% !important;
+  }
+
+  #my-top {
+    height: 50px !important;
+  }
+
+  #my-bottom {
+    height: calc(100% - 50px) !important;
+  }
+
+  #my-left-close {
+    display: none !important;
+  }
+
+  #my-left-icon {
+    display: none !important;
+  }
+
+  #my-left-button {
+    display: none !important;
+  }
+
+  #my-left-nav {
+    display: none !important;
+  }
+
+  #my-left-title {
+    display: none !important;
+  }
+}

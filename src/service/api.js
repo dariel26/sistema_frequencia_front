@@ -6,7 +6,8 @@ const api = axios.create({
 
 const apiSFE = {
     login: async (login, password) => await api.post("/api/v1/login", { login: login, senha: password }),
-    infoUser: async (token) => await api.get("/api/v1/info-usuario", { headers: { token } })
+    infoUser: async (token) => await api.get("/api/v1/info-usuario", { headers: { token } }),
+    listaCoordenadores: async (token) => await api.get("/api/v1/coordenador", { headers: { token } }),
 }
 
 export default apiSFE;

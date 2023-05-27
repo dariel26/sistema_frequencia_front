@@ -1,7 +1,7 @@
 import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AlertContext } from "../filters/alert/Alert";
-import { routes } from "../router/Router";
+import links from "../links";
 import apiSFE from "../service/api";
 
 export default function Login(props) {
@@ -27,7 +27,7 @@ export default function Login(props) {
       .login(login, password)
       .then((res) => {
         localStorage.setItem("token", res.data);
-        navigate(routes.sistemaFrequencia);
+        navigate(links.sistemaFrequencia);
       })
       .catch((err) => {
         console.log(err);
