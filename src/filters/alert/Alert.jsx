@@ -40,6 +40,7 @@ export default function Alert(props) {
     time,
     sucess,
     danger,
+    key,
   }) => {
     const variantAlert = sucess
       ? "alert-success"
@@ -57,8 +58,8 @@ export default function Alert(props) {
         <div
           className={`alert ${variantAlert} my-alert position-fixed me-2 mt-2`}
           role="alert"
-          key={counter}
-          id={"alert" + counter}
+          key={key}
+          id={"alert" + key}
           style={{ zIndex: counter }}
         >
           <button
@@ -78,7 +79,7 @@ export default function Alert(props) {
       ),
     });
     setAlerts([...alerts]);
-    setTime(time, counter);
+    setTime(time, key);
     setCounter(counter + 1);
   };
 
