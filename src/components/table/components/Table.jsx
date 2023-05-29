@@ -20,7 +20,7 @@ export default function Table({
             </th>
           ))}
           <th scope="col" style={{ display }}>
-            Apagar
+            Deletar
           </th>
         </tr>
       </thead>

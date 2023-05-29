@@ -3,7 +3,7 @@ import { useState } from "react";
 export default function CardRadios({ children, radios, newIndex }) {
   const [indexRadio, setIndexRadio] = useState(0);
   return (
-    <div className="card w-100">
+    <div className="card w-100 rounded-0 border-0">
       <div className="card-header">
         <div className="btn-group" role="group">
           {radios.map((r, index) => [

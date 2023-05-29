@@ -1,6 +1,5 @@
-import { useContext, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertContext } from "../filters/alert/Alert";
 import links from "../links";
 import apiSFE from "../service/api";
 
@@ -9,7 +8,6 @@ export default function Login(props) {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
-  const alert = useContext(AlertContext);
 
   function onChangeLogin(e) {
     e.preventDefault();
@@ -33,19 +31,9 @@ export default function Login(props) {
         console.log(err);
         if (err.response?.data?.credenciaisEstado === false) {
           //passar estas verificações para o Alert.jsx
-          alert.addAlert({
-            title: "Credenciais inválidas",
-            message: "E-mail ou senha inválidos",
-            time: 3000,
-            danger: true,
-          });
+          console.log("credenciais inválidas")
         } else {
-          alert.addAlert({
-            title: "Ops",
-            message: "Parace que algo deu errado, tente denovo mais tarde",
-            time: 8000,
-            danger: true,
-          });
+          console.log("Parece que algo deu errado")
         }
       });
   }
