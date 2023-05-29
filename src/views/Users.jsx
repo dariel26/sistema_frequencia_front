@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { useContext } from "react";
 import { useState } from "react";
-import CardRadios from "../components/CardRadios";
+import CardRadios from "../components/cards/CardRadios";
 import TableAddSelectEdit from "../components/table/TableAddSelectEdit";
 import { UserContext } from "../filters/User";
 import apiSFE from "../service/api";
@@ -84,7 +84,6 @@ export default function Users() {
 
   function onDelete(usersToDelete) {
     const emailsCP = usersToDelete.map(u => u.email);
-    console.log(user.infoUser.token);
     if (indexRadio === 0) {
       apiSFE
         .deletaCoordenador(user.infoUser.token, emailsCP)

@@ -1,13 +1,22 @@
 import { FaUsers } from "react-icons/fa";
+import { MdManageAccounts } from "react-icons/md";
 import links from "../links";
 
+const common = [
+  {
+    path: links.conta,
+    name: "Minha Conta",
+    icon: <MdManageAccounts size={18} />,
+  },
+];
+
 const navs = {
-    preceptor: [],
-    aluno: [],
-    coordenador: [],
-    admin: [
-        { path: links.usuarios, name: "Usuarios", icon: <FaUsers size={18} /> }
-    ]
-}
+  preceptor: [].concat(common),
+  aluno: [].concat(common),
+  coordenador: [].concat(common),
+  admin: [
+    { path: links.usuarios, name: "Usuarios", icon: <FaUsers size={18} /> },
+  ].concat(common),
+};
 
 export default navs;
