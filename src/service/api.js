@@ -6,7 +6,11 @@ const api = axios.create({
 
 const apiSFE = {
     login: async (login, password) => await api.post("/api/v1/login", { login: login, senha: password }),
+
     infoUser: async (token) => await api.get("/api/v1/info-usuario", { headers: { token } }),
+    usuarioPadrao: async (token, credencias) => await api.post("/api/v1/info-usuario/padrao", credencias, { headers: { token } }),
+    mudarSenha: async (token, senha) => await api.post("/api/v1/info-usuario/mudar-senha", {senha}, { headers: {token}}),
+
     listaCoordenadores: async (token) => await api.get("/api/v1/coordenador", { headers: { token } }),
     adicionaCoordenador: async (token, cs) => await api.post("/api/v1/coordenador", cs, { headers: { token } }),
     atualizarCoordenador: async (token, nome, papel, email) => await api.patch("/api/v1/coordenador/" + email, { nome, papel }, { headers: { token } }),
