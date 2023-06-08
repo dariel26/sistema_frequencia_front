@@ -1,5 +1,7 @@
+import { useContext } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AlertContext } from "../filters/alert/Alert";
 import links from "../links";
 import apiSFE from "../service/api";
 
@@ -8,6 +10,7 @@ export default function Login(props) {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
+  const alert = useContext(AlertContext);
 
   function onChangeLogin(e) {
     e.preventDefault();
@@ -28,13 +31,7 @@ export default function Login(props) {
         navigate(links.sistemaFrequencia);
       })
       .catch((err) => {
-        console.log(err);
-        if (err.response?.data?.credenciaisEstado === false) {
-          //passar estas verificações para o Alert.jsx
-          console.log("credenciais inválidas")
-        } else {
-          console.log("Parece que algo deu errado")
-        }
+        alert.addAlert(err);
       });
   }
 

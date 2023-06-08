@@ -1,3 +1,4 @@
+import { useCallback, useEffect } from "react";
 import { createContext, useState } from "react";
 import { GrClose } from "react-icons/gr";
 import "./Alert.css";
@@ -5,87 +6,97 @@ import "./Alert.css";
 export const AlertContext = createContext();
 
 export default function Alert(props) {
-  const [alerts, setAlerts] = useState([]);
-  const [counter, setCounter] = useState(1000);
+  const [alert, setAlert] = useState({});
+  const [stackAlerts, setStackAlerts] = useState([]);
+  const [blWait, setBlWait] = useState(false);
+  const [timeOutReference, setTimeOutReference] = useState("");
 
-  const removeLastAlert = () => {
-    if (alerts.length > 0) {
-      alerts.pop();
-      setAlerts([...alerts]);
-      setCounter(counter);
-    }
-  };
-
-  const clearAllAlerts = () => {
-    setAlerts([]);
-    setCounter(1000);
-  };
-
-  const setTime = (time, index) => {
-    if (time) {
-      setTimeout(() => {
-        const alert = document.getElementById(`alert${index}`);
-        if (alert) {
-          alert.remove();
-        }
-      }, time);
-    }
-  };
-
-  const addAlert = ({
-    title,
-    message,
-    linkMessage,
-    link,
-    time,
-    sucess,
-    danger,
-    key,
-  }) => {
-    const variantAlert = sucess
-      ? "alert-success"
-      : danger
-      ? "alert-danger"
-      : "alert-warning";
-    const varianText = sucess
-      ? "text-success"
-      : danger
-      ? "text-danger"
-      : "text-warning";
-    alerts.push({
-      index: counter,
-      child: (
-        <div
-          className={`alert ${variantAlert} my-alert position-fixed me-2 mt-2`}
-          role="alert"
-          key={key}
-          id={"alert" + key}
-          style={{ zIndex: counter }}
-        >
-          <button
-            className="position-absolute btn btn-link end-0 top-0 mt-2 me-2"
-            onClick={removeLastAlert}
-          >
-            <GrClose />
-          </button>
-          <h4 className="alert-heading">{title}</h4>
-          <p>
-            {message}{" "}
-            <a className={varianText} href={link}>
-              {linkMessage}
-            </a>
-          </p>
-        </div>
-      ),
+  const showAlert = useCallback(() => {
+    if (blWait) return;
+    if (stackAlerts.length === 0) return;
+    const firstOnStack = stackAlerts[0];
+    setAlert(firstOnStack);
+    setBlWait(true);
+    setTime();
+    setStackAlerts((stack) => {
+      stack.shift();
+      return stack;
     });
-    setAlerts([...alerts]);
-    setTime(time, key);
-    setCounter(counter + 1);
+  }, [stackAlerts, blWait]);
+
+  useEffect(() => {
+    showAlert();
+  }, [blWait, showAlert, stackAlerts]);
+
+  const onCloseAlert = (e) => {
+    setAlert({});
+    setBlWait(false);
+    clearTimeout(timeOutReference);
+  };
+
+  const setTime = () => {
+    const time = setTimeout(() => {
+      setAlert({});
+      setBlWait(false);
+    }, 5000);
+    setTimeOutReference(time);
+  };
+
+  const addAlert = (error, mess) => {
+    let varianText = "";
+    let variantAlert = "";
+    let message = "";
+    let status = "";
+    if (error.response?.status === 401) {
+      varianText = "text-warning";
+      variantAlert = "alert-warning";
+      message = error.response?.data.message;
+      status = error.response?.status;
+    } else if (error.response?.status === 403) {
+      varianText = "text-warning";
+      variantAlert = "alert-warning";
+      message = error.response?.data.message;
+      status = error.response?.status;
+    } else if (error.response?.status === 500) {
+      varianText = "text-danger";
+      variantAlert = "alert-danger";
+      message = error.response?.data.message;
+      status = error.response?.status;
+    } else if (error) {
+      varianText = "text-warning";
+      variantAlert = "alert-warning";
+      message = error.message;
+      status = "";
+    } else {
+      varianText = "text-success";
+      variantAlert = "alert-success";
+      message = mess;
+      status = "";
+    }
+    setStackAlerts((stack) => {
+      stack.push({ status, message, varianText, variantAlert });
+      return Object.assign([], stack);
+    });
   };
 
   return (
-    <AlertContext.Provider value={{ addAlert, clearAllAlerts }}>
-      {alerts.map((alert) => alert.child)}
+    <AlertContext.Provider value={{ addAlert }}>
+      {alert.status !== undefined? (
+        <div
+          className={`alert ${alert.variantAlert} my-alert position-fixed me-2 mt-2`}
+          role="alert"
+          style={{ zIndex: 1000 }}
+        >
+          <button
+            className="position-absolute btn btn-link end-0 top-0 mt-2 me-2"
+            onClick={onCloseAlert}
+          >
+            <GrClose />
+          </button>
+          <h4 className="alert-heading">{alert.status}</h4>
+          <p>{alert.message}</p>
+        </div>
+      ) : undefined}
       {props.children}
     </AlertContext.Provider>
   );

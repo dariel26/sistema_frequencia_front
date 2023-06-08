@@ -16,7 +16,6 @@ export default function FilterUser(props) {
       .infoUser(token)
       .then((res) => {
         const user = res.data;
-        console.log(res.data);
         setInfoUser(
           userModel({
             token,

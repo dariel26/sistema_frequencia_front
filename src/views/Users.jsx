@@ -3,6 +3,7 @@ import { useContext } from "react";
 import { useState } from "react";
 import CardRadios from "../components/cards/CardRadios";
 import TableAddSelectEdit from "../components/table/TableAddSelectEdit";
+import { AlertContext } from "../filters/alert/Alert";
 import { UserContext } from "../filters/User";
 import apiSFE from "../service/api";
 
@@ -12,6 +13,7 @@ export default function Users() {
   const [refresh, setRefresh] = useState(0);
 
   const user = useContext(UserContext);
+  const alert = useContext(AlertContext);
 
   const radios = ["Coordenadores", "Preceptores", "Alunos"];
   const objTitlesValuesC = [
@@ -45,9 +47,9 @@ export default function Users() {
         setUsers(res.data);
       })
       .catch((err) => {
-        console.log(err);
+        alert.addAlert(err);
       });
-  }, [user])
+  }, [user, alert]);
 
   const listaPreceptores = useCallback(() => {
     apiSFE
@@ -56,9 +58,9 @@ export default function Users() {
         setUsers(res.data);
       })
       .catch((err) => {
-        console.log(err);
+        alert.addAlert(err);
       });
-  }, [user])
+  }, [user, alert]);
 
   const listaAlunos = useCallback(() => {
     apiSFE
@@ -67,9 +69,9 @@ export default function Users() {
         setUsers(res.data);
       })
       .catch((err) => {
-        console.log(err);
+        alert.addAlert(err);
       });
-  }, [user])
+  }, [user, alert]);
 
   useEffect(() => {
     if (indexRadio === 0) {
@@ -79,11 +81,10 @@ export default function Users() {
     } else {
       listaAlunos();
     }
-
   }, [refresh, listaCoordenadores, listaAlunos, listaPreceptores, indexRadio]);
 
   function onDelete(usersToDelete) {
-    const emailsCP = usersToDelete.map(u => u.email);
+    const emailsCP = usersToDelete.map((u) => u.email);
     if (indexRadio === 0) {
       apiSFE
         .deletaCoordenador(user.infoUser.token, emailsCP)
@@ -91,7 +92,7 @@ export default function Users() {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          console.log(err);
+          alert.addAlert(err);
         });
     } else if (indexRadio === 1) {
       apiSFE
@@ -100,27 +101,29 @@ export default function Users() {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          console.log(err);
+          alert.addAlert(err);
         });
     } else {
       apiSFE
-        .deletaAluno(user.infoUser.token, usersToDelete.map(u => u.matricula))
+        .deletaAluno(
+          user.infoUser.token,
+          usersToDelete.map((u) => u.matricula)
+        )
         .then((_) => {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          console.log(err);
+          alert.addAlert(err);
         });
     }
-
   }
 
   function onAdd(usuarios) {
     const usersCP = usuarios.map((u) => ({
-      nome: u[0],
-      email: u[1],
+      nome: u.nome,
+      email: u.email,
       papel: "",
-      senha: u[1],
+      senha: u.email,
       estado: true,
     }));
     if (indexRadio === 0) {
@@ -130,7 +133,7 @@ export default function Users() {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          console.log(err);
+          alert.addAlert(err);
         });
     } else if (indexRadio === 1) {
       apiSFE
@@ -139,36 +142,43 @@ export default function Users() {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          console.log(err);
+          alert.addAlert(err);
         });
     } else {
       apiSFE
-        .adicionaAluno(user.infoUser.token, usuarios.map((u) => ({
-          nome: u[0],
-          matricula: u[1],
-          papel: "",
-          senha: u[1],
-          estado: true,
-        })))
+        .adicionaAluno(
+          user.infoUser.token,
+          usuarios.map((u) => ({
+            nome: u.nome,
+            matricula: u.matricula,
+            papel: "",
+            senha: u.matricula,
+            estado: true,
+          }))
+        )
         .then((_) => {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          console.log(err);
+          alert.addAlert(err);
         });
     }
-
   }
 
   function onEdit(values, newRole) {
     if (indexRadio === 0) {
       apiSFE
-        .atualizarCoordenador(user.infoUser.token, values[0], newRole, values[1])
+        .atualizarCoordenador(
+          user.infoUser.token,
+          values[0],
+          newRole,
+          values[1]
+        )
         .then(() => {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          console.log(err);
+          alert.addAlert(err);
         });
     } else if (indexRadio === 1) {
       apiSFE
@@ -177,7 +187,7 @@ export default function Users() {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          console.log(err);
+          alert.addAlert(err);
         });
     } else {
       apiSFE
@@ -186,10 +196,9 @@ export default function Users() {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          console.log(err);
+          alert.addAlert(err);
         });
     }
-
   }
 
   return (
@@ -199,13 +208,19 @@ export default function Users() {
           indexRadio === 0
             ? objTitlesValuesC
             : indexRadio === 1
-              ? objTitlesValuesP
-              : objTitlesValuesA
+            ? objTitlesValuesP
+            : objTitlesValuesA
         }
         datas={users}
         onDelete={onDelete}
         addKeys={indexRadio === 0 || indexRadio === 1 ? addKeysCP : addKeysA}
-        editKeys={indexRadio === 0 ? editKeysC : indexRadio === 1 ? editKeysP : editKeysA}
+        editKeys={
+          indexRadio === 0
+            ? editKeysC
+            : indexRadio === 1
+            ? editKeysP
+            : editKeysA
+        }
         uniqueKey={
           indexRadio === 0 || indexRadio === 1 ? uniqueKeyCP : uniqueKeyA
         }

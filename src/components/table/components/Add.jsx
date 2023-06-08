@@ -1,14 +1,24 @@
+import { useContext } from "react";
 import { useState } from "react";
+import { read, utils } from "xlsx";
+import { AlertContext } from "../../../filters/alert/Alert";
 
-export default function Add({ keys, uniqueKey, objsTitleValue, users, onAdd, setStartAdd }) {
+export default function Add({
+  keys,
+  uniqueKey,
+  objsTitleValue,
+  users,
+  onAdd,
+  setStartAdd,
+}) {
   const [fileName, setFileName] = useState(undefined);
   const [arrInput, setArrInput] = useState(Array(keys.length).fill(""));
   const [arrUsers, setArrUsers] = useState([]);
 
+  const alert = useContext(AlertContext);
 
   function userExist(user) {
-    const indexKey = keys.findIndex((k) => k === uniqueKey);
-    if (users.find((u) => u[uniqueKey] === user[indexKey]) === undefined) {
+    if (users.find((u) => u[uniqueKey] === user[uniqueKey]) === undefined) {
       return false;
     } else {
       return true;
@@ -24,87 +34,54 @@ export default function Add({ keys, uniqueKey, objsTitleValue, users, onAdd, set
   }
 
   function emailWasAdd(user) {
-    const indexKey = keys.findIndex((k) => k === uniqueKey);
-    if (arrUsers.find((u) => u[indexKey] === user[indexKey]) === undefined) {
+    if (arrUsers.find((u) => u[uniqueKey] === user[uniqueKey]) === undefined) {
       return false;
     } else {
-      console.log("email repetido")
+      alert.addAlert(new Error("Email ou Matricula repetida"));
     }
   }
 
-  function extractKeys(arrResult) {
-    let keysResult = arrResult[0]?.split(" ");
-    keysResult = keysResult.map((key, index) => {
-      if (keys.find((k) => k === key.trim())) {
-        return { key: key.trim(), index };
-      } else {
-        return undefined;
-      }
-    });
-    keysResult = keysResult.filter((k) => k !== undefined);
-    if (keysResult.length !== keys.length) {
-      return false;
-    } else {
-      return keysResult;
-    }
-  }
-
-  function extractDatas(arrResult) {
-    const keys = extractKeys(arrResult);
-    if (keys === false) {
-      return false;
-    } else {
-      let datas = [];
-      for (let i = 0; i < arrResult.length; i++) {
-        const sentence = arrResult[i];
-        if (i !== 0) {
-          const arrValues = sentence.split('" "');
-          const keyMaxIndex = keys[keys.length - 1].index;
-          if (arrValues.length - keyMaxIndex >= 1) {
-            const rows = keys.map((k) => {
-              return arrValues[k.index].replace('"', "").trim();
-            });
-            if (emailWasAdd(rows) === false && userCorrect(rows)) {
-              datas.push(rows);
-            }
-          }
+  function readFile(e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = read(data, { type: "array" });
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]];
+    const jsonData = utils.sheet_to_json(worksheet);
+    const users = [];
+    for (const user of jsonData) {
+      const u = new Map();
+      for (let i = 0; i < keys.length; i++) {
+        u[keys[i]] = user[keys[i]];
+        if (
+          user[keys[i]] === undefined ||
+          user[keys[i]] === null ||
+          user[keys[i]] === ""
+        ) {
+          alert.addAlert(new Error("Arquivo mal formatado"));
+          return;
         }
       }
-      return datas;
+      users.push(u);
     }
-  }
-
-  function readFile(event) {
-    const result = event.target.result;
-    const arrResult = result.split("\n");
-    const datas = extractDatas(arrResult);
-    if (datas === false) {
-      console.log("documento inválido");
-    } else {
-      setArrUsers((arr) => {
-        const newArr = Object.assign([], arr);
-        datas.forEach((d) => {
-          newArr.push(d);
-        });
-        return newArr;
-      });
-    }
+    setArrUsers(users);
   }
 
   function onSelectFile(e) {
     const reader = new FileReader();
     reader.addEventListener("load", readFile);
-    reader.readAsText(e.target?.files[0]);
+    reader.readAsArrayBuffer(e.target?.files[0]);
     setFileName(e.target?.files[0]?.name);
   }
 
   function onSubmit(e) {
     e.preventDefault();
-    if (emailWasAdd(arrInput) === false && userCorrect(arrInput)) {
+    const user = new Map();
+    for (let i = 0; i < keys.length; i++) {
+      user[keys[i]] = arrInput[i];
+    }
+    if (emailWasAdd(user) === false && userCorrect(arrInput)) {
       setArrUsers((arr) => {
-        const newArr = Object.assign([], arr);
-        newArr.push(arrInput);
-        return newArr;
+        arr.push(user);
+        return Object.assign([], arr);
       });
       setArrInput(Array(keys.length).fill(""));
     }
@@ -123,7 +100,7 @@ export default function Add({ keys, uniqueKey, objsTitleValue, users, onAdd, set
       <div className="input-group mb-3 col-sm-2">
         <input
           type="file"
-          accept=".txt, .csv"
+          accept=".xlsx"
           className="form-control"
           id="inputGroupFile02"
           style={{ display: "none" }}
@@ -186,7 +163,7 @@ export default function Add({ keys, uniqueKey, objsTitleValue, users, onAdd, set
               <tr className="text-center align-middle" key={index}>
                 <td>{index + 1}</td>
                 {keys?.map((k, i) => (
-                  <td key={k}>{u[i]}</td>
+                  <td key={k}>{u[k]}</td>
                 ))}
                 <td>{userExist(u) ? "Sim" : "Não"}</td>
               </tr>
