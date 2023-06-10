@@ -18,7 +18,7 @@ export default function Add({
   const alert = useContext(AlertContext);
 
   function userExist(user) {
-    if (users.find((u) => u[uniqueKey] === user[uniqueKey]) === undefined) {
+    if (users.find((u) => String(u[uniqueKey]) === String(user[uniqueKey])) === undefined) {
       return false;
     } else {
       return true;
@@ -79,10 +79,8 @@ export default function Add({
       user[keys[i]] = arrInput[i];
     }
     if (emailWasAdd(user) === false && userCorrect(arrInput)) {
-      setArrUsers((arr) => {
-        arr.push(user);
-        return Object.assign([], arr);
-      });
+      arrUsers.push(user);
+      setArrUsers(Object.assign([], arrUsers));
       setArrInput(Array(keys.length).fill(""));
     }
   }

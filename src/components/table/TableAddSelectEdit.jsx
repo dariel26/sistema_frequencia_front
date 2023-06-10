@@ -66,7 +66,7 @@ export default function TableAddSelectEdit({
   }
 
   return (
-    <div>
+    <div className="w-100">
       <div className="d-flex justify-content-start">
         <label
           role="button"

@@ -49,17 +49,17 @@ export default function Alert(props) {
     let variantAlert = "";
     let message = "";
     let status = "";
-    if (error.response?.status === 401) {
+    if (error?.response?.status === 401) {
       varianText = "text-warning";
       variantAlert = "alert-warning";
       message = error.response?.data.message;
       status = error.response?.status;
-    } else if (error.response?.status === 403) {
+    } else if (error?.response?.status === 403) {
       varianText = "text-warning";
       variantAlert = "alert-warning";
       message = error.response?.data.message;
       status = error.response?.status;
-    } else if (error.response?.status === 500) {
+    } else if (error?.response?.status === 500) {
       varianText = "text-danger";
       variantAlert = "alert-danger";
       message = error.response?.data.message;

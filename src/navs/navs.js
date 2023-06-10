@@ -1,5 +1,6 @@
 import { FaUsers } from "react-icons/fa";
 import { MdManageAccounts } from "react-icons/md";
+import { SlOrganization } from "react-icons/sl"
 import links from "../links";
 
 const common = [
@@ -16,6 +17,7 @@ const navs = {
   coordenador: [].concat(common),
   admin: [
     { path: links.usuarios, name: "Usuarios", icon: <FaUsers size={18} /> },
+    { path: links.planejamento, name: "Planejamento", icon: <SlOrganization size={18} /> },
   ].concat(common),
 };
 
