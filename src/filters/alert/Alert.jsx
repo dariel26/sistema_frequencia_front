@@ -24,8 +24,6 @@ export default function Alert(props) {
     });
   }, [stackAlerts, blWait]);
 
-  useEffect(() => {}, []);
-
   useEffect(() => {
     showAlert();
   }, [blWait, showAlert, stackAlerts]);
@@ -44,7 +42,7 @@ export default function Alert(props) {
     setTimeOutReference(time);
   };
 
-  const addAlert = useCallback((error, mess) => {
+  const addAlert = (error, mess) => {
     let varianText = "";
     let variantAlert = "";
     let message = "";
@@ -79,10 +77,10 @@ export default function Alert(props) {
       stack.push({ status, message, varianText, variantAlert });
       return Object.assign([], stack);
     });
-  }, []);
+  };
 
   return (
-    <AlertContext.Provider value={{ addAlert }}>
+    <>
       {alert.status !== undefined ? (
         <div
           className={`alert ${alert.variantAlert} my-alert position-fixed me-2 mt-2`}
@@ -99,7 +97,9 @@ export default function Alert(props) {
           <p>{alert.message}</p>
         </div>
       ) : undefined}
-      {props.children}
-    </AlertContext.Provider>
+      <AlertContext.Provider value={{ addAlert }}>
+        {props.children}
+      </AlertContext.Provider>
+    </>
   );
 }

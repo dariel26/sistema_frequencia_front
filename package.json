@@ -8,6 +8,8 @@
     "@testing-library/user-event": "^13.5.0",
     "axios": "^1.4.0",
     "bootstrap": "^5.3.0-alpha3",
+    "leaflet": "^1.9.4",
+    "leaflet-geosearch": "^3.8.0",
     "react": "^18.2.0",
     "react-bootstrap-typeahead": "^6.2.2",
     "react-datepicker": "^4.12.0",

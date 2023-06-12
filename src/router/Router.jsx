@@ -5,6 +5,7 @@ import Login from "../views/Login";
 import Users from "../views/Users";
 import MyAccount from "../views/MyAccount";
 import Organization from "../views/Organization/Organization";
+import Places from "../views/Places";
 
 function Router() {
   return (
@@ -16,7 +17,8 @@ function Router() {
           <Route path={links.usuarios} element={<Users />} />
           <Route path={links.planejamento} element={<Organization />} />
           <Route path={links.conta} element={<MyAccount />} />
-          <Route index element={<Navigate to={links.usuarios} />} />
+          <Route path={links.locais} element={<Places />} />
+          <Route index element={<Navigate to={links.conta} />} />
         </Route>
       </Routes>
     </BrowserRouter>

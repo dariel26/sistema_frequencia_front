@@ -228,6 +228,7 @@ export default function Users() {
         dropdownOptions={["ADMIN", "COORDENADOR(A)"]}
         onAdd={onAdd}
         onEdit={onEdit}
+        edit
       />
     </CardRadios>
   );

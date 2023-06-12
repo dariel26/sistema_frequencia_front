@@ -36,6 +36,10 @@ const apiSFE = {
     trocarCoordenadorEstagio: async (token, id_estagio, id_coordenador) => await api.post("/api/v1/coord-estagio", { id_coordenador, id_estagio }, { headers: { token } }),
     associarGrupoEstagio: async (token, grupoEstagio) => await api.post("/api/v1/estagio-grupo", grupoEstagio, { headers: { token } }),
     desAssociarGrupoEstagio: async (token, id_grupo, id_estagio) => await api.delete("/api/v1/estagio-grupo/grupo/" + id_grupo + "/estagio/" + id_estagio, { headers: { token } }),
+
+    listaLugares: async (token) => await api.get("/api/v1/local", { headers: { token } }),
+    adicionaLugar: async (token, place) => await api.post("/api/v1/local", place, { headers: { token } }),
+    deletaLugar: async (token, id) => await api.delete("/api/v1/local/" + id, { headers: { token } }),
 }
 
 export default apiSFE;

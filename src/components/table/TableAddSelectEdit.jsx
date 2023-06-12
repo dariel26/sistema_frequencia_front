@@ -14,6 +14,7 @@ export default function TableAddSelectEdit({
   uniqueKey,
   dropdownKey,
   dropdownOptions,
+  edit
 }) {
   const [startDelete, setStartDelete] = useState(false);
   const [startAdd, setStartAdd] = useState(false);
@@ -105,6 +106,7 @@ export default function TableAddSelectEdit({
           setIndexEdit={setIndexEdit}
           datasToDelete={datasToDelete}
           onSelect={onSelect}
+          edit={edit}
         />
       ) : startAdd ? (
         <Add

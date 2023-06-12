@@ -7,13 +7,14 @@ export default function Table({
   datasToDelete,
   onSelect,
   setIndexEdit,
+  edit,
 }) {
   const display = startDelete ? "" : "none";
   return (
     <table className="table table-striped table-hover">
       <thead>
         <tr className="text-center">
-          <th scope="col">Editar</th>
+          {edit ? <th scope="col">Editar</th> : undefined}
           {objsTitleValue?.map((obj) => (
             <th scope="col" key={obj.title}>
               {obj.title}
@@ -27,11 +28,13 @@ export default function Table({
       <tbody>
         {datas?.map((d, index) => (
           <tr className="text-center align-middle" key={index}>
-            <td>
-              <button className="btn" onClick={(e) => setIndexEdit(index)}>
-                <AiFillEdit />
-              </button>
-            </td>
+            {edit ? (
+              <td>
+                <button className="btn" onClick={(e) => setIndexEdit(index)}>
+                  <AiFillEdit />
+                </button>
+              </td>
+            ) : undefined}
             {objsTitleValue?.map((obj) => (
               <td key={obj.value}>{d[obj.value]}</td>
             ))}
