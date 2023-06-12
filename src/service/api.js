@@ -37,6 +37,8 @@ const apiSFE = {
     associarGrupoEstagio: async (token, grupoEstagio) => await api.post("/api/v1/estagio-grupo", grupoEstagio, { headers: { token } }),
     desAssociarGrupoEstagio: async (token, id_grupo, id_estagio) => await api.delete("/api/v1/estagio-grupo/grupo/" + id_grupo + "/estagio/" + id_estagio, { headers: { token } }),
 
+    adicionaAtividade: async (token, atividade) => await api.post("/api/v1/atividade", atividade, {headers: {token}}),
+
     listaLugares: async (token) => await api.get("/api/v1/local", { headers: { token } }),
     adicionaLugar: async (token, place) => await api.post("/api/v1/local", place, { headers: { token } }),
     deletaLugar: async (token, id) => await api.delete("/api/v1/local/" + id, { headers: { token } }),
