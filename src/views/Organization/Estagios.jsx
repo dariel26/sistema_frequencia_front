@@ -1,7 +1,4 @@
-import { useState } from "react";
-import { useContext } from "react";
-import { useCallback } from "react";
-import { useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { AlertContext } from "../../filters/alert/Alert";
 import apiSFE from "../../service/api";
 import { Typeahead } from "react-bootstrap-typeahead";
@@ -24,15 +21,8 @@ export default function Estagios() {
     dates: [null, null],
   });
 
-  const alert = useContext(AlertContext);
+  const alert = useRef(useContext(AlertContext));
   const user = useContext(UserContext);
-
-  const addAlert = useCallback(
-    (err, message) => {
-      alert.addAlert(err, message);
-    },
-    [alert]
-  );
 
   useEffect(() => {
     const token = user.infoUser.token;
@@ -49,9 +39,19 @@ export default function Estagios() {
         setGrupos(grupos);
       })
       .catch((err) => {
-        addAlert(err);
+        alert.current.addAlert(err);
       });
-  }, [addAlert, user, reset]);
+  }, [user, reset]);
+
+  const gruposDisponiveis = (estagio) => {
+    let gruposDisponiveis = grupos;
+    estagio.grupos.forEach((g) => {
+      gruposDisponiveis = gruposDisponiveis.filter(
+        (gd) => gd.nome_grupo !== g.nome
+      );
+    });
+    return gruposDisponiveis;
+  };
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -63,7 +63,7 @@ export default function Estagios() {
       .then(() => {
         setReset((reset) => reset + 1);
       })
-      .catch((err) => addAlert(err));
+      .catch((err) => alert.current.addAlert(err));
   };
 
   const onSelectCoord = (coordenadores) => {
@@ -77,7 +77,7 @@ export default function Estagios() {
       .then(() => {
         setReset((reset) => reset + 1);
       })
-      .catch((err) => addAlert(err));
+      .catch((err) => alert.current.addAlert(err));
   };
 
   const onSelectGrupo = (grupos) => {
@@ -101,49 +101,51 @@ export default function Estagios() {
         setReset((reset) => reset + 1);
       })
       .catch((err) => {
-        addAlert(err);
+        alert.current.addAlert(err);
+      });
+  };
+
+  const onDeleteGrupo = (grupo, estagio) => {
+    apiSFE
+      .desAssociarGrupoEstagio(
+        user.infoUser.token,
+        grupo.id_grupo,
+        estagio.id_estagio
+      )
+      .then(() => {
+        setReset((reset) => reset + 1);
+      })
+      .catch((err) => {
+        alert.current.addAlert(err);
       });
   };
 
   const onAddRemoveGroup = (estagio) => {
     if (selectGrupo?.nome_grupo === undefined) return;
+    if (selectedDateRange[0] === null || selectedDateRange[1] === null) return;
     const estagioGrupo = {
       id_estagio: estagio.id_estagio,
       id_grupo: selectGrupo.id_grupo,
       data_inicio: selectedDateRange.dates[0],
       data_final: selectedDateRange.dates[1],
     };
-    if (estagio.grupos.find((g) => g.nome === selectGrupo.nome_grupo)) {
-      apiSFE
-        .desAssociarGrupoEstagio(
-          user.infoUser.token,
-          selectGrupo.id_grupo,
-          estagio.id_estagio
-        )
-        .then(() => {
-          setReset((reset) => reset + 1);
-        })
-        .catch((err) => {
-          addAlert(err);
-        });
-    } else {
-      if (selectedDateRange[0] === null || selectedDateRange[1] === null)
-        return;
-      apiSFE
-        .associarGrupoEstagio(user.infoUser.token, estagioGrupo)
-        .then(() => {
-          setReset((reset) => reset + 1);
-        })
-        .catch((err) => {
-          addAlert(err);
-        });
-    }
+    apiSFE
+      .associarGrupoEstagio(user.infoUser.token, estagioGrupo)
+      .then(() => {
+        setReset((reset) => reset + 1);
+      })
+      .catch((err) => {
+        alert.current.addAlert(err);
+      });
   };
 
   return (
     <div className="d-flex w-100 h-100 flex-column p-2">
       {estagios.map((estagio, i) => (
-        <div className="mb-5 border-bottom border-4 border-primary" key={estagio.id_estagio}>
+        <div
+          className="mb-5 border-bottom border-4 border-primary"
+          key={estagio.id_estagio}
+        >
           <div className="d-flex align-items-center">
             <span className="fs-4">{estagio.nome_estagio}</span>
             <button
@@ -156,7 +158,11 @@ export default function Estagios() {
           <div className="row w-100 align-items-center pb-2 border-bottom m-0">
             <div className="col-sm-8">
               <span>Coordenador: </span>
-              <span className={`fw-bold ${estagio.nome_coordenador === null?"text-danger":""}`}>
+              <span
+                className={`fw-bold ${
+                  estagio.nome_coordenador === null ? "text-danger" : ""
+                }`}
+              >
                 {estagio.nome_coordenador === null
                   ? "Nenhum"
                   : estagio.nome_coordenador}
@@ -180,7 +186,7 @@ export default function Estagios() {
                     onChange(estagio);
                   }}
                 >
-                  Trocar
+                  {estagio.nome_coordenador === null ? "Adicionar" : "Trocar"}
                 </button>
               </div>
             </form>
@@ -194,7 +200,7 @@ export default function Estagios() {
                 labelKey={"nome_grupo"}
                 emptyLabel="Nenhum grupo encontrado"
                 onChange={onSelectGrupo}
-                options={grupos}
+                options={gruposDisponiveis(estagio)}
               />
             </div>
             <div className="col-sm-4 mb-1">
@@ -204,8 +210,16 @@ export default function Estagios() {
                 locale={ptBR}
                 dateFormat="dd/MM/yyyy"
                 onChange={(dates) => handleDateChange(i, dates)}
-                startDate={selectedDateRange.index === i? selectedDateRange.dates[0]:null}
-                endDate={selectedDateRange.index === i? selectedDateRange.dates[1]:null}
+                startDate={
+                  selectedDateRange.index === i
+                    ? selectedDateRange.dates[0]
+                    : null
+                }
+                endDate={
+                  selectedDateRange.index === i
+                    ? selectedDateRange.dates[1]
+                    : null
+                }
                 selectsRange={selectedDateRange}
                 placeholderText="Selecione um intervalo de datas"
               />
@@ -218,7 +232,7 @@ export default function Estagios() {
                   onAddRemoveGroup(estagio);
                 }}
               >
-                Adiciona/Remove
+                Adicionar
               </button>
             </div>
           </form>
@@ -229,6 +243,7 @@ export default function Estagios() {
                 <th scope="col">Grupo</th>
                 <th scope="col">Data Inicial</th>
                 <th scope="col">Data Final</th>
+                <th scope="col">Deletar</th>
               </tr>
             </thead>
             <tbody>
@@ -242,6 +257,14 @@ export default function Estagios() {
                   <td>{`${g.data_final.substring(8)}/
                   ${g.data_final.substring(5, 7)}/
                   ${g.data_final.substring(0, 4)}`}</td>
+                  <td>
+                    <button
+                      className="btn text-danger"
+                      onClick={() => onDeleteGrupo(g, estagio)}
+                    >
+                      <AiOutlineDelete size={22} />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

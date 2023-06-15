@@ -1,4 +1,4 @@
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useContext } from "react";
 import { useState } from "react";
 import CardRadios from "../components/cards/CardRadios";
@@ -13,7 +13,7 @@ export default function Users() {
   const [refresh, setRefresh] = useState(0);
 
   const user = useContext(UserContext);
-  const alert = useContext(AlertContext);
+  const alert = useRef(useContext(AlertContext));
 
   const radios = ["Coordenadores", "Preceptores", "Alunos"];
   const objTitlesValuesC = [
@@ -47,9 +47,9 @@ export default function Users() {
         setUsers(res.data);
       })
       .catch((err) => {
-        alert.addAlert(err);
+        alert.current.addAlert(err);
       });
-  }, [user, alert]);
+  }, [user]);
 
   const listaPreceptores = useCallback(() => {
     apiSFE
@@ -58,9 +58,9 @@ export default function Users() {
         setUsers(res.data);
       })
       .catch((err) => {
-        alert.addAlert(err);
+        alert.current.addAlert(err);
       });
-  }, [user, alert]);
+  }, [user]);
 
   const listaAlunos = useCallback(() => {
     apiSFE
@@ -69,9 +69,9 @@ export default function Users() {
         setUsers(res.data);
       })
       .catch((err) => {
-        alert.addAlert(err);
+        alert.current.addAlert(err);
       });
-  }, [user, alert]);
+  }, [user]);
 
   useEffect(() => {
     if (indexRadio === 0) {
@@ -92,7 +92,7 @@ export default function Users() {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          alert.addAlert(err);
+          alert.current.addAlert(err);
         });
     } else if (indexRadio === 1) {
       apiSFE
@@ -101,7 +101,7 @@ export default function Users() {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          alert.addAlert(err);
+          alert.current.addAlert(err);
         });
     } else {
       apiSFE
@@ -113,7 +113,7 @@ export default function Users() {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          alert.addAlert(err);
+          alert.current.addAlert(err);
         });
     }
   }
@@ -133,7 +133,7 @@ export default function Users() {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          alert.addAlert(err);
+          alert.current.addAlert(err);
         });
     } else if (indexRadio === 1) {
       apiSFE
@@ -142,7 +142,7 @@ export default function Users() {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          alert.addAlert(err);
+          alert.current.addAlert(err);
         });
     } else {
       apiSFE
@@ -160,7 +160,7 @@ export default function Users() {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          alert.addAlert(err);
+          alert.current.addAlert(err);
         });
     }
   }
@@ -178,7 +178,7 @@ export default function Users() {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          alert.addAlert(err);
+          alert.current.addAlert(err);
         });
     } else if (indexRadio === 1) {
       apiSFE
@@ -187,7 +187,7 @@ export default function Users() {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          alert.addAlert(err);
+          alert.current.addAlert(err);
         });
     } else {
       apiSFE
@@ -196,7 +196,7 @@ export default function Users() {
           setRefresh((r) => r + 1);
         })
         .catch((err) => {
-          alert.addAlert(err);
+          alert.current.addAlert(err);
         });
     }
   }

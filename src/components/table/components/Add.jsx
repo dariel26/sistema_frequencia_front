@@ -1,4 +1,4 @@
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { useState } from "react";
 import { read, utils } from "xlsx";
 import { AlertContext } from "../../../filters/alert/Alert";
@@ -15,7 +15,7 @@ export default function Add({
   const [arrInput, setArrInput] = useState(Array(keys.length).fill(""));
   const [arrUsers, setArrUsers] = useState([]);
 
-  const alert = useContext(AlertContext);
+  const alert = useRef(useContext(AlertContext));
 
   function userExist(user) {
     if (users.find((u) => String(u[uniqueKey]) === String(user[uniqueKey])) === undefined) {
@@ -37,7 +37,7 @@ export default function Add({
     if (arrUsers.find((u) => u[uniqueKey] === user[uniqueKey]) === undefined) {
       return false;
     } else {
-      alert.addAlert(new Error("Email ou Matricula repetida"));
+      alert.current.addAlert(new Error("Email ou Matricula repetida"));
     }
   }
 
@@ -56,7 +56,7 @@ export default function Add({
           user[keys[i]] === null ||
           user[keys[i]] === ""
         ) {
-          alert.addAlert(new Error("Arquivo mal formatado"));
+          alert.current.addAlert(new Error("Arquivo mal formatado"));
           return;
         }
       }

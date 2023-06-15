@@ -1,0 +1,14 @@
+#edit-cronograma {
+  height: 0px;
+  width: 0px;
+  position: absolute;
+  right: 0px;
+  bottom: 0px;
+  z-index: 5;
+  transition: width 300ms, height 300ms;
+}
+
+#edit-button{
+    z-index: 5;
+    transition: transform 300ms;
+}

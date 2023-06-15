@@ -2,6 +2,7 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { UserContext } from "../../filters/User";
 import { AlertContext } from "../../filters/alert/Alert";
 import apiSFE from "../../service/api";
+import { AiOutlineDelete } from "react-icons/ai";
 
 export default function Activities() {
   const [estagios, setEstagios] = useState([]);
@@ -21,7 +22,7 @@ export default function Activities() {
       .catch((err) => {
         alert.current.addAlert(err);
       });
-  }, [alert, user, reset]);
+  }, [user, reset]);
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -36,6 +37,13 @@ export default function Activities() {
       .catch((err) => alert.current.addAlert(err));
   };
 
+  const onDeleteAtividade = (atividade) => {
+    apiSFE
+      .deletarAtividade(user.infoUser.token, atividade.id_atividade)
+      .then(() => setReset((reset) => reset + 1))
+      .catch((err) => alert.current.addAlert());
+  };
+
   return (
     <div className="d-flex w-100 h-100 flex-column p-2">
       {estagios.map((estagio) => (
@@ -43,38 +51,63 @@ export default function Activities() {
           className="mb-5 border-bottom border-4 border-primary"
           key={estagio.id_estagio}
         >
-          <div className="d-flex align-items-center">
+          <div className="d-flex">
             <span className="fs-4 border-bottom mb-2">
               {estagio.nome_estagio}
             </span>
           </div>
-          {estagio?.atividades?.map((atividade) => (
-            <div key={atividade.id_atividade}>{atividade.nome}</div>
-          ))}
-          <div
-            className="input-group m-2"
-            style={{ height: "40px", maxWidth: "300px" }}
-          >
-            <input
-              type="text"
-              className="form-control"
-              placeholder="Nome da atividade"
-              aria-describedby="button-addon2"
-              value={name.id_estagio === estagio.id_estagio ? name.name : ""}
-              onChange={(e) =>
-                setName({
-                  id_estagio: estagio.id_estagio,
-                  name: e.target.value,
-                })
-              }
-            />
-            <button
-              className="btn btn-primary"
-              type="button"
-              onClick={onSubmit}
+          <div className="row w-100 align-items-center pb-2 border-bottom m-0">
+            <div
+              className="input-group m-2"
+              style={{ height: "40px", maxWidth: "300px" }}
             >
-              Criar
-            </button>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Nome da atividade"
+                aria-describedby="button-addon2"
+                value={name.id_estagio === estagio.id_estagio ? name.name : ""}
+                onChange={(e) =>
+                  setName({
+                    id_estagio: estagio.id_estagio,
+                    name: e.target.value,
+                  })
+                }
+              />
+              <button
+                className="btn btn-primary"
+                type="button"
+                onClick={onSubmit}
+              >
+                Criar
+              </button>
+            </div>
+            <table className="table table-striped table-hover">
+              <thead>
+                <tr className="text-center">
+                  <th scope="col">Nome</th>
+                  <th scope="col">Deletar</th>
+                </tr>
+              </thead>
+              <tbody>
+                {estagio?.atividades?.map((atividade) => (
+                  <tr
+                    className="text-center align-middle"
+                    key={atividade.id_atividade}
+                  >
+                    <td>{atividade.nome}</td>
+                    <td>
+                      <button
+                        className="btn text-danger"
+                        onClick={() => onDeleteAtividade(atividade, estagio)}
+                      >
+                        <AiOutlineDelete size={22} />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       ))}

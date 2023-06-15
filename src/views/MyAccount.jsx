@@ -1,6 +1,6 @@
 import { useEffect } from "react";
-import { useCallback } from "react";
 import { useState } from "react";
+import { useRef } from "react";
 import { useContext } from "react";
 import CardDefault from "../components/cards/CardDefault";
 import { AlertContext } from "../filters/alert/Alert";
@@ -13,18 +13,11 @@ export default function MyAccount() {
   const [confirmPass, setConfirmPass] = useState("");
 
   const user = useContext(UserContext);
-  const alert = useContext(AlertContext);
+  const alert = useRef(useContext(AlertContext));
 
   const mapInfoUser = user.infoUser.info;
   delete mapInfoUser.regrasHabilidades;
   const arrInfoUser = Object.entries(mapInfoUser);
-
-  const addAlert = useCallback(
-    (err, message) => {
-      alert.addAlert(err, message);
-    },
-    [alert]
-  );
 
   useEffect(() => {
     if (
@@ -45,28 +38,30 @@ export default function MyAccount() {
         setDefaultUser(res.data);
       })
       .catch((err) => {
-        addAlert(err);
+        alert.current.addAlert(err);
       });
-  }, [user, addAlert]);
+  }, [user]);
 
   const onSubmit = (e) => {
     e.preventDefault();
     const token = localStorage.getItem("token");
-    if(pass !== confirmPass){
-      addAlert(new Error("Senhas diferentes"))
-    } else if(pass.length < 5){
-      addAlert(new Error("Senha deve conter no mínimo 5 carateres"))
-    }else {
+    if (pass !== confirmPass) {
+      alert.current.addAlert(new Error("Senhas diferentes"));
+    } else if (pass.length < 5) {
+      alert.current.addAlert(new Error("Senha deve conter no mínimo 5 carateres"));
+    } else {
       console.log(pass);
-      apiSFE.mudarSenha(token, pass).then(() => {
-        addAlert(undefined, "Senha modificada");
-        setDefaultUser(false);
-      })
-      .catch((err) => {
-        addAlert(err);
-      })
-    } 
-  }
+      apiSFE
+        .mudarSenha(token, pass)
+        .then(() => {
+          alert.current.addAlert(undefined, "Senha modificada");
+          setDefaultUser(false);
+        })
+        .catch((err) => {
+          alert.current.addAlert(err);
+        });
+    }
+  };
 
   return (
     <CardDefault title="Minha Conta">
@@ -96,7 +91,7 @@ export default function MyAccount() {
         ) : undefined}
         <hr />
         {defaultUser ? (
-          <form className="d-flex flex-column" style={{maxWidth: "300px"}}>
+          <form className="d-flex flex-column" style={{ maxWidth: "300px" }}>
             <div className="mb-3">
               <label htmlFor="password1" className="form-label">
                 Senha
@@ -128,7 +123,11 @@ export default function MyAccount() {
               />
             </div>
 
-            <button type="submit" className="btn btn-primary" onClick={onSubmit}>
+            <button
+              type="submit"
+              className="btn btn-primary"
+              onClick={onSubmit}
+            >
               Mudar
             </button>
           </form>

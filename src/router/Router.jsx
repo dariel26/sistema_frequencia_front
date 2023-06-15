@@ -6,6 +6,7 @@ import Users from "../views/Users";
 import MyAccount from "../views/MyAccount";
 import Organization from "../views/Organization/Organization";
 import Places from "../views/Places";
+import Cronograma from "../views/Cronograma/Cronograma";
 
 function Router() {
   return (
@@ -18,6 +19,7 @@ function Router() {
           <Route path={links.planejamento} element={<Organization />} />
           <Route path={links.conta} element={<MyAccount />} />
           <Route path={links.locais} element={<Places />} />
+          <Route path={links.cronograma} element={<Cronograma />} />
           <Route index element={<Navigate to={links.conta} />} />
         </Route>
       </Routes>

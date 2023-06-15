@@ -1,7 +1,4 @@
-import { useState } from "react";
-import { useContext } from "react";
-import { useCallback } from "react";
-import { useEffect } from "react";
+import { useState, useContext, useEffect, useRef } from "react";
 import { AlertContext } from "../../filters/alert/Alert";
 import { Typeahead } from "react-bootstrap-typeahead";
 import apiSFE from "../../service/api";
@@ -15,15 +12,10 @@ export default function Grupos() {
   const [reset, setReset] = useState(0);
   const [name, setName] = useState("");
 
-  const alert = useContext(AlertContext);
+  const alert = useRef(useContext(AlertContext));
   const user = useContext(UserContext);
 
-  const addAlert = useCallback(
-    (err, message) => {
-      alert.addAlert(err, message);
-    },
-    [alert]
-  );
+  const alunosDisponiveis = alunos.filter((a) => a.id_grupo === null);
 
   useEffect(() => {
     const token = user.infoUser.token;
@@ -37,9 +29,9 @@ export default function Grupos() {
         setAlunos(alunos);
       })
       .catch((err) => {
-        addAlert(err);
+        alert.current.addAlert(err);
       });
-  }, [addAlert, user, reset]);
+  }, [user, reset]);
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -51,26 +43,11 @@ export default function Grupos() {
       .then(() => {
         setReset((reset) => reset + 1);
       })
-      .catch((err) => addAlert(err));
+      .catch((err) => alert.current.addAlert(err));
   };
 
   const onSelect = (alunos) => {
     setSelectValue(alunos[0]);
-  };
-
-  const alunosDisponiveis = (grupo) => {
-    let alunosDisponiveis = alunos;
-    const outrosGrupos = grupos.filter(
-      (g) => g.nome_grupo !== grupo.nome_grupo
-    );
-    for (let g of outrosGrupos) {
-      for (let a of g.alunos) {
-        alunosDisponiveis = alunosDisponiveis.filter(
-          (aluno) => aluno.matricula !== a.matricula
-        );
-      }
-    }
-    return alunosDisponiveis;
   };
 
   const onRemoveGrupo = (grupo) => {
@@ -80,39 +57,51 @@ export default function Grupos() {
       .then(() => {
         setReset((reset) => reset + 1);
       })
-      .catch((err) => addAlert(err));
+      .catch((err) => alert.current.addAlert(err));
+  };
+
+  const onDeleteAluno = (aluno) => {
+    apiSFE
+      .incluirEmGrupo(user.infoUser.token, aluno.matricula, null)
+      .then(() => {
+        setReset((reset) => reset + 1);
+      })
+      .catch((err) => {
+        alert.current.addAlert(err);
+      });
   };
 
   const onAdd = (grupo) => {
     let id_grupo = grupo.id_grupo;
     if (selectValue?.matricula === undefined) return;
-    if (grupo.alunos.find((a) => a.matricula === selectValue.matricula))
-      id_grupo = null;
     apiSFE
       .incluirEmGrupo(user.infoUser.token, selectValue.matricula, id_grupo)
       .then(() => {
         setReset((reset) => reset + 1);
       })
       .catch((err) => {
-        addAlert(err);
+        alert.current.addAlert(err);
       });
   };
 
   return (
     <div className="d-flex w-100 h-100 flex-column p-2">
       {grupos.map((g) => (
-        <div className="mb-5 border-bottom border-4 border-primary" key={g.nome_grupo}>
+        <div
+          className="mb-5 border-bottom border-4 border-primary"
+          key={g.nome_grupo}
+        >
           <div className="d-flex align-items-center">
-            <span className="fs-4">{g.nome_grupo}</span>
+            <span className="fs-5 fw-bold border-bottom">{g.nome_grupo}</span>
             <button
               className="btn btn-danger ms-4 p-1"
               onClick={() => onRemoveGrupo(g)}
             >
-              <AiOutlineDelete size={25} />
+              <AiOutlineDelete size={23} />
             </button>
           </div>
 
-          <form className="col-sm-4 p-1">
+          <form className="col-sm-4 p-1 mt-2">
             <label className="ms-2">Escolha integrantes</label>
             <div className="d-flex">
               <Typeahead
@@ -120,7 +109,7 @@ export default function Grupos() {
                 labelKey={"nome"}
                 emptyLabel="Nenhum aluno encontrado"
                 onChange={onSelect}
-                options={alunosDisponiveis(g)}
+                options={alunosDisponiveis}
               />
               <button
                 className="btn ms-1 border-primary text-primary"
@@ -129,7 +118,7 @@ export default function Grupos() {
                   onAdd(g);
                 }}
               >
-                Adiciona/Remove
+                Adicionar
               </button>
             </div>
           </form>
@@ -140,6 +129,7 @@ export default function Grupos() {
                 <th scope="col">Integrantes</th>
                 <th scope="col">Matricula</th>
                 <th scope="col">Nome</th>
+                <th scope="col">Deletar</th>
               </tr>
             </thead>
             <tbody>
@@ -148,6 +138,14 @@ export default function Grupos() {
                   <td>{index + 1}</td>
                   <td>{a.matricula}</td>
                   <td>{a.nome}</td>
+                  <td>
+                    <button
+                      className="btn text-danger"
+                      onClick={() => onDeleteAluno(a)}
+                    >
+                      <AiOutlineDelete size={22} />
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

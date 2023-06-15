@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import { useContext } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -10,7 +11,7 @@ export default function Login(props) {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
-  const alert = useContext(AlertContext);
+  const alert = useRef(useContext(AlertContext));
 
   function onChangeLogin(e) {
     e.preventDefault();
@@ -31,7 +32,7 @@ export default function Login(props) {
         navigate(links.sistemaFrequencia);
       })
       .catch((err) => {
-        alert.addAlert(err);
+        alert.current.addAlert(err);
       });
   }
 
