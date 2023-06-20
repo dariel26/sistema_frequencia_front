@@ -14,3 +14,18 @@ export function corClaraRandomica() {
 
     return '#' + r.toString(16) + g.toString(16) + b.toString(16);
 }
+
+export function gerarChaveUnica() {
+    const timestamp = Date.now().toString();
+    const randomNum = Math.random().toString(36).substring(2, 5);
+
+    return `${timestamp}-${randomNum}`;
+}
+
+export function formatarData(data) {
+    const ano = data.getFullYear();
+    const mes = String(data.getMonth() + 1).padStart(2, '0');
+    const dia = String(data.getDate()).padStart(2, '0');
+
+    return `${ano}/${mes}/${dia}`;
+}

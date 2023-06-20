@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { useContext } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertContext } from "../filters/alert/Alert";
+import { AlertaContext } from "../filters/alert/Alert";
 import links from "../links";
 import apiSFE from "../service/api";
 
@@ -11,7 +11,7 @@ export default function Login(props) {
   const [password, setPassword] = useState("");
 
   const navigate = useNavigate();
-  const alert = useRef(useContext(AlertContext));
+  const alert = useRef(useContext(AlertaContext));
 
   function onChangeLogin(e) {
     e.preventDefault();

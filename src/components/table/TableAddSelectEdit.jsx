@@ -13,8 +13,10 @@ export default function TableAddSelectEdit({
   editKeys,
   uniqueKey,
   dropdownKey,
+  checkboxKey,
   dropdownOptions,
-  edit
+  edit,
+  idKey,
 }) {
   const [startDelete, setStartDelete] = useState(false);
   const [startAdd, setStartAdd] = useState(false);
@@ -124,9 +126,11 @@ export default function TableAddSelectEdit({
           uniqueKey={uniqueKey}
           objsTitleValue={objsTitleValue}
           dropdownKey={dropdownKey}
+          checkboxKey={checkboxKey}
           dropdownOptions={dropdownOptions}
           onEdit={onEdit}
           setIndexEdit={setIndexEdit}
+          idKey={idKey}
         />
       )}
     </div>

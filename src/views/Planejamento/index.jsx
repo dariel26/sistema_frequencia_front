@@ -2,7 +2,7 @@ import { useState } from "react";
 import CardRadios from "../../components/cards/CardRadios";
 import Estagios from "./Estagios";
 import Grupos from "./Grupos";
-import Activities from "./Activities";
+import Atividades from "./Atividades";
 
 export default function Organization() {
   const [indexRadio, setIndexRadio] = useState(0);
@@ -14,7 +14,7 @@ export default function Organization() {
       ) : indexRadio === 1 ? (
         <Estagios />
       ) : indexRadio === 2 ? (
-        <Activities />
+        <Atividades />
       ) : undefined}
     </CardRadios>
   );

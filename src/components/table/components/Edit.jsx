@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 export default function Edit({
   user,
   keys,
+  idKey,
   objsTitleValue,
   uniqueKey,
   dropdownKey,
+  checkboxKey,
   dropdownOptions,
   onEdit,
   setIndexEdit,
@@ -22,15 +24,18 @@ export default function Edit({
     setArrInput(newArrInput);
   }, [keys, dropdownKey, user]);
 
-  function onTyping(e, i) {
+  function onTyping(e, i, checked) {
     setArrInput((arr) => {
       const newArr = Object.assign([], arr);
-      newArr[i] = e.target.value;
+      if (checked) {
+        newArr[i] = e.target.checked;
+      }
+      else newArr[i] = e.target.value;
       return newArr;
     });
   }
 
-  function onChange(e){
+  function onChange(e) {
     setDropdownOption(e.target.value);
   }
 
@@ -54,12 +59,27 @@ export default function Edit({
                 </option>
               ))}
             </select>
+          ) : k === checkboxKey ? (
+            <div className="mt-2">
+              <input
+                type="checkbox"
+                className="btn-check"
+                id="btn-check-outlined"
+                autoComplete="off"
+                onChange={(e) => onTyping(e, i, true)}
+              />
+              <label
+                className="btn btn-outline-primary"
+                htmlFor="btn-check-outlined"
+              >
+                Restaurar {checkboxKey} padrão
+              </label>
+            </div>
           ) : (
             <input
               type="email"
               className="form-control"
               id={"input" + i}
-              disabled={k === uniqueKey}
               value={arrInput[i]}
               onChange={(e) => onTyping(e, i)}
             />
@@ -72,10 +92,10 @@ export default function Edit({
           className="btn btn-primary"
           onClick={(e) => {
             e.preventDefault();
-            if (onEdit){
-                onEdit(arrInput, dropdownOption);
-                setIndexEdit(-1);
-            } 
+            if (onEdit) {
+              onEdit(arrInput, dropdownOption, user[idKey]);
+              setIndexEdit(-1);
+            }
           }}
         >
           Editar

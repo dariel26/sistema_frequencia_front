@@ -2,9 +2,9 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import links from "../links";
 import Home from "../views/Home";
 import Login from "../views/Login";
-import Users from "../views/Users";
+import Users from "../views/usuarios";
 import MyAccount from "../views/MyAccount";
-import Organization from "../views/Organization/Organization";
+import Organization from "../views/Planejamento";
 import Places from "../views/Places";
 import Cronograma from "../views/Cronograma/Cronograma";
 

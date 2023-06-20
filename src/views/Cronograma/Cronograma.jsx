@@ -8,7 +8,7 @@ import timeGridPlugin from "@fullcalendar/timegrid";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import { useEffect, useState } from "react";
 import apiSFE from "../../service/api";
-import { UserContext } from "../../filters/User";
+import { UsuarioContext } from "../../filters/User";
 import { useContext } from "react";
 import { corClaraRandomica } from "../../utils";
 import { BsFillCalendar2PlusFill } from "react-icons/bs";
@@ -17,27 +17,27 @@ import "./cronograma.css";
 
 export default function Cronograma() {
   const [estagios, setEstagios] = useState([]);
-  const [modalOpen, setModalOpen] = useState(false);
-  const user = useContext(UserContext);
+  const [modalAberto, setModalAberto] = useState(false);
+  const usuario = useContext(UsuarioContext);
 
   useEffect(() => {
-    const token = user.infoUser.token;
-    const p_estagios = apiSFE.listaEstagios(token);
+    const token = usuario.token;
+    const p_estagios = apiSFE.listarEstagios(token);
     Promise.all([p_estagios]).then((res) => {
       const estagios = res[0].data;
       console.log(estagios);
       setEstagios(estagios);
     });
-  }, [user]);
+  }, [usuario]);
 
-  const handleDateClick = () => {
-    console.log();
+  const handleDateClick = (arg) => {
+    console.log(arg.dateStr);
   };
 
   const abrirEdicao = (e) => {
     const editCronograma = document.getElementById("edit-cronograma");
     const editButton = document.getElementById("edit-button");
-    if (modalOpen) {
+    if (modalAberto) {
       editCronograma.style.width = "0px";
       editCronograma.style.height = "0px";
       editButton.style.transform = "rotate(0deg)";
@@ -46,7 +46,7 @@ export default function Cronograma() {
       editCronograma.style.height = "100%";
       editButton.style.transform = "rotate(360deg)";
     }
-    setModalOpen(!modalOpen);
+    setModalAberto(!modalAberto);
   };
 
   return (
@@ -95,7 +95,7 @@ export default function Cronograma() {
           id="edit-button"
           className="position-fixed end-0 bottom-0 me-4 mb-4 btn btn-primary rounded-circle p-3 shadow"
         >
-          {modalOpen ? (
+          {modalAberto ? (
             <GrClose size={24} />
           ) : (
             <BsFillCalendar2PlusFill size={24} />

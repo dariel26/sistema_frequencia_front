@@ -3,7 +3,7 @@ import { createContext, useState } from "react";
 import { GrClose } from "react-icons/gr";
 import "./Alert.css";
 
-export const AlertContext = createContext();
+export const AlertaContext = createContext();
 
 export default function Alert(props) {
   const [alert, setAlert] = useState({});
@@ -43,38 +43,38 @@ export default function Alert(props) {
   };
 
   const addAlert = (error, mess) => {
-    let varianText = "";
-    let variantAlert = "";
-    let message = "";
-    let status = "";
+    let varianteTexto = "";
+    let varianteAlerta = "";
+    let mensagem = "";
+    let estado = "";
     if (error?.response?.status === 401) {
-      varianText = "text-warning";
-      variantAlert = "alert-warning";
-      message = error.response?.data.message;
-      status = error.response?.status;
+      varianteTexto = "text-warning";
+      varianteAlerta = "alert-warning";
+      mensagem = error.response?.data.message;
+      estado = error.response?.status;
     } else if (error?.response?.status === 403) {
-      varianText = "text-warning";
-      variantAlert = "alert-warning";
-      message = error.response?.data.message;
-      status = error.response?.status;
+      varianteTexto = "text-warning";
+      varianteAlerta = "alert-warning";
+      mensagem = error.response?.data.message;
+      estado = error.response?.status;
     } else if (error?.response?.status === 500) {
-      varianText = "text-danger";
-      variantAlert = "alert-danger";
-      message = error.response?.data.message;
-      status = error.response?.status;
+      varianteTexto = "text-danger";
+      varianteAlerta = "alert-danger";
+      mensagem = error.response?.data.message;
+      estado = error.response?.status;
     } else if (error) {
-      varianText = "text-warning";
-      variantAlert = "alert-warning";
-      message = error.message;
-      status = "";
+      varianteTexto = "text-warning";
+      varianteAlerta = "alert-warning";
+      mensagem = error.message;
+      estado = "";
     } else {
-      varianText = "text-success";
-      variantAlert = "alert-success";
-      message = mess;
-      status = "";
+      varianteTexto = "text-success";
+      varianteAlerta = "alert-success";
+      mensagem = mess;
+      estado = "";
     }
     setStackAlerts((stack) => {
-      stack.push({ status, message, varianText, variantAlert });
+      stack.push({ status: estado, message: mensagem, varianText: varianteTexto, variantAlert: varianteAlerta });
       return Object.assign([], stack);
     });
   };
@@ -97,9 +97,9 @@ export default function Alert(props) {
           <p>{alert.message}</p>
         </div>
       ) : undefined}
-      <AlertContext.Provider value={{ addAlert }}>
+      <AlertaContext.Provider value={{ addAlert }}>
         {props.children}
-      </AlertContext.Provider>
+      </AlertaContext.Provider>
     </>
   );
 }

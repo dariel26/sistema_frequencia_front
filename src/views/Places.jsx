@@ -4,8 +4,8 @@ import { useRef, useState } from "react";
 import { useEffect } from "react";
 import apiSFE from "../service/api";
 import { useContext } from "react";
-import { UserContext } from "../filters/User";
-import { AlertContext } from "../filters/alert/Alert";
+import { UsuarioContext } from "../filters/User";
+import { AlertaContext } from "../filters/alert/Alert";
 import Map from "../components/map/Map";
 import { useCallback } from "react";
 
@@ -15,8 +15,8 @@ export default function Places() {
   const [name, setName] = useState("");
   const [refresh, setRefresh] = useState(0);
 
-  const user = useContext(UserContext);
-  const alert = useRef(useContext(AlertContext));
+  const usuario = useContext(UsuarioContext);
+  const alertaRef = useRef(useContext(AlertaContext));
 
   let styleInput = {
     display: latlng.lat !== undefined ? "flex" : "none",
@@ -30,7 +30,7 @@ export default function Places() {
 
   useEffect(() => {
     apiSFE
-      .listaLugares(user.infoUser.token)
+      .listaLugares(usuario.token)
       .then((res) => {
         setPlaces(
           res.data.map((p) => ({
@@ -41,9 +41,9 @@ export default function Places() {
         );
       })
       .catch((err) => {
-        alert.current.addAlert(err);
+        alertaRef.current.addAlert(err);
       });
-  }, [user, refresh]);
+  }, [usuario, refresh]);
 
   const onSelectMap = useCallback((latlng) => {
     setLatlng(latlng);
@@ -51,9 +51,9 @@ export default function Places() {
 
   const onDelete = (place) => {
     apiSFE
-      .deletaLugar(user.infoUser.token, place.id_local)
+      .deletaLugar(usuario.token, place.id_local)
       .then(() => setRefresh((refresh) => refresh + 1))
-      .catch((err) => alert.addAlert(err));
+      .catch((err) => alertaRef.addAlert(err));
   };
 
   const onAdd = () => {
@@ -63,13 +63,13 @@ export default function Places() {
       coordenadas: JSON.stringify({ lat: latlng.lat, lon: latlng.lng }),
     };
     apiSFE
-      .adicionaLugar(user.infoUser.token, newPlace)
+      .adicionaLugar(usuario.token, newPlace)
       .then(() => {
         setName("");
         setLatlng({});
         setRefresh((refresh) => refresh + 1);
       })
-      .catch((err) => alert.addAlert(err));
+      .catch((err) => alertaRef.addAlert(err));
   };
 
   return (

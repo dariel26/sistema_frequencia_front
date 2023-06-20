@@ -3,59 +3,52 @@ import { useState } from "react";
 import { useRef } from "react";
 import { useContext } from "react";
 import CardDefault from "../components/cards/CardDefault";
-import { AlertContext } from "../filters/alert/Alert";
-import { UserContext } from "../filters/User";
+import { AlertaContext } from "../filters/alert/Alert";
+import { UsuarioContext } from "../filters/User";
 import apiSFE from "../service/api";
 
 export default function MyAccount() {
   const [defaultUser, setDefaultUser] = useState(false);
-  const [pass, setPass] = useState("");
-  const [confirmPass, setConfirmPass] = useState("");
+  const [senha, setSenha] = useState("");
+  const [senhaConfirmada, setSenhaConfirmada] = useState("");
+  const [estado, setEstado] = useState(0);
 
-  const user = useContext(UserContext);
-  const alert = useRef(useContext(AlertContext));
+  const usuario = useContext(UsuarioContext);
+  const alert = useRef(useContext(AlertaContext));
 
-  const mapInfoUser = user.infoUser.info;
-  delete mapInfoUser.regrasHabilidades;
-  const arrInfoUser = Object.entries(mapInfoUser);
+  const arrInfoUsuario = Object.entries(usuario).filter(([campo]) => {
+    return campo === "nome" || campo === "login" || campo === "papel";
+  });
 
   useEffect(() => {
-    if (
-      user.infoUser.info.email === undefined &&
-      user.infoUser.info.matricula === undefined
-    )
-      return;
-
-    const email = user.infoUser.info.email;
-    const matricula = user.infoUser.info.matricula;
-
+    if (usuario.login === undefined) return;
+    if (usuario.token === undefined) return;
     apiSFE
-      .usuarioPadrao(user.infoUser.token, {
-        login: email !== undefined ? email : matricula,
-        senha: email !== undefined ? email : matricula,
-      })
+      .usuarioPadrao(usuario.token)
       .then((res) => {
-        setDefaultUser(res.data);
+        setDefaultUser(res.data.padrao);
       })
       .catch((err) => {
         alert.current.addAlert(err);
       });
-  }, [user]);
+  }, [usuario, estado]);
 
   const onSubmit = (e) => {
     e.preventDefault();
-    const token = localStorage.getItem("token");
-    if (pass !== confirmPass) {
-      alert.current.addAlert(new Error("Senhas diferentes"));
-    } else if (pass.length < 5) {
-      alert.current.addAlert(new Error("Senha deve conter no mínimo 5 carateres"));
+    const token = usuario.token;
+    if (senha !== senhaConfirmada) {
+      alert.current.addAlert(new Error("As senhas devem ser corresponder"));
+    } else if (senha.length < 3) {
+      alert.current.addAlert(
+        new Error("A senha deve conter no mínimo 3 carateres")
+      );
     } else {
-      console.log(pass);
+      const novosDados = [{ id: usuario.id, senha }];
       apiSFE
-        .mudarSenha(token, pass)
+        .mudarSenha(token, novosDados)
         .then(() => {
-          alert.current.addAlert(undefined, "Senha modificada");
-          setDefaultUser(false);
+          alert.current.addAlert(undefined, "Senha modificada!");
+          setEstado((estado) => estado + 1);
         })
         .catch((err) => {
           alert.current.addAlert(err);
@@ -66,16 +59,16 @@ export default function MyAccount() {
   return (
     <CardDefault title="Minha Conta">
       <div className="row justify-content-center">
-        {arrInfoUser?.map((arrInfo, i) => {
+        {arrInfoUsuario?.map((info, i) => {
           const title =
-            arrInfo[0] === "nome"
+            info[0] === "nome"
               ? "Nome"
-              : arrInfo[0] === "email"
+              : info[0] === "email"
               ? "E-mail"
-              : arrInfo[0] === "papel"
+              : info[0] === "papel"
               ? "Papel"
-              : "Matricula";
-          const value = arrInfo[1];
+              : "Login";
+          const value = info[1];
           return value === undefined ? undefined : (
             <div className="mb-3 col-sm-4" key={i}>
               <h6>{title}:</h6>
@@ -101,9 +94,9 @@ export default function MyAccount() {
                 autoComplete="new-password"
                 className="form-control"
                 id="password1"
-                value={pass}
+                value={senha}
                 onChange={(e) => {
-                  setPass(e.target.value);
+                  setSenha(e.target.value);
                 }}
               />
             </div>
@@ -116,9 +109,9 @@ export default function MyAccount() {
                 autoComplete="new-password"
                 className="form-control"
                 id="password2"
-                value={confirmPass}
+                value={senhaConfirmada}
                 onChange={(e) => {
-                  setConfirmPass(e.target.value);
+                  setSenhaConfirmada(e.target.value);
                 }}
               />
             </div>

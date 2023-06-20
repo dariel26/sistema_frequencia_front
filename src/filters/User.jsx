@@ -4,65 +4,68 @@ import { Navigate } from "react-router-dom";
 import links from "../links";
 import apiSFE from "../service/api";
 
-export const UserContext = createContext();
+export const UsuarioContext = createContext();
 
 export default function FilterUser(props) {
-  const [infoUser, setInfoUser] = useState(userModel({}));
-  const [waiting, setWaiting] = useState(true);
+  const [infoUsuario, setInfoUsuario] = useState(userModel({}));
+  const [esperandoDados, setEsperandoDados] = useState(true);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     apiSFE
-      .infoUser(token)
+      .infoUsuario(token)
       .then((res) => {
-        const user = res.data;
-        setInfoUser(
+        const usuario = res.data;
+        setInfoUsuario(
           userModel({
             token,
-            papel: user.papel,
-            nome: user.nome,
-            email: user.email,
-            matricula: user.matricula,
-            regrasHabilidades: user.regrasHabilidades,
+            id: usuario.id,
+            nome: usuario.nome,
+            papel: usuario.papel,
+            login: usuario.login,
+            regrasHabilidades: usuario.regrasHabilidades,
           })
         );
-        setWaiting(false);
+        setEsperandoDados(false);
       })
       .catch((_) => {
-        setInfoUser({});
-        setWaiting(false);
+        setInfoUsuario({});
+        setEsperandoDados(false);
       });
   }, []);
 
   return (
-    <UserContext.Provider value={{ infoUser, setInfoUser }}>
-      {waiting ? (
+    <UsuarioContext.Provider
+      value={{
+        setInfoUser: setInfoUsuario,
+        id: infoUsuario.info?.id,
+        token: infoUsuario.token,
+        nome: infoUsuario.info?.nome,
+        papel: infoUsuario.info?.papel,
+        login: infoUsuario.info?.login,
+        regrasHabilidades: infoUsuario.info?.regrasHabilidades,
+      }}
+    >
+      {esperandoDados ? (
         <div>Redirecionando...</div>
-      ) : infoUser.info?.papel === undefined ? (
+      ) : infoUsuario.info?.papel === undefined ? (
         <Navigate to={links.login} />
       ) : (
         props.children
       )}
-    </UserContext.Provider>
+    </UsuarioContext.Provider>
   );
 }
 
-function userModel({
-  token,
-  papel,
-  nome,
-  email,
-  matricula,
-  regrasHabilidades,
-}) {
+function userModel({ token, papel, nome, login, id, regrasHabilidades }) {
   return {
     token: token,
     info: {
-      papel: papel,
-      nome: nome,
-      email: email,
-      matricula: matricula,
-      regrasHabilidades: regrasHabilidades,
+      id,
+      papel,
+      nome,
+      login,
+      regrasHabilidades,
     },
   };
 }

@@ -1,7 +1,7 @@
 import { useContext, useRef } from "react";
 import { useState } from "react";
 import { read, utils } from "xlsx";
-import { AlertContext } from "../../../filters/alert/Alert";
+import { AlertaContext } from "../../../filters/alert/Alert";
 
 export default function Add({
   keys,
@@ -15,10 +15,13 @@ export default function Add({
   const [arrInput, setArrInput] = useState(Array(keys.length).fill(""));
   const [arrUsers, setArrUsers] = useState([]);
 
-  const alert = useRef(useContext(AlertContext));
+  const alert = useRef(useContext(AlertaContext));
 
   function userExist(user) {
-    if (users.find((u) => String(u[uniqueKey]) === String(user[uniqueKey])) === undefined) {
+    if (
+      users.find((u) => String(u[uniqueKey]) === String(user[uniqueKey])) ===
+      undefined
+    ) {
       return false;
     } else {
       return true;
@@ -60,7 +63,13 @@ export default function Add({
           return;
         }
       }
-      users.push(u);
+      const uString = {};
+      for (let prop in u) {
+        if (u.hasOwnProperty(prop)) {
+          uString[prop] = String(u[prop]);
+        }
+      }
+      users.push(uString);
     }
     setArrUsers(users);
   }
@@ -88,17 +97,17 @@ export default function Add({
   function onTyping(e, i) {
     setArrInput((arr) => {
       const newArr = Object.assign([], arr);
-      newArr[i] = e.target.value;
+      newArr[i] = String(e.target.value);
       return newArr;
     });
   }
 
   return (
-    <div className="row">
+    <div className="row w-100">
       <div className="input-group mb-3 col-sm-2">
         <input
           type="file"
-          accept=".xlsx"
+          accept=".xlsx,.ods"
           className="form-control"
           id="inputGroupFile02"
           style={{ display: "none" }}
