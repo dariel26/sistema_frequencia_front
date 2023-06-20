@@ -9,7 +9,6 @@ import BotaoTexto from "../../componentes/botoes/BotaoTexto";
 import DivCabecalhoDeletar from "../../componentes/divs/DivCabecalhoDeletar";
 import { formatarData, gerarChaveUnica } from "../../utils";
 import TabelaPadrao from "../../componentes/tabelas/TabelaPadrao";
-import CheckPadrao from "../../componentes/inputs/CheckPadrao";
 import FormSelecao from "../../componentes/formularios/FormSelecao";
 import FormData from "../../componentes/formularios/FormData";
 
@@ -107,6 +106,8 @@ export default function Estagios() {
   };
 
   const aoAlocarAutomatico = () => {
+    if (datas.length === 0)
+      return alertaRef.current.addAlert(new Error("Nenhuma data adicionada"));
     if (estagios.length === 0)
       return alertaRef.current.addAlert(new Error("Nenhum estágio encontrado"));
     if (datas.length !== grupos.length)
@@ -117,38 +118,42 @@ export default function Estagios() {
       );
     else {
       const dados = [];
-      for (const estagio of estagios) {
-        const gruposDisponiveis = [...grupos];
-
-        for (const data of datas) {
-          if (gruposDisponiveis.length === 0) {
-            break;
-          }
-
-          const grupoIndex = Math.floor(
-            Math.random() * gruposDisponiveis.length
-          );
-          const grupo = gruposDisponiveis.splice(grupoIndex, 1)[0];
-          const combExistente = dados.find(
-            (comb) =>
-              comb.id_grupo === grupo.id_grupo &&
-              comb.data_inicial === data.data_inicial
-          );
-
-          if (!combExistente) {
-            dados.push({
-              id_grupo: grupo.id_grupo,
-              id_estagio: estagio.id_estagio,
-              data_inicial: data.data_inicial,
-              data_final: data.data_final,
-            });
+      const gruposAgrupados = [];
+      for (let k = 0; k < grupos.length; k++) {
+        const iteracao = gruposAgrupados.length;
+        const vetorGrupo = [];
+        const vetorAuxiliar = [];
+        for (let i = 0; i < grupos.length; i++) {
+          const ultimo = grupos.length - 1;
+          if (iteracao >= i + 1) {
+            vetorAuxiliar.push(grupos[i].id_grupo);
+          } else if (i === ultimo) {
+            vetorGrupo.push(grupos[i].id_grupo);
+            gruposAgrupados.push(vetorGrupo.concat(vetorAuxiliar));
+          } else {
+            vetorGrupo.push(grupos[i].id_grupo);
           }
         }
       }
-      console.log(estagios.length);
-      console.log(grupos.length);
-      console.log(datas.length);
-      console.log(dados.length);
+      const gruposOrdenados = gruposAgrupados.flat();
+      const gruposDatas = [];
+      for (let i = 0; i < gruposOrdenados.length; i++) {
+        const dado = {};
+        dado.id_grupo = gruposOrdenados[i];
+        dado.data_inicial = datas[i % datas.length].data_inicial;
+        dado.data_final = datas[i % datas.length].data_final;
+        gruposDatas.push(dado);
+      }
+      for (let i = 0; i < estagios.length; i++) {
+        const id_estagio = estagios[i].id_estagio;
+        for (let j = 0; j < estagios.length; j++) {
+          if (gruposDatas[i * estagios.length + j] === undefined) break;
+          const dado = gruposDatas[i * estagios.length + j];
+          dado.id_estagio = id_estagio;
+          dados.push(dado);
+        }
+      }
+
       apiSFE
         .adicionarGruposAEstagios(usuario.token, dados)
         .then(() => setEstado(estado + 1))
