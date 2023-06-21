@@ -10,7 +10,7 @@ export default function TabelaPadrao({
   const label = (dado, check_visivel) => (
     <label
       role="button"
-      className="w-100 h-100 position-absolute start-0 top-0"
+      className="w-100 h-100 position-absolute start-0 top-0 m-1"
       onClick={() => {
         if (aoClicar === undefined) return;
         if (check_visivel === false) return;
@@ -35,7 +35,7 @@ export default function TabelaPadrao({
       <tbody>
         {dados?.map((dado, index) => (
           <tr
-            className="text-center align-middle position-relative"
+            className="text-center align-middle"
             key={gerarChaveUnica()}
           >
             {numerado ? <td>{index + 1}</td> : undefined}
@@ -58,7 +58,7 @@ export default function TabelaPadrao({
                     ${dado[data].substring(0, 4)}`}
                     </td>
                   ) : check ? (
-                    <td key={gerarChaveUnica()}>
+                    <td key={gerarChaveUnica()} className="position-relative">
                       <input
                         className="form-check-input"
                         type="checkbox"
