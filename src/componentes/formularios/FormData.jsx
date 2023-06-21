@@ -17,8 +17,8 @@ export default function FormData({ titulo, aoSelecionarDatas, textoBotao }) {
     aoSelecionarDatas(dataEscolhida);
   };
   return (
-    <form className="row w-100 ps-1 pe-1 align-items-end">
-      <div className="col-sm-3 mb-1 p-0 pe-1">
+    <form className="row w-100 align-items-end">
+      <div className="col mb-1 pe-0">
         <label className="ms-2 text-nowrap">{titulo}</label>
         <DatePicker
           className="form-control"
@@ -30,7 +30,7 @@ export default function FormData({ titulo, aoSelecionarDatas, textoBotao }) {
           selectsRange
         />
       </div>
-      <div className="col mb-1 p-0">
+      <div className="col mb-1">
         <button
           disabled={
             dataEscolhida.data_inicial === null ||

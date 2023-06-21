@@ -1,9 +1,10 @@
 import { gerarChaveUnica } from "../../utils";
 
-export default function BotaoDrop({ textoBotao, dadosMenu }) {
+export default function BotaoDrop({ textoBotao, dadosMenu, desabilitado }) {
   return (
     <div className="dropdown">
       <button
+        disabled={desabilitado}
         className="btn btn-secondary dropdown-toggle"
         type="button"
         data-bs-toggle="dropdown"

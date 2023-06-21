@@ -1,4 +1,4 @@
-import { useState, useContext, useEffect, useRef } from "react";
+import { useState, useContext, useEffect, useRef, useCallback } from "react";
 import { AlertaContext } from "../../filters/alert/Alert";
 import apiSFE from "../../service/api";
 import { UsuarioContext } from "../../filters/User";
@@ -11,6 +11,7 @@ import { formatarData, gerarChaveUnica } from "../../utils";
 import TabelaPadrao from "../../componentes/tabelas/TabelaPadrao";
 import FormSelecao from "../../componentes/formularios/FormSelecao";
 import FormData from "../../componentes/formularios/FormData";
+import { idComponenteEscrol } from "../../components/cards/CardRadios";
 
 export default function Estagios() {
   const [estagios, setEstagios] = useState([]);
@@ -33,6 +34,17 @@ export default function Estagios() {
   const alertaRef = useRef(useContext(AlertaContext));
   const usuario = useContext(UsuarioContext);
 
+  const aoEscrolar = useCallback(() => {
+    const componenteEscrol = document.getElementById(idComponenteEscrol);
+    const componente = document.getElementById("editar-selecionar");
+    const posicaoEscrol = componenteEscrol.scrollTop;
+    if (posicaoEscrol > 0) {
+      componente.classList.add("shadow-sm");
+    } else {
+      componente.classList.remove("shadow-sm");
+    }
+  }, []);
+
   useEffect(() => {
     const token = usuario.token;
     const p_estagios = apiSFE.listarEstagios(token);
@@ -50,7 +62,12 @@ export default function Estagios() {
       .catch((err) => {
         alertaRef.current.addAlert(err);
       });
-  }, [usuario, estado]);
+    const componenteEscrol = document.getElementById(idComponenteEscrol);
+    componenteEscrol.addEventListener("scroll", aoEscrolar, false);
+    return () => {
+      componenteEscrol.removeEventListener("scroll", aoEscrolar, false);
+    };
+  }, [usuario, estado, aoEscrolar]);
 
   const aoAdicionarEstagio = (nome) => {
     apiSFE
@@ -204,132 +221,161 @@ export default function Estagios() {
   };
 
   return (
-    <div className="d-flex w-100 h-100 flex-column p-2">
-      <div className="row w-100">
-        <div className="col">
-          <BotaoTexto
-            aoClicar={aoEditar}
-            className="mb-2 me-3"
-            texto={editando ? "Cancelar" : "Editar"}
-          />
-          <BotaoTexto
-            aoClicar={aoDeletarGrupo}
-            className="mb-2"
-            texto={textoBotaoSelecionar}
-          />
-        </div>
-      </div>
-      {estagios.map(
-        ({ nome_coordenador, nome_estagio, grupos, id_estagio }) => {
-          const estagioSemCoordenador = nome_coordenador === null;
-          const colorSpan = estagioSemCoordenador ? "text-danger" : "";
-          const textSpan = estagioSemCoordenador ? "Nenhum" : nome_coordenador;
-          return (
-            <DivCabecalhoDeletar
-              key={gerarChaveUnica()}
-              textoBotao="Deletar Estagio"
-              titulo={nome_estagio}
-              aoDeletar={() => aoDeletarEstagio({ id_estagio })}
-            >
-              <div className="row w-100 align-items-center pb-2 border-bottom m-0">
-                <div className="col-sm-8 p-0 mb-1">
-                  <span>Coordenador: </span>
-                  <span className={`fw-bold ${colorSpan}`}>{textSpan}</span>
-                </div>
-              </div>
-              <TabelaPadrao
-                numerado
-                aoClicar={(grupo) => aoPreDeletarGrupo(grupo)}
-                camposCabecalho={[
-                  { texto: "Rodízio", visivel: true },
-                  { texto: "Grupo", visivel: true },
-                  { texto: "Data inicial", visivel: true },
-                  { texto: "Data final", visivel: true },
-                  { texto: "Deletar", visivel: deletando },
-                ]}
-                dados={grupos}
-                camposDados={[
-                  { texto: "nome", visivel: true },
-                  { data: "data_inicial", visivel: true },
-                  { data: "data_final", visivel: true },
-                  {
-                    check: true,
-                    visivel: deletando,
-                    selecionado: (grupo) => grupoADeletarSelecionado(grupo),
-                  },
-                ]}
-              />
-            </DivCabecalhoDeletar>
-          );
-        }
-      )}
-
-      {editando ? (
-        <div className="ms-1">
-          <FormSelecao
-            titulo="Coordenador"
-            textoReferencia="Escolha o coordenador"
-            campoSelecao="nome"
-            opcoesSelecao={coordenadores}
-            textoBotao="Adicionar ao estagio..."
-            opcoesDrop={estagios}
-            campoDrop="nome_estagio"
-            aoEscolher={aoAdicionarCoordenador}
-          />
-          <FormData
-            titulo="Escolha um intervalo"
-            textoBotao="Adicionar"
-            aoSelecionarDatas={aoPreAdicionarData}
-          />
-          <div className="row w-100 mt-2 ps-1">
-            <div className="col p-0">
-              <button
-                className="btn btn-secondary"
-                onClick={aoAlocarAutomatico}
-              >
-                Alocação Automática
-              </button>
-            </div>
-          </div>
-          <div className="row w-100 mt-2">
-            <div className="col-sm-6 p-0">
-              <TabelaPadrao
-                numerado
-                camposCabecalho={[
-                  { texto: "#", visivel: true },
-                  { texto: "Data inicial", visivel: true },
-                  { texto: "Data final", visivel: true },
-                  { texto: "Deletar", visivel: true },
-                ]}
-                dados={datas.map(({ data_inicial, data_final }) => ({
-                  data_inicial: formatarData(data_inicial),
-                  data_final: formatarData(data_final),
-                }))}
-                camposDados={[
-                  { data: "data_inicial", visivel: true },
-                  { data: "data_final", visivel: true },
-                  {
-                    funcaoComponente: (data) => (
-                      <button
-                        className="btn"
-                        onClick={() => aoDeletarData(data)}
-                      >
-                        <AiOutlineDelete size={18} />
-                      </button>
-                    ),
-                    visivel: true,
-                  },
-                ]}
-              />
-            </div>
-          </div>
-        </div>
-      ) : (
-        <InputBotao
-          textoReferencia={"Nome do estágio"}
-          maximaLargura={300}
-          aoClicar={aoAdicionarEstagio}
+    <div className="row w-100 justify-content-center">
+      <div
+        id="editar-selecionar"
+        className="col-12 position-sticky top-0 bg-white z-1"
+      >
+        <BotaoTexto
+          aoClicar={aoEditar}
+          className="mb-2 me-3"
+          texto={editando ? "Voltar" : "Editar"}
         />
+        <BotaoTexto
+          aoClicar={aoDeletarGrupo}
+          className="mb-2"
+          texto={textoBotaoSelecionar}
+        />
+      </div>
+      {!editando ? (
+        <>
+          <div className="col-sm-12 col-xl-8">
+            {estagios.map(
+              ({ nome_coordenador, nome_estagio, grupos, id_estagio }) => {
+                const estagioSemCoordenador = nome_coordenador === null;
+                const colorSpan = estagioSemCoordenador ? "text-danger" : "";
+                const textSpan = estagioSemCoordenador
+                  ? "Nenhum"
+                  : nome_coordenador;
+                return (
+                  <div className="mb-2" key={gerarChaveUnica()}>
+                    <DivCabecalhoDeletar
+                      textoBotao="Deletar Estagio"
+                      titulo={nome_estagio}
+                      aoDeletar={() => aoDeletarEstagio({ id_estagio })}
+                    >
+                      <div className="row w-100 align-items-center pb-2 border-bottom m-0">
+                        <div className="col-sm-8 p-0 mb-1">
+                          <span>Coordenador: </span>
+                          <span className={`fw-bold ${colorSpan}`}>
+                            {textSpan}
+                          </span>
+                        </div>
+                      </div>
+                      <TabelaPadrao
+                        numerado
+                        aoClicar={(grupo) => aoPreDeletarGrupo(grupo)}
+                        camposCabecalho={[
+                          { texto: "Rodízio", visivel: true },
+                          { texto: "Grupo", visivel: true },
+                          { texto: "Data inicial", visivel: true },
+                          { texto: "Data final", visivel: true },
+                          { texto: "Deletar", visivel: deletando },
+                        ]}
+                        dados={grupos}
+                        camposDados={[
+                          { texto: "nome", visivel: true },
+                          { data: "data_inicial", visivel: true },
+                          { data: "data_final", visivel: true },
+                          {
+                            check: true,
+                            visivel: deletando,
+                            selecionado: (grupo) =>
+                              grupoADeletarSelecionado(grupo),
+                          },
+                        ]}
+                      />
+                    </DivCabecalhoDeletar>
+                  </div>
+                );
+              }
+            )}
+          </div>
+          <div className="col-sm-12 col-xl-8 mt-5 mb-5">
+            <InputBotao
+              textoReferencia={"Nome do estágio"}
+              maximaLargura={300}
+              aoClicar={aoAdicionarEstagio}
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="col-sm-12 col-xl-8 mb-4">
+            <TabelaPadrao
+              numerado
+              camposCabecalho={[
+                { texto: "#", visivel: true },
+                { texto: "Estagio", visivel: true },
+                { texto: "Coordenador", visivel: true },
+                { texto: "Datas alocadas", visivel: true },
+              ]}
+              dados={estagios.map(
+                ({ nome_estagio, nome_coordenador, grupos }) => ({
+                  nome_estagio,
+                  nome_coordenador,
+                  qntd_grupos: grupos.length,
+                })
+              )}
+              camposDados={[
+                { texto: "nome_estagio", visivel: true },
+                { texto: "nome_coordenador", visivel: true },
+                { texto: "qntd_grupos", visivel: true },
+              ]}
+            />
+          </div>
+          <div className="col-sm-12 col-xl-8 mb-4">
+            <FormSelecao
+              titulo="Coordenador"
+              textoReferencia="Escolha o coordenador"
+              campoSelecao="nome"
+              opcoesSelecao={coordenadores}
+              textoBotao="Adicionar ao estagio..."
+              opcoesDrop={estagios}
+              campoDrop="nome_estagio"
+              aoEscolher={aoAdicionarCoordenador}
+            />
+          </div>
+          <div className="col-sm-12 col-xl-8 mb-4">
+            <FormData
+              titulo="Escolha um intervalo"
+              textoBotao="Adicionar"
+              aoSelecionarDatas={aoPreAdicionarData}
+            />
+          </div>
+          <div className="col-sm-12 col-xl-8">
+            <button className="btn btn-secondary" onClick={aoAlocarAutomatico}>
+              Alocação Automática
+            </button>
+          </div>
+          <div className="col-sm-12 col-xl-8 ">
+            <TabelaPadrao
+              numerado
+              camposCabecalho={[
+                { texto: "#", visivel: true },
+                { texto: "Data inicial", visivel: true },
+                { texto: "Data final", visivel: true },
+                { texto: "Deletar", visivel: true },
+              ]}
+              dados={datas.map(({ data_inicial, data_final }) => ({
+                data_inicial: formatarData(data_inicial),
+                data_final: formatarData(data_final),
+              }))}
+              camposDados={[
+                { data: "data_inicial", visivel: true },
+                { data: "data_final", visivel: true },
+                {
+                  funcaoComponente: (data) => (
+                    <button className="btn" onClick={() => aoDeletarData(data)}>
+                      <AiOutlineDelete size={18} />
+                    </button>
+                  ),
+                  visivel: true,
+                },
+              ]}
+            />
+          </div>
+        </>
       )}
     </div>
   );

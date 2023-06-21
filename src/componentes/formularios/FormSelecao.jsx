@@ -26,8 +26,8 @@ export default function FormSelecao({
   };
 
   return (
-    <form className="row w-100 pe-1 ps-1 mb-3 align-items-end">
-      <div className="col-sm-3 p-0 m-0 pe-1">
+    <form className="row w-100 align-items-end">
+      <div className="col pe-0">
         <label className="ms-2 text-nowrap">{titulo}</label>
         <Typeahead
           id={"typeahead" + titulo}
@@ -38,7 +38,7 @@ export default function FormSelecao({
           options={opcoesSelecao}
         />
       </div>
-      <div className="col p-0 mt-1">
+      <div className="col mt-1">
         <div className="dropdown">
           <button
             disabled={valor[campoSelecao] === undefined}

@@ -24,7 +24,7 @@ export default function InputBotao({
 
   return (
     <div
-      className="input-group m-2"
+      className="input-group"
       style={{ height: `${altura}px`, maxWidth: `${maximaLargura}px` }}
     >
       <input

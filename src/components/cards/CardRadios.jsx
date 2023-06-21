@@ -1,11 +1,13 @@
 import { useState } from "react";
 
+export const idComponenteEscrol = "componente-scroll";
+
 export default function CardRadios({ children, radios, newIndex }) {
   const [indexRadio, setIndexRadio] = useState(0);
   return (
     <div className="card w-100 rounded-0 border-0 h-100">
-      <div className="card-header" style={{height: "55px"}}>
-        <div className="btn-group" role="group">
+      <div className="card-header overflow-auto" style={{ height: "55px" }}>
+        <div className="btn-group text-nowrap" role="group">
           {radios.map((r, index) => [
             <input
               key={"input" + r}
@@ -29,7 +31,7 @@ export default function CardRadios({ children, radios, newIndex }) {
           ])}
         </div>
       </div>
-      <div className="card-body" style={{height: "calc(100% - 55px)"}}>
+      <div className="card-body" style={{ height: "calc(100% - 55px)" }}>
         <div
           className="d-flex card-title align-items-between text-wrap border-bottom"
           style={{ height: "40px" }}
@@ -38,7 +40,11 @@ export default function CardRadios({ children, radios, newIndex }) {
             {radios?.length > 0 ? radios[indexRadio] : undefined}
           </h5>
         </div>
-        <div className="d-flex" style={{ height: "calc(100% - 40px)", overflowY: "auto" }}>
+        <div
+          id={idComponenteEscrol}
+          className="d-flex"
+          style={{ height: "calc(100% - 40px)", overflowY: "auto" }}
+        >
           {children}
         </div>
       </div>

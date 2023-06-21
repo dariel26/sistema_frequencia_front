@@ -1,35 +1,44 @@
-import { useState, useContext, useEffect, useRef } from "react";
+import { useState, useContext, useEffect, useRef, useCallback } from "react";
 import { AlertaContext } from "../../filters/alert/Alert";
 import apiSFE from "../../service/api";
 import { UsuarioContext } from "../../filters/User";
 import InputBotao from "../../components/inputs/InputBotao";
 import TabelaPadrao from "../../componentes/tabelas/TabelaPadrao";
-import CheckPadrao from "../../componentes/inputs/CheckPadrao";
 import BotaoTexto from "../../componentes/botoes/BotaoTexto";
 import DivCabecalhoDeletar from "../../componentes/divs/DivCabecalhoDeletar";
 import { gerarChaveUnica } from "../../utils";
 import BotaoDrop from "../../componentes/botoes/BotaoDrop";
+import { idComponenteEscrol } from "../../components/cards/CardRadios";
 
 export default function Grupos() {
   const [grupos, setGrupos] = useState([]);
   const [alunos, setAlunos] = useState([]);
-  const [alunosEscohidos, setAlunosEscolhidos] = useState([]);
-  const [alunosADeletar, setAlunosADeletar] = useState([]);
+  const [alunosAAlocar, setAlunosAAlocar] = useState([]);
+  const [alunosADesalocar, setAlunosADesalocar] = useState([]);
   const [estado, setEstado] = useState(0);
   const [editando, setEditando] = useState(false);
   const [deletando, setDeletando] = useState(false);
 
-  const alunosSemGrupo = alunos.filter((a) => a.id_grupo === null);
-  const sessaoEditarVisible = editando && alunosSemGrupo.length > 0;
-  const textoBotaoEditar = sessaoEditarVisible ? "Cancelar" : "Editar";
+  const textoBotaoEditar = editando ? "Voltar" : "Editar";
   const textoBotaoDeletar = deletando
-    ? alunosADeletar.length > 0
+    ? alunosADesalocar.length > 0
       ? "Deletar"
       : "Cancelar"
     : "Selecionar";
 
   const alertaRef = useRef(useContext(AlertaContext));
   const usuario = useContext(UsuarioContext);
+
+  const aoEscrolar = useCallback(() => {
+    const componenteEscrol = document.getElementById(idComponenteEscrol);
+    const componente = document.getElementById("editar-selecionar");
+    const posicaoEscrol = componenteEscrol.scrollTop;
+    if (posicaoEscrol > 0) {
+      componente.classList.add("shadow-sm");
+    } else {
+      componente.classList.remove("shadow-sm");
+    }
+  }, []);
 
   useEffect(() => {
     const token = usuario.token;
@@ -39,15 +48,18 @@ export default function Grupos() {
       .then((res) => {
         const grupos = res[0].data;
         const alunos = res[1].data;
-        const alunosSemGrupo = alunos.filter((a) => a.id_grupo === null);
-        if (alunosSemGrupo.length < 1) setEditando(false);
         setGrupos(grupos);
         setAlunos(alunos);
       })
       .catch((err) => {
         alertaRef.current.addAlert(err);
       });
-  }, [usuario, estado]);
+    const componenteEscrol = document.getElementById(idComponenteEscrol);
+    componenteEscrol.addEventListener("scroll", aoEscrolar, false);
+    return () => {
+      componenteEscrol.removeEventListener("scroll", aoEscrolar, false);
+    };
+  }, [usuario, estado, aoEscrolar]);
 
   const aoCriarGrupo = (nome) => {
     if (nome === "")
@@ -62,27 +74,23 @@ export default function Grupos() {
       .catch((err) => alertaRef.current.addAlert(err));
   };
 
-  const aoDeletarGrupo = ({ id_grupo }) => {
-    apiSFE
-      .deletarGrupos(usuario.token, [id_grupo])
-      .then(() => {
-        setEstado((e) => e + 1);
-      })
-      .catch((err) => alertaRef.current.addAlert(err));
-  };
-
-  const aoAlocarEmGrupo = (grupo) => {
-    const novosDados = alunosEscohidos.map(({ id_aluno }) => ({
+  const aoAlocarNoGrupo = (grupo) => {
+    const novosDados = alunosAAlocar.map(({ id_aluno }) => ({
       id_aluno,
       id_grupo: grupo.id_grupo,
     }));
     apiSFE
       .editarAlunos(usuario.token, novosDados)
       .then(() => {
-        setAlunosEscolhidos([]);
+        setAlunosAAlocar([]);
         setEstado(estado + 1);
       })
       .catch((err) => alertaRef.current.addAlert(err));
+  };
+
+  const retornaNomeGrupo = ({ id_grupo }) => {
+    if (id_grupo === null) return "-";
+    return grupos.find((g) => g.id_grupo === id_grupo)?.nome_grupo;
   };
 
   const aoAlocarAutomaticamente = () => {
@@ -103,34 +111,64 @@ export default function Grupos() {
     apiSFE
       .editarAlunos(usuario.token, novosDados)
       .then(() => {
-        setAlunosEscolhidos([]);
-        setEditando(false);
+        setAlunosAAlocar([]);
         setEstado(estado + 1);
       })
       .catch((err) => alertaRef.current.addAlert(err));
   };
 
-  const alunoAAdicionarSelecionado = (aluno) =>
-    alunosEscohidos.find((a) => a.id_aluno === aluno.id_aluno) !== undefined;
+  const alunoAAlocarSelecionado = (aluno) =>
+    alunosAAlocar.find((a) => a.id_aluno === aluno.id_aluno) !== undefined;
 
-  const aoPreAdicionarAluno = (aluno) => {
-    let novosAlunos = alunosEscohidos;
-    if (!alunoAAdicionarSelecionado(aluno)) {
+  const aoSelecionarAlunosParaAlocar = (aluno) => {
+    let novosAlunos = alunosAAlocar;
+    if (!alunoAAlocarSelecionado(aluno)) {
       novosAlunos.push(aluno);
     } else {
-      novosAlunos = alunosEscohidos.filter(
-        (a) => a.id_aluno !== aluno.id_aluno
-      );
+      novosAlunos = alunosAAlocar.filter((a) => a.id_aluno !== aluno.id_aluno);
     }
-    setAlunosEscolhidos(Object.assign([], novosAlunos));
+    setAlunosAAlocar(Object.assign([], novosAlunos));
   };
 
   const alunoADeletarSelecionado = (aluno) =>
-    alunosADeletar.find((a) => a.id_aluno === aluno.id_aluno) !== undefined;
+    alunosADesalocar.find((a) => a.id_aluno === aluno.id_aluno) !== undefined;
 
-  const aoDeletarAlunos = () => {
-    if (alunosADeletar.length > 0) {
-      const novosDados = alunosADeletar.map(({ id_aluno }) => ({
+  const aoSelecionarAlunoParaDeletar = (aluno) => {
+    let novosAlunos = alunosADesalocar;
+    if (!alunoADeletarSelecionado(aluno)) {
+      novosAlunos.push(aluno);
+    } else {
+      novosAlunos = alunosADesalocar.filter(
+        (a) => a.id_aluno !== aluno.id_aluno
+      );
+    }
+    setAlunosADesalocar(Object.assign([], novosAlunos));
+  };
+
+  const aoSelecionarTodos = () => {
+    let novosAlunos = [];
+    if (alunosAAlocar.length !== alunos.length) {
+      novosAlunos.push(...alunos);
+    }
+    setAlunosAAlocar(novosAlunos);
+  };
+
+  const aoClicarEditar = () => {
+    setEditando(!editando);
+  };
+
+  const aoDeletarGrupo = ({ id_grupo }) => {
+    apiSFE
+      .deletarGrupos(usuario.token, [id_grupo])
+      .then(() => {
+        setEstado((e) => e + 1);
+      })
+      .catch((err) => alertaRef.current.addAlert(err));
+  };
+
+  const aoCliclarDeletarAluno = () => {
+    if (alunosADesalocar.length > 0) {
+      const novosDados = alunosADesalocar.map(({ id_aluno }) => ({
         id_aluno,
         id_grupo: null,
       }));
@@ -138,7 +176,7 @@ export default function Grupos() {
         .editarAlunos(usuario.token, novosDados)
         .then(() => {
           setDeletando(false);
-          setAlunosADeletar([]);
+          setAlunosADesalocar([]);
           setEstado(estado + 1);
         })
         .catch((err) => alertaRef.current.addAlert(err));
@@ -147,87 +185,76 @@ export default function Grupos() {
     }
   };
 
-  const aoPreDeletarAluno = (aluno) => {
-    let novosAlunos = alunosADeletar;
-    if (!alunoADeletarSelecionado(aluno)) {
-      novosAlunos.push(aluno);
-    } else {
-      novosAlunos = alunosADeletar.filter((a) => a.id_aluno !== aluno.id_aluno);
-    }
-    setAlunosADeletar(Object.assign([], novosAlunos));
-  };
-
-  const aoSelecionarTodos = () => {
-    let novosAlunos = [];
-    if (alunosEscohidos.length !== alunosSemGrupo.length) {
-      novosAlunos.push(...alunosSemGrupo);
-    }
-    setAlunosEscolhidos(novosAlunos);
-  };
-
-  const aoEditar = () => {
-    if (alunosSemGrupo.length > 0) setEditando(!editando);
-    else alertaRef.current.addAlert(new Error("Todos os alunos alocados"));
-  };
-
   return (
-    <div className="d-flex w-100 h-100 flex-column p-2">
-      <div className="row w-100">
-        <div className="col">
-          <BotaoTexto
-            aoClicar={aoEditar}
-            className="mb-2 me-3"
-            texto={textoBotaoEditar}
-          />
-          <BotaoTexto
-            aoClicar={aoDeletarAlunos}
-            className="mb-2"
-            texto={textoBotaoDeletar}
-          />
-        </div>
+    <div className="row w-100 justify-content-center">
+      <div
+        id="editar-selecionar"
+        className="col-12 position-sticky top-0 bg-white z-1"
+      >
+        <BotaoTexto
+          aoClicar={aoClicarEditar}
+          className="mb-2 me-3"
+          texto={textoBotaoEditar}
+        />
+        <BotaoTexto
+          aoClicar={aoCliclarDeletarAluno}
+          className="mb-2"
+          texto={textoBotaoDeletar}
+        />
       </div>
-
-      {grupos.map((grupo) => (
-        <DivCabecalhoDeletar
-          key={gerarChaveUnica()}
-          titulo={grupo.nome_grupo}
-          textoBotao="Deletar Grupo"
-          aoDeletar={() => aoDeletarGrupo(grupo)}
-        >
-          <TabelaPadrao
-            aoClicar={(aluno) => aoPreDeletarAluno(aluno)}
-            numerado
-            camposCabecalho={[
-              { texto: "#", visivel: true },
-              { texto: "Nome", visivel: true },
-              { texto: "Matricula", visivel: true },
-              { texto: "Deletar", visivel: deletando },
-            ]}
-            dados={grupo?.alunos}
-            campoDadosUnico="id_aluno"
-            camposDados={[
-              { texto: "nome", visivel: true },
-              { texto: "matricula", visivel: true },
-              {
-                check: true,
-                selecionado: (aluno) => alunoADeletarSelecionado(aluno),
-                visivel: deletando,
-              },
-            ]}
-          />
-        </DivCabecalhoDeletar>
-      ))}
-
-      {sessaoEditarVisible ? (
-        <div className="row w-100 m-0 ms-1">
-          <div className="col-12 mb-3 p-0">
+      {!editando ? (
+        <>
+          <div className="col-sm-12 col-xl-8">
+            {grupos.map((grupo) => (
+              <div className="mb-2" key={gerarChaveUnica()}>
+                <DivCabecalhoDeletar
+                  titulo={grupo.nome_grupo}
+                  textoBotao="Deletar Grupo"
+                  aoDeletar={() => aoDeletarGrupo(grupo)}
+                >
+                  <TabelaPadrao
+                    aoClicar={(aluno) => aoSelecionarAlunoParaDeletar(aluno)}
+                    numerado
+                    camposCabecalho={[
+                      { texto: "#", visivel: true },
+                      { texto: "Nome", visivel: true },
+                      { texto: "Matricula", visivel: true },
+                      { texto: "Deletar", visivel: deletando },
+                    ]}
+                    dados={grupo?.alunos}
+                    campoDadosUnico="id_aluno"
+                    camposDados={[
+                      { texto: "nome", visivel: true },
+                      { texto: "matricula", visivel: true },
+                      {
+                        check: true,
+                        selecionado: (aluno) => alunoADeletarSelecionado(aluno),
+                        visivel: deletando,
+                      },
+                    ]}
+                  />
+                </DivCabecalhoDeletar>
+              </div>
+            ))}
+          </div>
+          <div className="col-sm-12 col-xl-8 mb-5 mt-5">
+            <InputBotao
+              textoReferencia={"Nome do grupo"}
+              maximaLargura={300}
+              aoClicar={aoCriarGrupo}
+            />
+          </div>
+        </>
+      ) : (
+        <>
+          <div className="col-sm-12 col-xl-8 mb-3">
             <BotaoDrop
-              textoBotao="Preencher..."
+              textoBotao="Alocar..."
               dadosMenu={grupos
                 .map((g) => ({
                   texto: g.nome_grupo,
-                  visible: alunosEscohidos.length > 0,
-                  acao: () => aoAlocarEmGrupo(g),
+                  visible: alunosAAlocar.length > 0,
+                  acao: () => aoAlocarNoGrupo(g),
                 }))
                 .concat([
                   {
@@ -238,41 +265,40 @@ export default function Grupos() {
                 ])}
             />
           </div>
-          <div className="col-12 p-0 mb-1">
+          <div className="col-sm-12 col-xl-8 mb-1">
             <BotaoTexto
               aoClicar={aoSelecionarTodos}
               texto={
-                alunosSemGrupo.length === alunosEscohidos.length
+                alunosAAlocar.length === alunos.length
                   ? "Desfazer"
                   : "Selecionar todos"
               }
             />
           </div>
-          <div className="col-5 p-0">
+          <div className="col-sm-12 col-xl-8">
             <TabelaPadrao
-              aoClicar={(aluno) => aoPreAdicionarAluno(aluno)}
-              dados={alunosSemGrupo}
+              aoClicar={(aluno) => aoSelecionarAlunosParaAlocar(aluno)}
+              dados={alunos.map((a) => ({
+                ...a,
+                nome_grupo: retornaNomeGrupo(a),
+              }))}
               camposCabecalho={[
-                { texto: "Nome", visivel: true },
+                { texto: "Nome aluno", visivel: true },
+                { texto: "Grupo alocado", visivel: true },
                 { texto: "Selecionar", visivel: true },
               ]}
               camposDados={[
                 { texto: "nome", visivel: true },
+                { texto: "nome_grupo", visivel: true },
                 {
                   check: true,
                   visivel: true,
-                  selecionado: (dado) => alunoAAdicionarSelecionado(dado),
+                  selecionado: (dado) => alunoAAlocarSelecionado(dado),
                 },
               ]}
             />
           </div>
-        </div>
-      ) : (
-        <InputBotao
-          textoReferencia={"Nome do grupo"}
-          maximaLargura={300}
-          aoClicar={aoCriarGrupo}
-        />
+        </>
       )}
     </div>
   );
