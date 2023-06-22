@@ -103,8 +103,8 @@ export default function MenuLayout(props) {
             </div>
             <div className="position-fixed h-100 bg-menu-dark" ref={wrapperRef} id="my-fixed-left"
                 style={isClosedFixed
-                    ? { display: "none", width: "200px", transform: "translate(-200px, 0px)", transition: "transform 100ms", zIndex: 100 }
-                    : { display: "none", width: "200px", transform: "translate(0px, 0px)", transition: "transform 100ms", zIndex: 100, boxShadow: "2px 0px 20px var(--bs-menu-dark-dark)" }}
+                    ? { display: "none", width: "200px", transform: "translate(-200px, 0px)", transition: "transform 100ms", zIndex: 1090 }
+                    : { display: "none", width: "200px", transform: "translate(0px, 0px)", transition: "transform 100ms", zIndex: 1090, boxShadow: "2px 0px 20px var(--bs-menu-dark-dark)" }}
                 onMouseUp={onMouseUp} onMouseDown={onMouseDown} onMouseMove={onMouseMove}
                 onTouchStart={onMouseDown} onTouchEnd={onMouseUp} onTouchMove={onMouseMove}>
                 <FixedMenu navs={props.navs} close={() => setIsClosedFixed(true)} />

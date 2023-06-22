@@ -3,10 +3,11 @@ import CardRadios from "../../components/cards/CardRadios";
 import Estagios from "./Estagios";
 import Grupos from "./Grupos";
 import Atividades from "./Atividades";
+import Planejamento from "./Planejamento";
 
 export default function Organization() {
   const [indexRadio, setIndexRadio] = useState(0);
-  const radios = ["Grupos", "Estágios", "Atividades"];
+  const radios = ["Grupos", "Estágios", "Atividades", "Planejamento"];
 
   return (
     <CardRadios radios={radios} newIndex={setIndexRadio}>
@@ -17,6 +18,8 @@ export default function Organization() {
           <Estagios />
         ) : indexRadio === 2 ? (
           <Atividades />
+        ) : indexRadio === 3 ? (
+          <Planejamento />
         ) : undefined}
       </div>
     </CardRadios>
