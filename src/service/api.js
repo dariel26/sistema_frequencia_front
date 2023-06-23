@@ -54,10 +54,11 @@ const apiSFE = {
 
     //ATIV-LOCAL
     listarAtividadesLocal: async (token) => await api.get("/api/v1/ativ-local", { headers: { token } }),
-    adicionarAtividadesLocal: async (token, dados) => await api.get("/api/v1/ativ-local", { dados }, { headers: { token } }),
+    adicionarAtividadesLocal: async (token, dados) => await api.post("/api/v1/ativ-local", { dados }, { headers: { token } }),
     deletarAtividadesLocal: async (token, ids) => await api.delete("/api/v1/ativ-local/" + ids.join(","), { headers: { token } }),
     editarAtividadesLocal: async (token, novosDados) => await api.put("/api/v1/ativ-local", { novosDados }, { headers: { token } }),
 
+    
     listaLugares: async (token) => await api.get("/api/v1/local", { headers: { token } }),
     adicionaLugar: async (token, place) => await api.post("/api/v1/local", place, { headers: { token } }),
     deletaLugar: async (token, id) => await api.delete("/api/v1/local/" + id, { headers: { token } }),

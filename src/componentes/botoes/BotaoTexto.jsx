@@ -1,5 +1,5 @@
-export default function BotaoTexto({ className, aoClicar, texto }) {
-  return (
+export default function BotaoTexto({ className, aoClicar, texto, visivel }) {
+  return visivel ? (
     <label
       role="button"
       className={"text-primary " + className}
@@ -7,5 +7,5 @@ export default function BotaoTexto({ className, aoClicar, texto }) {
     >
       {texto}
     </label>
-  );
+  ) : undefined;
 }

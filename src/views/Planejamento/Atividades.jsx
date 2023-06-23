@@ -159,7 +159,7 @@ export default function Atividades() {
   };
 
   return (
-    <div className="row w-100 justify-content-center">
+    <div className="row w-100 justify-content-center m-0">
       <div
         id="editar-selecionar"
         className="col-12 position-sticky top-0 bg-white z-1"
@@ -168,11 +168,13 @@ export default function Atividades() {
           aoClicar={aoEditar}
           className="mb-2 me-3"
           texto={editando ? "Voltar" : "Editar"}
+          visivel
         />
         <BotaoTexto
           className="mb-2"
           aoClicar={aoDeletarAtividades}
           texto={textoSelecao}
+          visivel={!editando}
         />
       </div>
       {!editando ? (

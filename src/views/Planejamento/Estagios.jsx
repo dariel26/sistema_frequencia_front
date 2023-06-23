@@ -221,7 +221,7 @@ export default function Estagios() {
   };
 
   return (
-    <div className="row w-100 justify-content-center">
+    <div className="row w-100 justify-content-center m-0">
       <div
         id="editar-selecionar"
         className="col-12 position-sticky top-0 bg-white z-1"
@@ -230,11 +230,13 @@ export default function Estagios() {
           aoClicar={aoEditar}
           className="mb-2 me-3"
           texto={editando ? "Voltar" : "Editar"}
+          visivel
         />
         <BotaoTexto
           aoClicar={aoDeletarGrupo}
           className="mb-2"
           texto={textoBotaoSelecionar}
+          visivel={!editando}
         />
       </div>
       {!editando ? (

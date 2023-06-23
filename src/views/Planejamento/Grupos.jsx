@@ -186,7 +186,7 @@ export default function Grupos() {
   };
 
   return (
-    <div className="row w-100 justify-content-center">
+    <div className="row w-100 justify-content-center m-0">
       <div
         id="editar-selecionar"
         className="col-12 position-sticky top-0 bg-white z-1"
@@ -195,11 +195,13 @@ export default function Grupos() {
           aoClicar={aoClicarEditar}
           className="mb-2 me-3"
           texto={textoBotaoEditar}
+          visivel
         />
         <BotaoTexto
           aoClicar={aoCliclarDeletarAluno}
           className="mb-2"
           texto={textoBotaoDeletar}
+          visivel={!editando}
         />
       </div>
       {!editando ? (
