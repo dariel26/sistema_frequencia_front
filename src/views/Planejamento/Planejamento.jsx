@@ -1,172 +1,236 @@
-import { useEffect } from "react";
 import { useContext } from "react";
-import { useRef } from "react";
-import { useState } from "react";
-import BotaoTexto from "../../componentes/botoes/BotaoTexto";
-import DivCabecalhoDeletar from "../../componentes/divs/DivCabecalhoDeletar";
-import TabelaPadrao from "../../componentes/tabelas/TabelaPadrao";
-import { AlertaContext } from "../../filters/alert/Alert";
+import { useEffect, useState } from "react";
+import CheckDias from "../../componentes/inputs/CheckDias";
+import InputBotao from "../../componentes/inputs/InputBotao";
+import InputChave from "../../componentes/inputs/InputChave";
+import InputHora from "../../componentes/inputs/InputHora";
+import InputNumero from "../../componentes/inputs/InputNumero";
 import { UsuarioContext } from "../../filters/User";
 import apiSFE from "../../service/api";
-import { gerarChaveUnica } from "../../utils";
-import { PlanejamentoEditando } from "./PlanejamentoEditando";
+import {
+  corClaraRandomica,
+  formatarDataAMD,
+  formatarDataDMA,
+  gerarChaveUnica,
+  obterDatasPorDiaSemana,
+  transformarStringAMDEmData,
+} from "../../utils";
+import InputSelecao from "../../componentes/inputs/InputSelecao";
+import Calendario from "../../componentes/calendario/Calendario";
 
 export default function Planejamento() {
-  const [editando, setEditando] = useState(false);
-  const [deletando, setDeletando] = useState(false);
-  const [ativsLocalADeletar, setAtivsLocalADeletar] = useState([]);
-  const [ativsLocal, setAtivsLocal] = useState([]);
-  const [estado, setEstado] = useState(0);
+  const [alunos, setAlunos] = useState([]);
   const [atividades, setAtividades] = useState([]);
-  const [locais, setLocais] = useState([]);
-  const [estagios, setEstagios] = useState([]);
-  const [grupos, setGrupos] = useState([]);
   const [preceptores, setPreceptores] = useState([]);
+  const [estagios, setEstagios] = useState([]);
 
   const usuario = useContext(UsuarioContext);
-  const alertaRef = useRef(useContext(AlertaContext));
 
-  const associacoes = ativsLocal.filter((al) => al.id_atividadelocal !== null);
-  const textoSelecao = deletando
-    ? "Cancelar"
-    : ativsLocalADeletar.length > 0
-    ? "Deletar"
-    : "Selecionar";
+  let menorData = transformarStringAMDEmData(
+    estagios[0]?.grupos[0]?.data_inicial
+  );
+  let maiorData = transformarStringAMDEmData(
+    estagios[0]?.grupos[0]?.data_inicial
+  );
+  estagios[0]?.grupos.forEach(({ data_inicial, data_final }) => {
+    const dataI = transformarStringAMDEmData(data_inicial);
+    const dataF = transformarStringAMDEmData(data_final);
+    if (dataI < menorData) menorData = dataI;
+    if (dataI > maiorData) maiorData = dataI;
+    if (dataF < menorData) menorData = dataF;
+    if (dataF > maiorData) maiorData = dataF;
+  });
+  const totalAlunos = alunos.length;
 
   useEffect(() => {
-    const p_ativsLocal = apiSFE.listarAtividadesLocal(usuario.token);
-    const p_atividades = apiSFE.listarAtividades(usuario.token);
-    const p_locais = apiSFE.listaLugares(usuario.token);
-    const p_estagios = apiSFE.listarEstagios(usuario.token);
-    const p_grupos = apiSFE.listarGrupos(usuario.token);
-    const p_preceptores = apiSFE.listarPreceptores(usuario.token);
+    const token = usuario.token;
+    const p_alunos = apiSFE.listarAlunos(token);
+    const p_preceptores = apiSFE.listarPreceptores(token);
+    const p_estagios = apiSFE.listarEstagios(token);
 
-    Promise.all([
-      p_ativsLocal,
-      p_atividades,
-      p_locais,
-      p_estagios,
-      p_grupos,
-      p_preceptores,
-    ]).then((res) => {
-      const ativsLocal = res[0].data;
-      const atividades = res[1].data;
-      const locais = res[2].data;
-      const estagios = res[3].data;
-      const grupos = res[4].data;
-      const preceptores = res[5].data;
+    Promise.all([p_alunos, p_preceptores, p_estagios]).then((res) => {
+      const alunos = res[0].data;
+      const preceptores = res[1].data;
+      const estagios = res[2].data;
 
-      setAtivsLocal(ativsLocal);
-      setAtividades(atividades);
-      setLocais(locais);
-      setEstagios(estagios);
-      setGrupos(grupos);
       setPreceptores(preceptores);
+      setAlunos(alunos);
+      setEstagios(estagios);
     });
-  }, [estado]);
+  }, [usuario]);
 
-  const aoAssociarAtividade = (local, atividadesLocal) => {
-    if (atividadesLocal.length < 1)
-      return alertaRef.current.addAlert(
-        new Error("Nenhuma atividade selecionada")
-      );
-    if (local.id_local === null) {
-      const ids = atividadesLocal.map((al) => al.id_atividadelocal);
-      apiSFE
-        .deletarAtividadesLocal(usuario.token, ids)
-        .then(() => setEstado(estado + 1))
-        .catch((err) => alertaRef.current.addAlert(err));
-    } else {
-      const aCriar = atividadesLocal.map((dado) => ({
-        id_atividade: dado.id_atividade,
-        id_local: local.id_local,
-      }));
-
-      apiSFE
-        .adicionarAtividadesLocal(usuario.token, aCriar)
-        .then(() => setEstado(estado + 1))
-        .catch((err) => alertaRef.current.addAlert(err));
-    }
-  };
-  const aoAssociarPreceptor = (preceptor, atividadesLocal) => {
-    if (atividadesLocal.length < 1)
-      return alertaRef.current.addAlert(
-        new Error("Nenhuma atividade selecionada")
-      );
-    if (atividadesLocal.some((al) => al.id_atividadelocal === null))
-      return alertaRef.current.addAlert(
-        new Error("Todas as atividades selecionadas devem possuir local")
-      );
-
-    const novosDados = atividadesLocal.map((al) => ({
-      id_atividadelocal: al.id_atividadelocal,
-      id_preceptor: preceptor.id_preceptor,
-    }));
-
-    console.log(novosDados);
-    apiSFE
-      .editarAtividadesLocal(usuario.token, novosDados)
-      .then(() => setEstado(estado + 1))
-      .catch((err) => alertaRef.current.addAlert(err));
-  };
-
-  const aoEditar = () => {
-    setEditando(!editando);
+  const aoAlocarAtividade = (id_grupo, nome) => {
+    const novasAtividades = atividades;
+    novasAtividades.push({ id_grupo, nome });
+    setAtividades(Object.assign([], novasAtividades));
   };
 
   return (
-    <div className="row w-100 justify-content-center m-0">
-      <div
-        id="editar-selecionar"
-        className="col-12 position-sticky top-0 bg-white z-1"
-      >
-        <BotaoTexto
-          aoClicar={aoEditar}
-          className="mb-2 me-3"
-          texto={editando ? "Voltar" : "Editar"}
-          visivel
+    <div className="row w-100 m-0 justify-content-center">
+      <div className="col-sm-12 col-xl-8 mb-1">
+        <span className="fs-5 fw-bold">Todos os alunos</span>
+      </div>
+      <div className="col-sm-12 col-xl-8 mb-2">
+        <span className="ms-1">{"Total de alunos: " + totalAlunos}</span>
+      </div>
+      <div className="col-sm-12 col-xl-8 mb-2">
+        <span className="ms-1">
+          {"Intervalo: " +
+            formatarDataDMA(menorData) +
+            " - " +
+            formatarDataDMA(maiorData)}
+        </span>
+      </div>
+      {atividades.map((atividade) => (
+        <div className="col-sm-12 col-xl-8 mb-2" key={gerarChaveUnica()}>
+          <div className="ms-1">
+            <Atividade
+              key={gerarChaveUnica()}
+              atividade={atividade}
+              alunos={alunos}
+              preceptores={preceptores}
+              dataFinal={maiorData}
+              dataInicial={menorData}
+            />
+          </div>
+        </div>
+      ))}
+      <div className="col-sm-12 col-xl-8">
+        <InputBotao
+          className="ms-1"
+          textoReferencia="Adicione uma atividade"
+          aoClicar={(nome) => aoAlocarAtividade(null, nome)}
+          maximaLargura={300}
         />
       </div>
-      {!editando && associacoes.length < 1 ? (
-        <div className="col-sm-5 fw-bold text-center text-danger">
-          Nenhum registro encontrado.
+    </div>
+  );
+}
+
+function Atividade({ atividade, alunos, preceptores, dataInicial, dataFinal }) {
+  const [intercalar, setIntercalar] = useState(false);
+  const [temExecao, setTemExecao] = useState(false);
+  const [datasExecao, setDatasExecao] = useState([]);
+  const [datasEscolhidas, setDatasEscolhidas] = useState([]);
+
+  const corClara = corClaraRandomica();
+
+  const aoEscolherDataExecao = (data) => {
+    let novasDatasEscolhidas = datasEscolhidas;
+    let novasDatasExecao = datasExecao;
+
+    const aDataEEscolhida = datasEscolhidas.findIndex(
+      (d) => formatarDataAMD(d.start) === formatarDataAMD(data.date)
+    );
+    if(!aDataEEscolhida) return;
+    
+  };
+  const aoEscolherDias = (dias) => {
+    setDatasEscolhidas(
+      obterDatasPorDiaSemana(dataInicial, dataFinal, dias)?.map((data) => ({
+        allDay: true,
+        start: data,
+        end: data,
+        display: "background",
+        color: corClara,
+      }))
+    );
+  };
+
+  return (
+    <div className="row w-100 m-0 justify-content-center border border-2 overflow-hidden rounded">
+      <div className="col-sm-12 text-center">
+        <span className="fw-bold">{atividade.nome}</span>
+      </div>
+      <div className="col-sm-12 mb-1">
+        <span className="ms-1">Preceptor:</span>
+      </div>
+      <div className="col-sm-12 mb-2">
+        <InputSelecao
+          titulo="Preceptor"
+          textoReferencia="Escolha o preceptor"
+          campoSelecao="nome"
+          opcoesSelecao={preceptores}
+          textoBotao="Alocar"
+          aoSubmeter={(valor) => {
+            console.log(valor);
+          }}
+          larguraMaxima={500}
+        />
+      </div>
+      <div className="col-sm-12 mb-1">
+        <span className="ms-1">Dias da semana:</span>
+      </div>
+      <div className="col-sm-12 mb-2">
+        <CheckDias aoMudar={(dias) => aoEscolherDias(dias)} />
+      </div>
+      <div className="col-sm-12 mb-1">
+        <span className="ms-1">Hora inicial:</span>
+      </div>
+      <div className="col-sm-12 mb-2">
+        <InputHora
+          textoReferencia="HH:MM"
+          maximaLargura={150}
+          textoBotao="Salvar"
+        />
+      </div>
+      <div className="col-sm-12 mb-1">
+        <span className="ms-1">Hora final:</span>
+      </div>
+      <div className="col-sm-12 mb-2">
+        <InputHora
+          textoReferencia="HH:MM"
+          maximaLargura={150}
+          textoBotao="Salvar"
+        />
+      </div>
+      <div
+        className={
+          "row w-100 m-0 p-0 mb-2 " +
+          (intercalar ? "border-top border-bottom" : "")
+        }
+      >
+        <div>
+          <span className="ms-1">Intercalar alunos</span>
+        </div>
+        <div className="col-sm-12">
+          <InputChave aoMudar={setIntercalar} />
+        </div>
+        {intercalar ? (
+          <>
+            <div className="col-sm-12 mb-1">
+              <span className="ms-1">{`Quantidade de alunos (1 - ${
+                alunos.length - 1
+              })`}</span>
+            </div>
+            <div className="col-sm-12 mb-2">
+              <InputNumero
+                numeroInicial={1}
+                numeroMax={alunos.length - 1}
+                maximaLargura={150}
+                textoBotao="salvar"
+              />
+            </div>
+          </>
+        ) : undefined}
+      </div>
+      <div className="col-sm-12 mb-1">
+        <span className="ms-1">Escolher datas de exeção</span>
+      </div>
+      <div className="col-sm-12">
+        <InputChave aoMudar={setTemExecao} />
+      </div>
+      {temExecao ? (
+        <div className="col-sm-12 mb-2">
+          <Calendario
+            altura={500}
+            eventos={datasExecao}
+            aoClicarData={aoEscolherDataExecao}
+          />
         </div>
       ) : undefined}
-      {!editando ? (
-        <>
-          <div className="col-sm-12 col-xl-8">
-            {associacoes.map((associacao) => (
-              <div
-                className="mb-2 border-bottom border-4 border-primary"
-                key={gerarChaveUnica()}
-              >
-                <div className="d-flex align-items-center justify-content-between">
-                  <span className="fs-5 fw-bold">
-                    {associacao.nome_atividade}
-                  </span>
-                </div>
-                <div className="row w-100 align-items-center pb-2 border-bottom m-0">
-                  <div className="col-sm-8 p-0 mb-1">
-                    <span>Local: </span>
-                    <span className="fw-bold">{associacao.nome_local}</span>
-                  </div>
-                </div>
-                <div className="row w-100 align-items-center pb-2 border-bottom m-0"></div>
-              </div>
-            ))}
-          </div>
-        </>
-      ) : (
-        <PlanejamentoEditando
-          ativsLocal={ativsLocal}
-          locais={locais}
-          estagios={estagios}
-          grupos={grupos}
-          preceptores={preceptores}
-          aoAssociarAtividade={aoAssociarAtividade}
-          aoAssociarPreceptor={aoAssociarPreceptor}
-        />
-      )}
+
+      <div className="mb-3" />
     </div>
   );
 }

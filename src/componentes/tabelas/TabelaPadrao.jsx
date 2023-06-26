@@ -20,7 +20,7 @@ export default function TabelaPadrao({
   );
 
   return (
-    <table className="table table-striped table-hover">
+    <table className="table table-striped table-hover table-sm">
       <thead>
         <tr className="text-center">
           {camposCabecalho?.map(({ texto, visivel }) => {

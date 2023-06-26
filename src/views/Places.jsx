@@ -30,7 +30,7 @@ export default function Places() {
 
   useEffect(() => {
     apiSFE
-      .listaLugares(usuario.token)
+      .listarLocais(usuario.token)
       .then((res) => {
         setPlaces(
           res.data.map((p) => ({
@@ -51,7 +51,7 @@ export default function Places() {
 
   const onDelete = (place) => {
     apiSFE
-      .deletaLugar(usuario.token, place.id_local)
+      .deletarLocais(usuario.token, [place.id_local])
       .then(() => setRefresh((refresh) => refresh + 1))
       .catch((err) => alertaRef.addAlert(err));
   };
@@ -63,7 +63,7 @@ export default function Places() {
       coordenadas: JSON.stringify({ lat: latlng.lat, lon: latlng.lng }),
     };
     apiSFE
-      .adicionaLugar(usuario.token, newPlace)
+      .adicionarLocais(usuario.token, [newPlace])
       .then(() => {
         setName("");
         setLatlng({});

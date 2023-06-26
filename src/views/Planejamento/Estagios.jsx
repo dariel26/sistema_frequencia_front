@@ -4,10 +4,10 @@ import apiSFE from "../../service/api";
 import { UsuarioContext } from "../../filters/User";
 import { AiOutlineDelete } from "react-icons/ai";
 import "react-datepicker/dist/react-datepicker.css";
-import InputBotao from "../../components/inputs/InputBotao";
+import InputBotao from "../../componentes/inputs/InputBotao";
 import BotaoTexto from "../../componentes/botoes/BotaoTexto";
 import DivCabecalhoDeletar from "../../componentes/divs/DivCabecalhoDeletar";
-import { formatarData, gerarChaveUnica } from "../../utils";
+import { formatarDataAMD, gerarChaveUnica } from "../../utils";
 import TabelaPadrao from "../../componentes/tabelas/TabelaPadrao";
 import FormSelecao from "../../componentes/formularios/FormSelecao";
 import FormData from "../../componentes/formularios/FormData";
@@ -216,7 +216,7 @@ export default function Estagios() {
 
   const aoDeletarData = (data) => {
     setDatas((datas) =>
-      datas.filter((d) => formatarData(d.data_inicial) !== data.data_inicial)
+      datas.filter((d) => formatarDataAMD(d.data_inicial) !== data.data_inicial)
     );
   };
 
@@ -360,8 +360,8 @@ export default function Estagios() {
                 { texto: "Deletar", visivel: true },
               ]}
               dados={datas.map(({ data_inicial, data_final }) => ({
-                data_inicial: formatarData(data_inicial),
-                data_final: formatarData(data_final),
+                data_inicial: formatarDataAMD(data_inicial),
+                data_final: formatarDataAMD(data_final),
               }))}
               camposDados={[
                 { data: "data_inicial", visivel: true },

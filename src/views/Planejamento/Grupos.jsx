@@ -2,7 +2,7 @@ import { useState, useContext, useEffect, useRef, useCallback } from "react";
 import { AlertaContext } from "../../filters/alert/Alert";
 import apiSFE from "../../service/api";
 import { UsuarioContext } from "../../filters/User";
-import InputBotao from "../../components/inputs/InputBotao";
+import InputBotao from "../../componentes/inputs/InputBotao";
 import TabelaPadrao from "../../componentes/tabelas/TabelaPadrao";
 import BotaoTexto from "../../componentes/botoes/BotaoTexto";
 import DivCabecalhoDeletar from "../../componentes/divs/DivCabecalhoDeletar";
@@ -22,7 +22,7 @@ export default function Grupos() {
   const textoBotaoEditar = editando ? "Voltar" : "Editar";
   const textoBotaoDeletar = deletando
     ? alunosADesalocar.length > 0
-      ? "Deletar"
+      ? "Desassociar"
       : "Cancelar"
     : "Selecionar";
 
@@ -221,7 +221,7 @@ export default function Grupos() {
                       { texto: "#", visivel: true },
                       { texto: "Nome", visivel: true },
                       { texto: "Matricula", visivel: true },
-                      { texto: "Deletar", visivel: deletando },
+                      { texto: "Desassociar", visivel: deletando },
                     ]}
                     dados={grupo?.alunos}
                     campoDadosUnico="id_aluno"

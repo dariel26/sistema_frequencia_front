@@ -46,22 +46,11 @@ const apiSFE = {
     adicionarGruposAEstagios: async (token, dados) => await api.post("/api/v1/estagio-grupo", { dados }, { headers: { token } }),
     deletarGruposDeEstagios: async (token, ids) => await api.delete("/api/v1/estagio-grupo/" + ids.join(","), { headers: { token } }),
 
-    //ATIVIDADES
-    listarAtividades: async (token) => await api.get("/api/v1/atividade", { headers: { token } }),
-    adicionarAtividades: async (token, atividades) => await api.post("/api/v1/atividade", { atividades }, { headers: { token } }),
-    deletarAtividades: async (token, ids) => await api.delete("/api/v1/atividade/" + ids.join(","), { headers: { token } }),
-    editarAtividades: async (token, novosDados) => await api.put("/api/v1/atividade", { novosDados }, { headers: { token } }),
-
-    //ATIV-LOCAL
-    listarAtividadesLocal: async (token) => await api.get("/api/v1/ativ-local", { headers: { token } }),
-    adicionarAtividadesLocal: async (token, dados) => await api.post("/api/v1/ativ-local", { dados }, { headers: { token } }),
-    deletarAtividadesLocal: async (token, ids) => await api.delete("/api/v1/ativ-local/" + ids.join(","), { headers: { token } }),
-    editarAtividadesLocal: async (token, novosDados) => await api.put("/api/v1/ativ-local", { novosDados }, { headers: { token } }),
-
-    
-    listaLugares: async (token) => await api.get("/api/v1/local", { headers: { token } }),
-    adicionaLugar: async (token, place) => await api.post("/api/v1/local", place, { headers: { token } }),
-    deletaLugar: async (token, id) => await api.delete("/api/v1/local/" + id, { headers: { token } }),
+    //LOCAL
+    listarLocais: async (token) => await api.get("/api/v1/local", { headers: { token } }),
+    adicionarLocais: async (token, locais) => await api.post("/api/v1/local", { locais }, { headers: { token } }),
+    deletarLocais: async (token, ids) => await api.delete("/api/v1/local/" + ids.join(","), { headers: { token } }),
+    editarLocais: async (token, novosDados) => await api.put("/api/v1/local", { novosDados }, { headers: { token } }),
 }
 
 export default apiSFE;

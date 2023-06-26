@@ -5,8 +5,10 @@ export default function InputBotao({
   aoClicar,
   altura,
   maximaLargura,
+  className,
+  textoInicial = "",
 }) {
-  const [valor, setValor] = useState("");
+  const [valor, setValor] = useState(textoInicial);
 
   const valorVazio = valor === "" || valor === undefined;
 
@@ -24,7 +26,7 @@ export default function InputBotao({
 
   return (
     <div
-      className="input-group"
+      className={"input-group " + className}
       style={{ height: `${altura}px`, maxWidth: `${maximaLargura}px` }}
     >
       <input
