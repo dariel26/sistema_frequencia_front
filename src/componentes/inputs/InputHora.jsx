@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Spinner } from "react-bootstrap";
 
 export default function InputHora({
   textoReferencia,
@@ -7,9 +8,10 @@ export default function InputHora({
   maximaLargura,
   className,
   textoBotao = "Criar",
-  textoInicial = ""
+  textoInicial = "",
 }) {
   const [valor, setValor] = useState(textoInicial);
+  const [salvando, setSalvando] = useState(false);
 
   const valorIncompleto = valor === undefined || valor.length < 5;
 
@@ -33,7 +35,10 @@ export default function InputHora({
   const aoSubmeter = (e) => {
     if (valorIncompleto) return;
     e.preventDefault();
-    aoClicar(valor);
+    setSalvando(true);
+    aoClicar(valor).finally(() => {
+      setSalvando(false);
+    });
   };
 
   return (
@@ -53,6 +58,9 @@ export default function InputHora({
         disabled={valorIncompleto}
         onClick={aoSubmeter}
       >
+        {salvando ? (
+          <Spinner size="sm" animation="grow" className="me-2" />
+        ) : undefined}
         {textoBotao}
       </button>
     </div>

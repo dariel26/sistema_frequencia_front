@@ -42,7 +42,7 @@ export default function Alert(props) {
     setTimeOutReference(time);
   };
 
-  const addAlert = (error, mess) => {
+  const adicionaAlerta = (error, mess) => {
     let varianteTexto = "";
     let varianteAlerta = "";
     let mensagem = "";
@@ -97,7 +97,7 @@ export default function Alert(props) {
           <p>{alert.message}</p>
         </div>
       ) : undefined}
-      <AlertaContext.Provider value={{ addAlert }}>
+      <AlertaContext.Provider value={{ addAlert: adicionaAlerta, adicionaAlerta }}>
         {props.children}
       </AlertaContext.Provider>
     </>

@@ -1,15 +1,13 @@
-$primary: #f17300;
-$secondary: #9da9a0;
-$light: #f5e6da;
-$dark: #151515;
-$success: #11a672;
-$danger: #d90368;
-$success-text: #11a672;
-$success-bg-subtle: #caf5e1;
-$success-border-subtle: #11a672;
-$danger-text: #d90368;
-$danger-bg-subtle: #dbc8d1;
-$danger-border-subtle: #d90368;
+$primary: #1B3624;
+$secondary: #AFB6C0;
+$light: #D2EEDC;
+$dark: #0E1B11;
+$success: #137547;
+$danger: #EF5B5B;
+$warning: #FFBA49;
+$success-text: #062315;
+$danger-text: #4A0808;
+$warning-text: #3D2600;
 $box-shadow-sm: 0px 4px 4px -1px rgba($dark, 0.075);
 
 @import "~bootstrap/scss/functions";
@@ -17,12 +15,12 @@ $box-shadow-sm: 0px 4px 4px -1px rgba($dark, 0.075);
 @import "~bootstrap/scss/mixins";
 
 $menu-theme-colors: (
-  "menu-dark-dark": #331900,
-  "menu-dark": #401f00,
-  "menu-dark-light": #4d2500,
-  "menu-light": #803e00,
+  "menu-dark-dark": #1A2223,
+  "menu-dark": #232D2F,
+  "menu-dark-light": #2C383A,
+  "menu-light": #718F94,
   "menu-primary": $primary,
-  "menu-active": #ffd773,
+  "menu-active": #DBCFB0,
 );
 
 $custom-theme-colors: (

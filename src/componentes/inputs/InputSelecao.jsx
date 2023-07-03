@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Spinner } from "react-bootstrap";
 import { Typeahead } from "react-bootstrap-typeahead";
 
 export default function InputSelecao({
@@ -9,8 +10,10 @@ export default function InputSelecao({
   textoBotao,
   aoSubmeter,
   larguraMaxima,
+  textoInicial = "",
 }) {
   const [valor, setValor] = useState({});
+  const [salvando, setSalvado] = useState(false);
 
   const aoMudar = (valor) => {
     if (valor.length < 1) {
@@ -21,8 +24,8 @@ export default function InputSelecao({
 
   const aoClicar = (e) => {
     e.preventDefault();
-    if (valor[campoSelecao] === undefined) return;
-    aoSubmeter(valor);
+    setSalvado(true);
+    aoSubmeter(valor).finally(() => setSalvado(false));
   };
 
   return (
@@ -38,14 +41,18 @@ export default function InputSelecao({
           emptyLabel={textoVazio}
           onChange={aoMudar}
           options={opcoesSelecao}
+          defaultInputValue={textoInicial}
         />
       </div>
       <div className="col mt-1">
         <button
-          disabled={valor[campoSelecao] === undefined}
+          disabled={valor[campoSelecao] === undefined || salvando}
           className="btn btn-secondary"
           onClick={aoClicar}
         >
+          {salvando ? (
+            <Spinner animation="grow" size="sm" className="me-2" />
+          ) : undefined}
           {textoBotao}
         </button>
       </div>

@@ -23,9 +23,11 @@ export function gerarChaveUnica() {
 }
 
 export function formatarDataAMD(data) {
-    const ano = data.getFullYear();
-    const mes = String(data.getMonth() + 1).padStart(2, '0');
-    const dia = String(data.getDate()).padStart(2, '0');
+    if (data === undefined) return;
+    if (typeof data !== typeof new Date()) return;
+    const ano = data?.getFullYear();
+    const mes = String(data?.getMonth() + 1).padStart(2, '0');
+    const dia = String(data?.getDate()).padStart(2, '0');
 
     return `${ano}/${mes}/${dia}`;
 }
@@ -33,9 +35,11 @@ export function formatarDataAMD(data) {
 export function transformarStringAMDEmData(string) {
     if (string === undefined) return;
     if (string.length < 10) return;
-    const ano = string.substring(0, 4);
-    const mes = string.substring(5, 7);
-    const dia = string.substring(8, 10);
+    if (typeof string !== typeof String()) return;
+
+    const ano = string?.substring(0, 4);
+    const mes = string?.substring(5, 7);
+    const dia = string?.substring(8, 10);
     if (isNaN(ano)) return;
     if (isNaN(mes)) return;
     if (isNaN(dia)) return;
@@ -45,7 +49,7 @@ export function transformarStringAMDEmData(string) {
 
 export function formatarDataDMA(data) {
     if (data === undefined) return;
-
+    if (typeof data !== typeof new Date()) return;
     const ano = data?.getFullYear();
     const mes = String(data?.getMonth() + 1).padStart(2, '0');
     const dia = String(data?.getDate()).padStart(2, '0');
@@ -57,6 +61,8 @@ export function obterDatasPorDiaSemana(dataInicio, dataFim, diasSemana) {
     if (dataInicio === undefined) return [];
     if (dataFim === undefined) return [];
     if (diasSemana === undefined) return [];
+    if (typeof dataInicio !== typeof new Date()) return [];
+    if (typeof dataFim !== typeof new Date()) return [];
 
     var datas = [];
     var dataAtual = new Date(dataInicio);
@@ -72,4 +78,34 @@ export function obterDatasPorDiaSemana(dataInicio, dataFim, diasSemana) {
     }
 
     return datas;
+}
+
+export function retornaArrayIndexDeIntervalo(intervalo) {
+    const vetorIndex = [];
+    const valorInicial = parseInt(intervalo.split(",")[0]);
+    const valorFinal = parseInt(intervalo.split("-")[1]);
+    if (isNaN(valorInicial) || isNaN(valorFinal)) return vetorIndex;
+    for (let i = valorInicial - 1; i < valorFinal; i++) {
+        vetorIndex.push(i);
+    }
+    return vetorIndex;
+}
+
+export function retornaSomenteDatasEntreIntervalo(data_inicial, data_final, datas) {
+    const datasEntreIntervalo = [];
+    datas?.forEach((d) => {
+        if (d >= data_inicial && d <= data_final) datasEntreIntervalo.push(d);
+    })
+    return datasEntreIntervalo;
+}
+
+export function expandeArray(array, tamanho) {
+    const arrayExpandido = [];
+
+    for (let i = 0; i < tamanho; i++) {
+        const index = i % array.length;
+        arrayExpandido.push(array[index]);
+    }
+
+    return arrayExpandido;
 }

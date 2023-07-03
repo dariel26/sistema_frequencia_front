@@ -1,30 +1,34 @@
 import { useState } from "react";
 
-export default function InputNumero({
+export default function InputIntervalo({
   textoReferencia,
   aoClicar,
   altura,
   maximaLargura,
   className,
   textoBotao = "Criar",
-  numeroMax = 5,
-  numeroMin = 1,
   textoInicial = "",
+  maximoValor = 10,
 }) {
   const [valor, setValor] = useState(textoInicial);
 
-  const valorInvalido =
-    isNaN(parseInt(valor)) || valor > numeroMax || valor < numeroMin;
+  const valorInicial = parseInt(valor.split("-")[0] ?? 0);
+  const valorFinal = parseInt(valor.split("-")[1] ?? 0);
+  const valorInicialInvalido = valorInicial >= valorFinal || valorInicial === 0;
+  const valorFinalInvalido = valorFinal === 0 || valorFinal > maximoValor;
+
+  const valorIncompleto =
+    !/^\d+-\d+$/.test(valor) || valorInicialInvalido || valorFinalInvalido;
 
   const aoEscrever = (e) => {
     e.preventDefault();
     const texto = e.target.value;
-    let numero = texto.replace(/[^0-9]/g, "");
-    setValor(numero);
-  };
+    let textoFormatado = texto.replace(/[^0-9-]/g, "");
+    setValor(textoFormatado);
+  }
 
   const aoSubmeter = (e) => {
-    if (valorInvalido) return;
+    if (valorIncompleto) return;
     e.preventDefault();
     aoClicar(valor);
   };
@@ -43,7 +47,7 @@ export default function InputNumero({
       />
       <button
         className="btn btn-primary"
-        disabled={valorInvalido}
+        disabled={valorIncompleto}
         onClick={aoSubmeter}
       >
         {textoBotao}

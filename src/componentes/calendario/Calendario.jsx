@@ -5,16 +5,18 @@ import bootstrap5Plugin from "@fullcalendar/bootstrap5";
 import brLocale from "@fullcalendar/core/locales/pt-br";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import "./calendario.css";
 
 export default function Calendario({
   altura,
   trocarDiaSemanaMes,
+  botaoHoje,
   larguraMaxima,
   eventos,
   aoClicarData,
 }) {
   const aoClicar = (arg) => {
-    if(aoClicarData) aoClicarData(arg);
+    if (aoClicarData) aoClicarData(arg);
   };
 
   return (
@@ -35,7 +37,7 @@ export default function Calendario({
             ? "dayGridMonth,timeGridWeek,timeGridDay"
             : "",
           center: "title",
-          end: "today prev,next",
+          end: botaoHoje ? "today prev,next" : "prev,next",
         }}
         initialView="dayGridMonth"
         titleFormat={

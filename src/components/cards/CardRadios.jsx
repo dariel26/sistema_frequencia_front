@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useEffect } from "react";
+import { useCallback, useState } from "react";
 
 export const idComponenteEscrol = "componente-scroll";
 
@@ -42,12 +43,40 @@ export default function CardRadios({ children, radios, newIndex }) {
         </div>
         <div
           id={idComponenteEscrol}
-          className="d-flex"
+          className="d-flex flex-column"
           style={{ height: "calc(100% - 40px)", overflowY: "auto" }}
         >
           {children}
+          <div className="col-12 w-100" style={{ height: "300px" }} />
         </div>
       </div>
+    </div>
+  );
+}
+
+export function CardRadiosBarraFixa(props) {
+  const aoEscrolar = useCallback(() => {
+    const componenteEscrol = document.getElementById(idComponenteEscrol);
+    const componente = document.getElementById("barra-fixa");
+    const posicaoEscrol = componenteEscrol.scrollTop;
+    if (posicaoEscrol > 0) {
+      componente.classList.add("shadow-sm");
+    } else {
+      componente.classList.remove("shadow-sm");
+    }
+  }, []);
+
+  useEffect(() => {
+    const componenteEscrol = document.getElementById(idComponenteEscrol);
+    componenteEscrol.addEventListener("scroll", aoEscrolar, false);
+    return () => {
+      componenteEscrol.removeEventListener("scroll", aoEscrolar, false);
+    };
+  }, [aoEscrolar]);
+
+  return (
+    <div id="barra-fixa" className="col-12 position-sticky top-0 bg-white z-1">
+      {props.children}
     </div>
   );
 }

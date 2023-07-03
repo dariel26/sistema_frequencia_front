@@ -1,32 +1,39 @@
+import { useState } from "react";
+import { Dropdown, Spinner } from "react-bootstrap";
 import { gerarChaveUnica } from "../../utils";
 
 export default function BotaoDrop({ textoBotao, dadosMenu, desabilitado }) {
+  const [salvando, setSalvando] = useState(false);
+
+  const aoClicar = (acao) => {
+    setSalvando(true);
+    acao().finally(() => setSalvando(false));
+  };
+
   return (
-    <div className="dropdown">
-      <button
-        disabled={desabilitado}
-        className="btn btn-secondary dropdown-toggle"
-        type="button"
-        data-bs-toggle="dropdown"
-        aria-expanded="false"
+    <Dropdown>
+      <Dropdown.Toggle
+        variant={"secondary"}
+        disabled={desabilitado || salvando}
       >
+        {salvando ? (
+          <Spinner animation="grow" size="sm" className="me-2" />
+        ) : undefined}
         {textoBotao}
-      </button>
-      <ul className="dropdown-menu p-0">
+      </Dropdown.Toggle>
+      <Dropdown.Menu>
         {dadosMenu?.map(({ texto, visible, acao }) => {
           return visible ? (
-            <li className="row w-100 h-100 p-0" key={gerarChaveUnica()}>
-              <label
-                role="button"
-                className="col-12 h-100 align-middle ms-1 pt-1 pb-1"
-                onClick={acao}
-              >
-                {texto}
-              </label>
-            </li>
+            <Dropdown.Item
+              as="button"
+              onClick={() => aoClicar(acao)}
+              key={gerarChaveUnica()}
+            >
+              {texto}
+            </Dropdown.Item>
           ) : undefined;
         })}
-      </ul>
-    </div>
+      </Dropdown.Menu>
+    </Dropdown>
   );
 }

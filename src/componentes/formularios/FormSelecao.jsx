@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Dropdown, Spinner } from "react-bootstrap";
 import { Typeahead } from "react-bootstrap-typeahead";
 import { gerarChaveUnica } from "../../utils";
 
@@ -15,7 +16,9 @@ export default function FormSelecao({
   aoSelecionar,
 }) {
   const [valor, setValor] = useState({});
+  const [salvando, setSalvando] = useState(false);
 
+  const valorVazio = valor[campoSelecao] === undefined;
   const aoMudar = (valor) => {
     if (valor.length < 1) {
       setValor({});
@@ -23,6 +26,12 @@ export default function FormSelecao({
     }
     setValor(valor[0]);
     if (aoSelecionar) aoSelecionar(valor[0]);
+  };
+
+  const aoClicar = (e, opcao) => {
+    e.preventDefault();
+    setSalvando(true);
+    aoEscolher({ valor, opcao }).finally(() => setSalvando(false));
   };
 
   return (
@@ -39,30 +48,28 @@ export default function FormSelecao({
         />
       </div>
       <div className="col mt-1">
-        <div className="dropdown">
-          <button
-            disabled={valor[campoSelecao] === undefined}
-            className="btn btn-secondary dropdown-toggle"
-            type="button"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
+        <Dropdown>
+          <Dropdown.Toggle
+            variant="secondary"
+            disabled={valorVazio || salvando}
           >
+            {salvando ? (
+              <Spinner animation="grow" size="sm" className="me-2" />
+            ) : undefined}
             {textoBotao}
-          </button>
-          <ul className="dropdown-menu p-0">
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
             {opcoesDrop.map((opcao) => (
-              <li className="row h-100 w-100" key={gerarChaveUnica()}>
-                <label
-                  role="button"
-                  className="col-12 align-middle h-100 ms-1 pt-1 pb-1"
-                  onClick={() => aoEscolher({ valor, opcao })}
-                >
-                  {opcao[campoDrop]}
-                </label>
-              </li>
+              <Dropdown.Item
+                key={gerarChaveUnica()}
+                as="button"
+                onClick={(e) => aoClicar(e, opcao)}
+              >
+                {opcao[campoDrop]}
+              </Dropdown.Item>
             ))}
-          </ul>
-        </div>
+          </Dropdown.Menu>
+        </Dropdown>
       </div>
     </form>
   );

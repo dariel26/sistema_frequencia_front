@@ -6,29 +6,14 @@ import bootstrap5Plugin from "@fullcalendar/bootstrap5";
 import brLocale from "@fullcalendar/core/locales/pt-br";
 import timeGridPlugin from "@fullcalendar/timegrid";
 import "bootstrap-icons/font/bootstrap-icons.css";
-import { useEffect, useState } from "react";
-import apiSFE from "../../service/api";
-import { UsuarioContext } from "../../filters/User";
-import { useContext } from "react";
+import { useState } from "react";
 import { corClaraRandomica } from "../../utils";
 import { BsFillCalendar2PlusFill } from "react-icons/bs";
 import { GrClose } from "react-icons/gr";
 import "./cronograma.css";
 
 export default function Cronograma() {
-  const [estagios, setEstagios] = useState([]);
   const [modalAberto, setModalAberto] = useState(false);
-  const usuario = useContext(UsuarioContext);
-
-  useEffect(() => {
-    const token = usuario.token;
-    const p_estagios = apiSFE.listarEstagios(token);
-    Promise.all([p_estagios]).then((res) => {
-      const estagios = res[0].data;
-      console.log(estagios);
-      setEstagios(estagios);
-    });
-  }, [usuario]);
 
   const handleDateClick = (arg) => {
     console.log(arg.dateStr);
