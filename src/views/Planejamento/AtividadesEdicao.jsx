@@ -172,7 +172,6 @@ export default function AtividadesEdicao() {
   const aoAdicionarDatas = async ({ id_atividade, datas }) => {
     try {
       const dados = datas.map((data) => ({ id_atividade, data }));
-      console.log(dados);
       await apiSFE.adicionarDatasAAtividade(usuario.token, dados);
       setEstado(estado + 1);
     } catch (err) {
@@ -257,9 +256,8 @@ export default function AtividadesEdicao() {
         });
       });
 
-      console.log(dadosAtividade);
       await apiSFE.editarAtividades(usuario.token, dadosAtividade);
-      if (alunosEDatas.length > 0 && novoAlunosNoDia && novoIntervalo)
+      if (alunosEDatas.length > 0 && alunos_no_dia && intervalo_alunos)
         await apiSFE.adicionarAlunoADataAtividade(usuario.token, alunosEDatas);
 
       setEstado(estado + 1);

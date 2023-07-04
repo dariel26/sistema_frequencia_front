@@ -47,14 +47,21 @@ export function transformarStringAMDEmData(string) {
     return new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
 }
 
-export function formatarDataDMA(data) {
+export function formatarDataDM(data) {
     if (data === undefined) return;
     if (typeof data !== typeof new Date()) return;
-    const ano = data?.getFullYear();
     const mes = String(data?.getMonth() + 1).padStart(2, '0');
     const dia = String(data?.getDate()).padStart(2, '0');
 
-    return `${dia}/${mes}/${ano}`;
+    return `${dia}/${mes}`;
+}
+
+export function formatarDataD(data) {
+    if (data === undefined) return;
+    if (typeof data !== typeof new Date()) return;
+    const dia = String(data?.getDate()).padStart(2, '0');
+
+    return `${dia}`;
 }
 
 export function obterDatasPorDiaSemana(dataInicio, dataFim, diasSemana) {
