@@ -1,45 +1,59 @@
-import {utils, write} from 'xlsx';
+import { utils, write } from 'xlsx';
 
-export function gerarArquivoXLSX() {
-  // Crie uma matriz com os dados que deseja escrever no arquivo XLSX
-  const data = [
-    ['Nome', 'Idade'],
-    ['João', 25],
-    ['Maria', 30],
-    ['Pedro', 35]
-  ];
+export function gerarArquivoXLSX(dados) {
 
-  // Crie uma nova planilha
-  const workbook = utils.book_new();
+    const dadosPlanilha = [];
+    const indexs = [];
+    let contadorDeLinhas = -1;
+    dados.forEach((linha) => {
+        if (typeof linha[0] === typeof String()) {
+            dadosPlanilha.push(linha);
+            contadorDeLinhas += 1;
+        }
+        else {
+            linha.forEach((dado, j) => {
+                dadosPlanilha.push(dado);
+                contadorDeLinhas += 1;
+                if (dado[0] !== " ") {
+                    indexs.push(contadorDeLinhas);
+                }
+            })
+        }
+    });
 
-  // Crie uma nova planilha com os dados
-  const worksheet = utils.aoa_to_sheet(data);
+    const workbook = utils.book_new();
+    const worksheet = utils.aoa_to_sheet(dadosPlanilha, {origin: "A1"});
+    utils.sheet_add_aoa(worksheet, dadosPlanilha, {origin: "A1"})
 
-  // Adicione a planilha ao livro
-  utils.book_append_sheet(workbook, worksheet, 'Dados');
+    if (!worksheet["!merges"]) worksheet["!merges"] = [];
+    indexs.forEach((index) => {
+        const intervalo = {
+            s: { r: index, c: 0 },
+            e: { r: index + 2, c: 0 }
+        }
+        console.log(intervalo);
+        worksheet["!merges"].push(intervalo);
+    })
 
-  // Converta o livro para um arquivo binário
-  const arquivoBinario = write(workbook, { type: 'binary' });
 
-  // Crie um buffer a partir do arquivo binário
-  const buffer = new ArrayBuffer(arquivoBinario.length);
-  const view = new Uint8Array(buffer);
-  for (let i = 0; i < arquivoBinario.length; i++) {
-    view[i] = arquivoBinario.charCodeAt(i) & 0xFF;
-  }
+    utils.book_append_sheet(workbook, worksheet, 'Dados');
 
-  // Crie um blob a partir do buffer
-  const blob = new Blob([buffer], { type: 'application/octet-stream' });
+    const arquivoBinario = write(workbook, { type: 'binary' });
 
-  // Crie um URL temporário para o blob
-  const url = URL.createObjectURL(blob);
+    const buffer = new ArrayBuffer(arquivoBinario.length);
+    const view = new Uint8Array(buffer);
+    for (let i = 0; i < arquivoBinario.length; i++) {
+        view[i] = arquivoBinario.charCodeAt(i) & 0xFF;
+    }
 
-  // Crie um link de download para o arquivo
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = 'dados.xlsx';
-  link.click();
+    const blob = new Blob([buffer], { type: 'application/octet-stream' });
 
-  // Libere o URL temporário
-  URL.revokeObjectURL(url);
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'dados.xlsx';
+    link.click();
+
+    URL.revokeObjectURL(url);
 }

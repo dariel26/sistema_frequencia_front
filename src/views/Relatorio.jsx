@@ -29,7 +29,7 @@ import { gerarArquivoXLSX } from "../utils/xlsx";
 export default function Relatorio() {
   const [grupos, setGrupos] = useState([]);
   const [alunos, setAlunos] = useState([]);
-  const [indexCabecalho, setIndexCabecalho] = useState(0);
+  const [indexTabela, setIndexTabela] = useState(0);
 
   const usuario = useContext(UsuarioContext);
   const token = usuario.token;
@@ -104,11 +104,31 @@ export default function Relatorio() {
         });
         linha.push([linhaManha, linhaTarde, linhaNoite]);
       });
-      console.log(linha);
       corpoTabela.push(linha);
     });
     corposTabelas.push(corpoTabela);
   });
+
+  const linhasCorpo = corposTabelas[indexTabela]?.map((linha) => {
+    if (typeof linha[1] === typeof String()) {
+      return linha;
+    } else {
+      let aluno = "";
+      const dadosFormatados = [];
+      linha.forEach((dado, i) => {
+        if (i % 2 === 0) {
+          aluno = dado;
+        } else {
+          dadosFormatados.push([aluno, ...dado[0]]);
+          dadosFormatados.push([" "].concat(dado[1]));
+          dadosFormatados.push([" "].concat(dado[2]));
+        }
+      });
+      return dadosFormatados;
+    }
+  });
+
+  const dados = [cabecalhosTabelas[indexTabela]].concat(linhasCorpo);
 
   const radios = cabecalhosTabelas?.map((cabecalho, indexCabecalho) => ({
     texto: `Mês ${cabecalho[cabecalho.length - 1]?.substring(3, 5)}`,
@@ -127,7 +147,7 @@ export default function Relatorio() {
   }, [token, alerta]);
 
   const aoMudarRadio = (radioIndex) => {
-    setIndexCabecalho(radios[radioIndex].indexCabecalho);
+    setIndexTabela(radios[radioIndex].indexCabecalho);
   };
 
   const estiloStickyTd = (index) => {
@@ -144,7 +164,7 @@ export default function Relatorio() {
     >
       <OverlayTrigger overlay={<Tooltip>Baixar planilha</Tooltip>}>
         <Button
-          onClick={() => gerarArquivoXLSX()}
+          onClick={() => gerarArquivoXLSX(dados)}
           variant="primary"
           className="position-fixed bottom-0 end-0 mb-3 me-3 rounded-circle p-3"
           style={{ zIndex: "1030" }}
@@ -162,7 +182,7 @@ export default function Relatorio() {
           >
             <thead className="sticky t-0">
               <tr>
-                {cabecalhosTabelas[indexCabecalho]?.map((dado, index) => (
+                {cabecalhosTabelas[indexTabela]?.map((dado, index) => (
                   <th
                     key={gerarChaveUnica()}
                     style={estiloStickyTd(index)}
@@ -174,7 +194,7 @@ export default function Relatorio() {
               </tr>
             </thead>
             <tbody>
-              {corposTabelas[indexCabecalho]?.flatMap((linha) => {
+              {corposTabelas[indexTabela]?.flatMap((linha) => {
                 const segundoElem = linha[1];
                 if (typeof segundoElem === typeof String()) {
                   return (
