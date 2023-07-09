@@ -12,6 +12,7 @@ export default function CardDefault({ children, title, titleCenter }) {
         style={{ height: "calc(100% - 45px)" }}
       >
         {children}
+        <div className="col-12 w-100" style={{ height: "300px" }} />
       </div>
     </div>
   );

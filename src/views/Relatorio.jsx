@@ -35,6 +35,11 @@ export default function Relatorio() {
   const token = usuario.token;
   const alerta = useRef(useContext(AlertaContext)).current;
 
+  const nenhumDadoAMostrar =
+    grupos.length === 0 ||
+    alunos.length === 0 ||
+    grupos[0]?.estagios?.length === 0;
+
   const datasEstagios =
     grupos[0]?.estagios.flatMap(({ data_inicial, data_final }) => [
       amdEmData(data_inicial),
@@ -54,10 +59,10 @@ export default function Relatorio() {
   const corposTabelas = [];
   cabecalhosTabelas?.forEach((cabecalho) => {
     const corpoTabela = [];
-    grupos.forEach((grupo) => {
+    grupos?.forEach((grupo) => {
       let linha = [];
       linha.push(grupo.nome_grupo);
-      cabecalho.slice(1).forEach((_) => linha.push(" "));
+      cabecalho.slice(1)?.forEach((_) => linha.push(" "));
       corpoTabela.push(linha);
       linha = [];
       grupo.alunos.forEach((aluno) => {
@@ -166,7 +171,8 @@ export default function Relatorio() {
         <Button
           onClick={() => gerarArquivoXLSX(dados)}
           variant="primary"
-          className="position-fixed bottom-0 end-0 mb-3 me-3 rounded-circle p-3"
+          hidden={nenhumDadoAMostrar}
+          className="position-fixed bottom-0 end-0 mb-3 me-3 rounded-circle p-3 shadow"
           style={{ zIndex: "1030" }}
         >
           <FaFileDownload size={25} />
@@ -174,65 +180,69 @@ export default function Relatorio() {
       </OverlayTrigger>
 
       <Row className="justify-content-center m-0">
-        <Col sm="12" className="mb-4">
-          <Table
-            responsive
-            size="sm"
-            className="position-relative table-hover table-hover-column table-striped-columns"
-          >
-            <thead className="sticky t-0">
-              <tr>
-                {cabecalhosTabelas[indexTabela]?.map((dado, index) => (
-                  <th
-                    key={gerarChaveUnica()}
-                    style={estiloStickyTd(index)}
-                    className="bg-white text-center"
-                  >
-                    {dado}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {corposTabelas[indexTabela]?.flatMap((linha) => {
-                const segundoElem = linha[1];
-                if (typeof segundoElem === typeof String()) {
-                  return (
-                    <tr key={gerarChaveUnica()}>
-                      {linha?.map((str, index) => (
-                        <td
-                          className="text-nowrap fw-bold bg-primary text-light"
-                          key={gerarChaveUnica()}
-                          style={estiloStickyTd(index)}
-                        >
-                          {str}
-                        </td>
-                      ))}
-                    </tr>
-                  );
-                } else {
-                  return linha?.map((dado) => {
-                    const blString = typeof dado === typeof String();
-                    return blString ? (
+        <Col sm="12" className="mb-4 text-center">
+          {nenhumDadoAMostrar ? (
+            <span className="fs-5 w-100 fw-bold">Nenhum registro a ser mostrado</span>
+          ) : (
+            <Table
+              responsive
+              size="sm"
+              className="position-relative table-hover table-hover-column table-striped-columns"
+            >
+              <thead className="sticky t-0">
+                <tr>
+                  {cabecalhosTabelas[indexTabela]?.map((dado, index) => (
+                    <th
+                      key={gerarChaveUnica()}
+                      style={estiloStickyTd(index)}
+                      className="bg-white text-center"
+                    >
+                      {dado}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {corposTabelas[indexTabela]?.flatMap((linha) => {
+                  const segundoElem = linha[1];
+                  if (typeof segundoElem === typeof String()) {
+                    return (
                       <tr key={gerarChaveUnica()}>
-                        <td rowSpan={4} style={estiloStickyTd(0)}>
-                          {dado}
-                        </td>
+                        {linha?.map((str, index) => (
+                          <td
+                            className="text-nowrap fw-bold bg-primary text-light"
+                            key={gerarChaveUnica()}
+                            style={estiloStickyTd(index)}
+                          >
+                            {str}
+                          </td>
+                        ))}
                       </tr>
-                    ) : (
-                      dado.map((linha) => (
-                        <tr key={gerarChaveUnica()} className="text-center">
-                          {linha?.map((str) => (
-                            <td key={gerarChaveUnica()}>{str}</td>
-                          ))}
-                        </tr>
-                      ))
                     );
-                  });
-                }
-              })}
-            </tbody>
-          </Table>
+                  } else {
+                    return linha?.map((dado) => {
+                      const blString = typeof dado === typeof String();
+                      return blString ? (
+                        <tr key={gerarChaveUnica()}>
+                          <td rowSpan={4} style={estiloStickyTd(0)}>
+                            {dado}
+                          </td>
+                        </tr>
+                      ) : (
+                        dado.map((linha) => (
+                          <tr key={gerarChaveUnica()} className="text-center">
+                            {linha?.map((str) => (
+                              <td key={gerarChaveUnica()}>{str}</td>
+                            ))}
+                          </tr>
+                        ))
+                      );
+                    });
+                  }
+                })}
+              </tbody>
+            </Table>
+          )}
         </Col>
       </Row>
     </CardRadios>

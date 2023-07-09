@@ -493,7 +493,7 @@ function Atividade({
       </div>
       <div className="col-sm-12 mb-1">
         <span className="ms-1">{`Alunos por dia (Max ${
-          maiorValor - menorValor
+          (maiorValor - menorValor) + 1
         })`}</span>
       </div>
       <div className="col-sm-12 mb-2">
