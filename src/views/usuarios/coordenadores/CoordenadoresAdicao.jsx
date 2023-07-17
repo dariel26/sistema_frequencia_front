@@ -81,6 +81,7 @@ export default function CoordenadoresAdicao({
             <Form.Label>Selecione um arquivo</Form.Label>
             <Form.Control
               type="file"
+              accept=".xlsx,.ods"
               id="file-coordenador"
               className="d-none"
               onChange={aoSelecionarArquivo}

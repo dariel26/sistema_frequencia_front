@@ -81,6 +81,7 @@ export default function PreceptoresAdicao({
             <Form.Label>Selecione um arquivo</Form.Label>
             <Form.Control
               type="file"
+              accept=".xlsx,.ods"
               id="file-preceptor"
               className="d-none"
               onChange={aoSelecionarArquivo}

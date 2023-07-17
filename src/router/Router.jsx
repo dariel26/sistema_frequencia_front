@@ -9,7 +9,7 @@ import Places from "../views/Places";
 import Cronograma from "../views/Cronograma/Cronograma";
 import Relatorio from "../views/Relatorio";
 import { Coordenadores } from "../views/usuarios/coordenadores/Coordenadores";
-import { Alunos } from "../views/usuarios/Alunos";
+import { Alunos } from "../views/usuarios/alunos/Alunos";
 import { Preceptores } from "../views/usuarios/preceptores/Preceptores";
 
 function Router() {

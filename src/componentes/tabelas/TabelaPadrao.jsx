@@ -1,4 +1,4 @@
-import { gerarChaveUnica } from "../../utils";
+import uuid from "react-uuid";
 
 export default function TabelaPadrao({
   camposCabecalho,
@@ -25,7 +25,7 @@ export default function TabelaPadrao({
         <tr className="text-center">
           {camposCabecalho?.map(({ texto, visivel }) => {
             return visivel ? (
-              <th key={gerarChaveUnica()} scope="col">
+              <th key={uuid()} scope="col">
                 {texto}
               </th>
             ) : undefined;
@@ -36,7 +36,7 @@ export default function TabelaPadrao({
         {dados?.map((dado, index) => (
           <tr
             className="text-center align-middle"
-            key={gerarChaveUnica()}
+            key={uuid()}
           >
             {numerado ? <td>{index + 1}</td> : undefined}
             {camposDados?.map(
@@ -50,15 +50,15 @@ export default function TabelaPadrao({
               }) => {
                 return visivel ? (
                   texto ? (
-                    <td key={gerarChaveUnica()}>{dado[texto]}</td>
+                    <td key={uuid()}>{dado[texto]}</td>
                   ) : data ? (
-                    <td key={gerarChaveUnica()}>
+                    <td key={uuid()}>
                       {`${dado[data].substring(8)}/
                     ${dado[data].substring(5, 7)}/
                     ${dado[data].substring(0, 4)}`}
                     </td>
                   ) : check ? (
-                    <td key={gerarChaveUnica()} className="position-relative">
+                    <td key={uuid()} className="position-relative">
                       <input
                         className="form-check-input"
                         type="checkbox"
@@ -68,7 +68,7 @@ export default function TabelaPadrao({
                       {label(dado, visivel && check)}
                     </td>
                   ) : (
-                    <td key={gerarChaveUnica()}>{funcaoComponente(dado)}</td>
+                    <td key={uuid()}>{funcaoComponente(dado)}</td>
                   )
                 ) : undefined;
               }

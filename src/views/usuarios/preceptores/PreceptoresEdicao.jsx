@@ -1,6 +1,5 @@
 import { useContext, useRef, useState } from "react";
 import { Button, Col, Form, Row, Spinner, ToggleButton } from "react-bootstrap";
-import { Typeahead } from "react-bootstrap-typeahead";
 import { AlertaContext } from "../../../filters/alert/Alert";
 
 export default function PreceptoresEdicao({
@@ -33,13 +32,6 @@ export default function PreceptoresEdicao({
       .finally(() => {
         setSalvando(false);
       });
-  }
-
-  function selecionaTexto(e) {
-    const input = e.target;
-    setTimeout(() => {
-      input.setSelectionRange(0, e.target.value.length);
-    }, 200);
   }
 
   return (
