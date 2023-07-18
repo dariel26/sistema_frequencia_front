@@ -5,7 +5,7 @@ import Login from "../views/Login";
 import Usuarios from "../views/usuarios/Usuarios";
 import MyAccount from "../views/MyAccount";
 import Organization from "../views/Planejamento";
-import Places from "../views/Places";
+import Local from "../views/Local";
 import Cronograma from "../views/Cronograma/Cronograma";
 import Relatorio from "../views/Relatorio";
 import { Coordenadores } from "../views/usuarios/coordenadores/Coordenadores";
@@ -27,7 +27,7 @@ function Router() {
           </Route>
           <Route path={links.planejamento} element={<Organization />} />
           <Route path={links.conta} element={<MyAccount />} />
-          <Route path={links.locais} element={<Places />} />
+          <Route path={links.locais} element={<Local />} />
           <Route path={links.cronograma} element={<Cronograma />} />
           <Route path={links.relatorio} element={<Relatorio />} />
           <Route index element={<Navigate to={links.conta} />} />
