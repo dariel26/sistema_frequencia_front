@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useRef } from "react";
 import { useContext, useEffect } from "react";
-import { AlertaContext } from "../../../filters/alert/Alert";
-import { UsuarioContext } from "../../../filters/User";
+import { AlertaContext } from "../../../filters/alerta/Alerta";
+import { UsuarioContext } from "../../../filters/Usuario";
 import apiSFE from "../../../service/api";
 import { Col, Row } from "react-bootstrap";
 import { CardLinksBarraFixa } from "../../../componentes/cards/CardLinks";
@@ -12,7 +12,7 @@ import CoordenadoresAdicao from "./CoordenadoresAdicao";
 import { FaUserEdit } from "react-icons/fa";
 import CoordenadorEdicao from "./CoordenadoresEdicao";
 
-export function Coordenadores() {
+export default function Coordenadores() {
   const [coordenadores, setCoordenadores] = useState([]);
   const [adicionando, setAdicionando] = useState(false);
   const [selecionando, setSelecionando] = useState(false);

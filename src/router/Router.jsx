@@ -2,15 +2,20 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import links from "../links";
 import Home from "../views/Home";
 import Login from "../views/Login";
-import Usuarios from "../views/usuarios/Usuarios";
+import Usuarios, {
+  Coordenadores,
+  Preceptores,
+  Alunos,
+} from "../views/usuarios";
 import MyAccount from "../views/MyAccount";
-import Organization from "../views/Planejamento";
+import Planejamento, {
+  Grupos,
+  Atividades,
+  Estagios,
+} from "../views/planejamento";
 import Local from "../views/Local";
 import Cronograma from "../views/Cronograma/Cronograma";
 import Relatorio from "../views/Relatorio";
-import { Coordenadores } from "../views/usuarios/coordenadores/Coordenadores";
-import { Alunos } from "../views/usuarios/alunos/Alunos";
-import { Preceptores } from "../views/usuarios/preceptores/Preceptores";
 
 function Router() {
   return (
@@ -25,7 +30,14 @@ function Router() {
             <Route path={links.alunos} element={<Alunos />} />
             <Route index element={<Navigate to={links.coordenadores} />} />
           </Route>
-          <Route path={links.planejamento} element={<Organization />} />
+
+          <Route path={links.planejamento} element={<Planejamento />}>
+            <Route path={links.grupos} element={<Grupos />} />
+            <Route path={links.estagios} element={<Estagios />} />
+            <Route path={links.atividades} element={<Atividades />} />
+            <Route index element={<Navigate to={links.grupos} />} />
+          </Route>
+
           <Route path={links.conta} element={<MyAccount />} />
           <Route path={links.locais} element={<Local />} />
           <Route path={links.cronograma} element={<Cronograma />} />

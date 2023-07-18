@@ -1,24 +1,25 @@
 import { useState, useContext, useEffect, useRef } from "react";
-import { AlertaContext } from "../../filters/alert/Alert";
-import apiSFE from "../../service/api";
-import { UsuarioContext } from "../../filters/User";
+import { AlertaContext } from "../../../filters/alerta/Alerta";
+import apiSFE from "../../../service/api";
+import { UsuarioContext } from "../../../filters/Usuario";
 import "react-datepicker/dist/react-datepicker.css";
-import InputBotao from "../../componentes/inputs/InputBotao";
-import BotaoTexto from "../../componentes/botoes/BotaoTexto";
-import DivCabecalhoDeletar from "../../componentes/divs/DivCabecalhoDeletar";
-import { gerarChaveUnica } from "../../utils";
-import TabelaPadrao from "../../componentes/tabelas/TabelaPadrao";
-import { CardRadiosBarraFixa } from "../../components/cards/CardRadios";
+import InputBotao from "../../../componentes/inputs/InputBotao";
+import BotaoTexto from "../../../componentes/botoes/BotaoTexto";
+import DivCabecalhoDeletar from "../../../componentes/divs/DivCabecalhoDeletar";
+import { gerarChaveUnica } from "../../../utils";
+import TabelaPadrao from "../../../componentes/tabelas/TabelaPadrao";
+import { CardRadiosBarraFixa } from "../../../components/cards/CardRadios";
 import EstagiosEdicao from "./EstagiosEdicao";
 
 export default function Estagios() {
   const [estagios, setEstagios] = useState([]);
   const [editando, setEditando] = useState(false);
-  const [estado, setEstado] = useState(0);
 
   const alerta = useRef(useContext(AlertaContext)).current;
   const usuario = useContext(UsuarioContext);
   const token = usuario.token;
+
+  const nenhumEstagioSalvo = estagios.length === 0;
 
   useEffect(() => {
     apiSFE
@@ -30,14 +31,15 @@ export default function Estagios() {
       .catch((err) => {
         alerta.adicionaAlerta(err);
       });
-  }, [estado, token, alerta]);
+  }, [token, alerta]);
 
   const aoAdicionarEstagio = async (nome) => {
     try {
-      await apiSFE.adicionarEstagios(token, [{ nome }]);
-      setEstado(estado + 1);
+      const res = await apiSFE.adicionarEstagios(token, [{ nome }]);
+      setEstagios(res.data);
+      return "Estágio salvo!";
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      throw err;
     }
   };
 
@@ -45,18 +47,12 @@ export default function Estagios() {
     try {
       const ids = [id_estagio];
       await apiSFE.deletarEstagios(token, ids);
-      setEstado(estado + 1);
+      setEstagios((existentes) =>
+        existentes.filter((e) => e.id_estagio !== id_estagio)
+      );
+      return "Estágio deletado!";
     } catch (err) {
-      alerta.adicionaAlerta(err);
-    }
-  };
-
-  const aoEditar = () => {
-    if (estagios.length === 0 && !editando) {
-      alerta.current.addAlert(new Error("Nenhum estágio para editar"));
-    } else {
-      setEditando(!editando);
-      setEstado(estado + 1);
+      throw err;
     }
   };
 
@@ -64,10 +60,10 @@ export default function Estagios() {
     <div className="row w-100 justify-content-center m-0">
       <CardRadiosBarraFixa>
         <BotaoTexto
-          aoClicar={aoEditar}
+          aoClicar={() => setEditando(!editando)}
           className="mb-2 me-3"
           texto={editando ? "Voltar" : "Editar"}
-          visivel
+          visivel={!nenhumEstagioSalvo}
         />
       </CardRadiosBarraFixa>
       {!editando ? (

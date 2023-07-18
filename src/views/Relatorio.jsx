@@ -10,8 +10,8 @@ import {
   Tooltip,
 } from "react-bootstrap";
 import CardRadios from "../components/cards/CardRadios";
-import { AlertaContext } from "../filters/alert/Alert";
-import { UsuarioContext } from "../filters/User";
+import { AlertaContext } from "../filters/alerta/Alerta";
+import { UsuarioContext } from "../filters/Usuario";
 import apiSFE from "../service/api";
 import { formatarDataDM } from "../utils";
 import {

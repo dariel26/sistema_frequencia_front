@@ -2,7 +2,7 @@ import { useRef } from "react";
 import { useContext } from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertaContext } from "../filters/alert/Alert";
+import { AlertaContext } from "../filters/alerta/Alerta";
 import links from "../links";
 import apiSFE from "../service/api";
 

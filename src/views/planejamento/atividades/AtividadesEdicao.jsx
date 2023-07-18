@@ -1,12 +1,12 @@
 import { useContext, useRef } from "react";
 import { useEffect, useState } from "react";
 import { BsFillPatchQuestionFill } from "react-icons/bs";
-import CheckDias from "../../componentes/inputs/CheckDias";
-import InputChave from "../../componentes/inputs/InputChave";
-import InputHora from "../../componentes/inputs/InputHora";
-import InputNumero from "../../componentes/inputs/InputNumero";
-import { UsuarioContext } from "../../filters/User";
-import apiSFE from "../../service/api";
+import CheckDias from "../../../componentes/inputs/CheckDias";
+import InputChave from "../../../componentes/inputs/InputChave";
+import InputHora from "../../../componentes/inputs/InputHora";
+import InputNumero from "../../../componentes/inputs/InputNumero";
+import { UsuarioContext } from "../../../filters/Usuario";
+import apiSFE from "../../../service/api";
 import {
   expandeArray,
   formatarDataAMD,
@@ -15,13 +15,13 @@ import {
   retornaArrayIndexDeIntervalo,
   retornaSomenteDatasEntreIntervalo,
   transformarStringAMDEmData,
-} from "../../utils";
-import InputSelecao from "../../componentes/inputs/InputSelecao";
-import Calendario from "../../componentes/calendario/Calendario";
+} from "../../../utils";
+import InputSelecao from "../../../componentes/inputs/InputSelecao";
+import Calendario from "../../../componentes/calendario/Calendario";
 import { OverlayTrigger, Tooltip } from "react-bootstrap";
-import { AlertaContext } from "../../filters/alert/Alert";
-import BotaoTexto from "../../componentes/botoes/BotaoTexto";
-import InputIntervalo from "../../componentes/inputs/InputIntervalo";
+import { AlertaContext } from "../../../filters/alerta/Alerta";
+import BotaoTexto from "../../../componentes/botoes/BotaoTexto";
+import InputIntervalo from "../../../componentes/inputs/InputIntervalo";
 
 export default function AtividadesEdicao() {
   const [alunos, setAlunos] = useState([]);

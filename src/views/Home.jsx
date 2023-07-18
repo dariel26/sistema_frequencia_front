@@ -1,13 +1,13 @@
 import MenuLayout from "../layouts/menu/MenuLayout";
 import navs from "../navs/navs";
-import FilterUser from "../filters/User";
+import FiltroUsuario from "../filters/Usuario";
 import { FiLogOut } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 
 export default function Home() {
   const navigate = useNavigate();
   return (
-    <FilterUser>
+    <FiltroUsuario>
       <MenuLayout
         navs={navs.admin}
         actions={[
@@ -21,6 +21,6 @@ export default function Home() {
           },
         ]}
       />
-    </FilterUser>
+    </FiltroUsuario>
   );
 }

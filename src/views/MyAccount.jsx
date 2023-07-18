@@ -3,8 +3,8 @@ import { useState } from "react";
 import { useRef } from "react";
 import { useContext } from "react";
 import CardDefault from "../components/cards/CardDefault";
-import { AlertaContext } from "../filters/alert/Alert";
-import { UsuarioContext } from "../filters/User";
+import { AlertaContext } from "../filters/alerta/Alerta";
+import { UsuarioContext } from "../filters/Usuario";
 import apiSFE from "../service/api";
 
 export default function MyAccount() {

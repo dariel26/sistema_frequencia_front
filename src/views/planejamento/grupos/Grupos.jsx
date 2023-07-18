@@ -1,13 +1,13 @@
 import { useState, useContext, useEffect, useRef } from "react";
-import { AlertaContext } from "../../filters/alert/Alert";
-import apiSFE from "../../service/api";
-import { UsuarioContext } from "../../filters/User";
-import InputBotao from "../../componentes/inputs/InputBotao";
-import TabelaPadrao from "../../componentes/tabelas/TabelaPadrao";
-import BotaoTexto from "../../componentes/botoes/BotaoTexto";
-import DivCabecalhoDeletar from "../../componentes/divs/DivCabecalhoDeletar";
-import { gerarChaveUnica } from "../../utils";
-import { CardRadiosBarraFixa } from "../../components/cards/CardRadios";
+import { AlertaContext } from "../../../filters/alerta/Alerta";
+import apiSFE from "../../../service/api";
+import { UsuarioContext } from "../../../filters/Usuario";
+import InputBotao from "../../../componentes/inputs/InputBotao";
+import TabelaPadrao from "../../../componentes/tabelas/TabelaPadrao";
+import BotaoTexto from "../../../componentes/botoes/BotaoTexto";
+import DivCabecalhoDeletar from "../../../componentes/divs/DivCabecalhoDeletar";
+import { gerarChaveUnica } from "../../../utils";
+import { CardRadiosBarraFixa } from "../../../components/cards/CardRadios";
 import GruposEdicao from "./GruposEdicao";
 import { Col } from "react-bootstrap";
 
@@ -16,8 +16,8 @@ export default function Grupos() {
   const [alunosSelecionados, setAlunosSelecionados] = useState([]);
   const [editando, setEditando] = useState(false);
   const [desassociando, setDesassociando] = useState(false);
-  const [estado, setEstado] = useState(0);
 
+  const nenhumGrupoSalvo = grupos.length === 0;
   const haAlunosSelecionados = alunosSelecionados.length > 0;
   const textoBotaoEditar = editando ? "Voltar" : "Editar";
   const textoBotaoDeletar = desassociando
@@ -37,14 +37,15 @@ export default function Grupos() {
       .catch((err) => {
         alerta.adicionaAlerta(err);
       });
-  }, [usuario, estado, token, alerta]);
+  }, [usuario, token, alerta]);
 
   const aoCriarGrupo = async (nome) => {
     try {
-      await apiSFE.adicionarGrupos(usuario.token, [{ nome }]);
-      setEstado((e) => e + 1);
+      const res = await apiSFE.adicionarGrupos(token, [{ nome }]);
+      setGrupos(res.data);
+      return "Grupo salvo!";
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      throw err;
     }
   };
 
@@ -64,28 +65,42 @@ export default function Grupos() {
 
   const aoDeletarGrupo = async ({ id_grupo }) => {
     try {
-      await apiSFE.deletarGrupos(usuario.token, [id_grupo]);
-      setEstado((e) => e + 1);
+      await apiSFE.deletarGrupos(token, [id_grupo]);
+      setGrupos((existentes) =>
+        existentes.filter((g) => g.id_grupo !== id_grupo)
+      );
+      return "Grupo deletado!";
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      throw err;
     }
   };
 
   const aoClicarDesassociarAluno = async () => {
-    if (haAlunosSelecionados) {
-      const novosDados = alunosSelecionados.map(({ id_aluno }) => ({
-        id_aluno,
-        id_grupo: null,
-      }));
-      try {
-        await apiSFE.editarAlunos(usuario.token, novosDados);
-        setAlunosSelecionados([]);
-        setEstado(estado + 1);
-      } catch (err) {
-        alerta.adicionaAlerta(err);
-      }
-    } else {
+    if (!haAlunosSelecionados) {
       setDesassociando(!desassociando);
+      return;
+    }
+    const novosDados = alunosSelecionados.map(({ id_aluno }) => ({
+      id_aluno,
+      id_grupo: null,
+    }));
+    try {
+      await apiSFE.editarAlunos(token, novosDados);
+      const res = await apiSFE.listarGrupos(token);
+      setAlunosSelecionados([]);
+      setGrupos(res.data);
+      return "Os alunos foram retirados do grupo!";
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const atualizarGrupos = async (novosDados) => {
+    try {
+      const res = await apiSFE.listarGrupos(token);
+      setGrupos(res.data);
+    } catch (err) {
+      throw err;
     }
   };
 
@@ -95,11 +110,10 @@ export default function Grupos() {
         <BotaoTexto
           aoClicar={() => {
             setEditando(!editando);
-            setEstado(estado + 1);
           }}
           className="mb-2 me-3"
           texto={textoBotaoEditar}
-          visivel
+          visivel={!nenhumGrupoSalvo}
         />
         <BotaoTexto
           aoClicar={aoClicarDesassociarAluno}
@@ -153,7 +167,7 @@ export default function Grupos() {
           </Col>
         </>
       ) : (
-        <GruposEdicao />
+        <GruposEdicao atualizarGrupos={atualizarGrupos} />
       )}
     </div>
   );

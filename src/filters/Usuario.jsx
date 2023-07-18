@@ -6,7 +6,7 @@ import apiSFE from "../service/api";
 
 export const UsuarioContext = createContext();
 
-export default function FilterUser(props) {
+export default function FiltroUsuario(props) {
   const [infoUsuario, setInfoUsuario] = useState(userModel({}));
   const [esperandoDados, setEsperandoDados] = useState(true);
 

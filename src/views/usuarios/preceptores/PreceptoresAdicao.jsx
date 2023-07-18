@@ -11,7 +11,7 @@ import { read, utils } from "xlsx";
 import { FiCheckCircle, FiAlertTriangle } from "react-icons/fi";
 import TabelaPadrao from "../../../componentes/tabelas/TabelaPadrao";
 import { useContext, useRef, useState } from "react";
-import { AlertaContext } from "../../../filters/alert/Alert";
+import { AlertaContext } from "../../../filters/alerta/Alerta";
 
 export default function PreceptoresAdicao({
   preceptores,

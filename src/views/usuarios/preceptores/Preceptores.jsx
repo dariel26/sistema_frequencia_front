@@ -1,8 +1,8 @@
 import { useState } from "react";
 import { useRef } from "react";
 import { useContext, useEffect } from "react";
-import { AlertaContext } from "../../../filters/alert/Alert";
-import { UsuarioContext } from "../../../filters/User";
+import { AlertaContext } from "../../../filters/alerta/Alerta";
+import { UsuarioContext } from "../../../filters/Usuario";
 import apiSFE from "../../../service/api";
 import { Col, Row } from "react-bootstrap";
 import { CardLinksBarraFixa } from "../../../componentes/cards/CardLinks";
@@ -12,7 +12,7 @@ import { FaUserEdit } from "react-icons/fa";
 import PreceptoresAdicao from "./PreceptoresAdicao";
 import PreceptoresEdicao from "./PreceptoresEdicao";
 
-export function Preceptores() {
+export default function Preceptores() {
   const [preceptores, setPreceptores] = useState([]);
   const [adicionando, setAdicionando] = useState(false);
   const [selecionando, setSelecionando] = useState(false);

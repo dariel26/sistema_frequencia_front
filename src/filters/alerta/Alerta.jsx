@@ -1,11 +1,11 @@
 import { useCallback, useEffect } from "react";
 import { createContext, useState } from "react";
 import { GrClose } from "react-icons/gr";
-import "./Alert.css";
+import "./Alerta.css";
 
 export const AlertaContext = createContext();
 
-export default function Alert(props) {
+export default function FiltroAlerta(props) {
   const [alert, setAlert] = useState({});
   const [stackAlerts, setStackAlerts] = useState([]);
   const [blWait, setBlWait] = useState(false);

@@ -1,13 +1,13 @@
 import { useRef, useState } from "react";
 import { useContext } from "react";
 import { useEffect } from "react";
-import FormData from "../../componentes/formularios/FormData";
-import FormSelecao from "../../componentes/formularios/FormSelecao";
-import TabelaPadrao from "../../componentes/tabelas/TabelaPadrao";
-import { AlertaContext } from "../../filters/alert/Alert";
-import { UsuarioContext } from "../../filters/User";
-import apiSFE from "../../service/api";
-import { formatarDataAMD } from "../../utils";
+import FormData from "../../../componentes/formularios/FormData";
+import FormSelecao from "../../../componentes/formularios/FormSelecao";
+import TabelaPadrao from "../../../componentes/tabelas/TabelaPadrao";
+import { AlertaContext } from "../../../filters/alerta/Alerta";
+import { UsuarioContext } from "../../../filters/Usuario";
+import apiSFE from "../../../service/api";
+import { formatarDataAMD } from "../../../utils";
 import { AiOutlineDelete } from "react-icons/ai";
 import { Spinner } from "react-bootstrap";
 

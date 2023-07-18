@@ -1,18 +1,18 @@
-import { useState } from "react";
-import { useRef } from "react";
-import { useContext, useEffect } from "react";
-import { AlertaContext } from "../../../filters/alert/Alert";
-import { UsuarioContext } from "../../../filters/User";
+import { useState, useRef, useContext, useEffect } from "react";
+import { AlertaContext } from "../../../filters/alerta/Alerta";
+import { UsuarioContext } from "../../../filters/Usuario";
 import apiSFE from "../../../service/api";
 import { Col, Row } from "react-bootstrap";
-import { CardLinksBarraFixa } from "../../../componentes/cards/CardLinks";
-import BotaoTexto from "../../../componentes/botoes/BotaoTexto";
-import TabelaPadrao from "../../../componentes/tabelas/TabelaPadrao";
+import {
+  BotaoTexto,
+  TabelaPadrao,
+  CardLinksBarraFixa,
+} from "../../../componentes";
 import { FaUserEdit } from "react-icons/fa";
 import AlunoAdicao from "./AlunosAdicao";
 import AlunosEdicao from "./AlunosEdicao";
 
-export function Alunos() {
+export default function Alunos() {
   const [alunos, setAlunos] = useState([]);
   const [adicionando, setAdicionando] = useState(false);
   const [selecionando, setSelecionando] = useState(false);
@@ -56,11 +56,7 @@ export function Alunos() {
       setAlunosSelecionados((selecionados) =>
         selecionados.filter((p) => p.id_aluno !== aluno.id_aluno)
       );
-    else
-      setAlunosSelecionados((selecionados) => [
-        ...selecionados,
-        aluno,
-      ]);
+    else setAlunosSelecionados((selecionados) => [...selecionados, aluno]);
   }
 
   function alunoSelecionado({ id_aluno }) {
@@ -69,9 +65,7 @@ export function Alunos() {
 
   async function aoDeletar() {
     const ids = alunosSelecionados.map((p) => p.id_aluno);
-    const alunosRestantes = alunos.filter(
-      (pr) => !alunoSelecionado(pr)
-    );
+    const alunosRestantes = alunos.filter((pr) => !alunoSelecionado(pr));
     try {
       await apiSFE.deletarAlunos(token, ids);
       setAlunos([...alunosRestantes]);
@@ -89,10 +83,7 @@ export function Alunos() {
     }));
     if (novosAlunos.length < 1) return;
     try {
-      const { data } = await apiSFE.adicionarAlunos(
-        token,
-        novosAlunos
-      );
+      const { data } = await apiSFE.adicionarAlunos(token, novosAlunos);
       console.log(data);
       setAlunos(data);
     } catch (err) {

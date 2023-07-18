@@ -1,7 +1,7 @@
 import { useContext, useRef, useState } from "react";
 import { Button, Col, Form, Row, Spinner, ToggleButton } from "react-bootstrap";
 import { Typeahead } from "react-bootstrap-typeahead";
-import { AlertaContext } from "../../../filters/alert/Alert";
+import { AlertaContext } from "../../../filters/alerta/Alerta";
 
 export default function CoordenadorEdicao({
   coordenador,

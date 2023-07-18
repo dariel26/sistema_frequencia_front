@@ -1,15 +1,25 @@
 const links = {
-  login: "/login",
   sistemaFrequencia: "/sistema-frequencia",
+
+  login: "/login",
+
   usuarios: "/sistema-frequencia/usuarios",
   coordenadores: "/sistema-frequencia/usuarios/coordenadores",
   preceptores: "/sistema-frequencia/usuarios/preceptores",
   alunos: "/sistema-frequencia/usuarios/alunos",
-  conta: "/sistema-frequencia/conta",
-  planejamento: "/sistema-frequencia/planejamento",
+
   locais: "/sistema-frequencia/locais",
-  cronograma: "/sistema-frequencia/cronograma",
+  
+  planejamento: "/sistema-frequencia/planejamento",
+  grupos: "/sistema-frequencia/planejamento/grupos",
+  estagios: "/sistema-frequencia/planejamento/estagios",
+  atividades: "/sistema-frequencia/planejamento/atividades",
+
   relatorio: "/sistema-frequencia/relatorio",
+  
+  cronograma: "/sistema-frequencia/cronograma",
+
+  conta: "/sistema-frequencia/conta",
 };
 
 export default links;

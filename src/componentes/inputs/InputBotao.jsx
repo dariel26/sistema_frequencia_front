@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useContext, useRef, useState } from "react";
+import { Spinner } from "react-bootstrap"; //TODO componentizar
+import { AlertaContext } from "../../filters/alerta/Alerta";
 
 export default function InputBotao({
   textoReferencia,
@@ -9,6 +11,9 @@ export default function InputBotao({
   textoInicial = "",
 }) {
   const [valor, setValor] = useState(textoInicial);
+  const [salvando, setSalvando] = useState(false);
+
+  const alerta = useRef(useContext(AlertaContext)).current;
 
   const valorVazio = valor === "" || valor === undefined;
 
@@ -18,9 +23,17 @@ export default function InputBotao({
   };
 
   const aoSubmeter = (e) => {
-    if (valorVazio) return;
     e.preventDefault();
-    aoClicar(valor);
+    if (valorVazio) return;
+
+    setSalvando(true);
+    aoClicar(valor)
+      .then(
+        (strSucesso) =>
+          strSucesso && alerta.adicionaAlerta(undefined, strSucesso)
+      )
+      .catch((err) => alerta.adicionaAlerta(err))
+      .finally(() => setSalvando(false));
     setValor("");
   };
 
@@ -41,6 +54,7 @@ export default function InputBotao({
         disabled={valorVazio}
         onClick={aoSubmeter}
       >
+        {salvando && <Spinner animation="grow" size="sm" className="me-2" />}
         Criar
       </button>
     </div>

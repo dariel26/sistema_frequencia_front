@@ -1,13 +1,13 @@
 import { useEffect, useState, useContext, useRef } from "react";
 import { Col } from "react-bootstrap";
-import BotaoDrop from "../../componentes/botoes/BotaoDrop";
-import BotaoTexto from "../../componentes/botoes/BotaoTexto";
-import TabelaPadrao from "../../componentes/tabelas/TabelaPadrao";
-import { AlertaContext } from "../../filters/alert/Alert";
-import { UsuarioContext } from "../../filters/User";
-import apiSFE from "../../service/api";
+import BotaoDrop from "../../../componentes/botoes/BotaoDrop";
+import BotaoTexto from "../../../componentes/botoes/BotaoTexto";
+import TabelaPadrao from "../../../componentes/tabelas/TabelaPadrao";
+import { AlertaContext } from "../../../filters/alerta/Alerta";
+import { UsuarioContext } from "../../../filters/Usuario";
+import apiSFE from "../../../service/api";
 
-export default function GruposEdicao() {
+export default function GruposEdicao({ atualizarGrupos }) {
   const [grupos, setGrupos] = useState([]);
   const [alunos, setAlunos] = useState([]);
   const [estado, setEstado] = useState(0);
@@ -16,6 +16,7 @@ export default function GruposEdicao() {
   const usuario = useContext(UsuarioContext);
   const alerta = useRef(useContext(AlertaContext)).current;
 
+  const nenhumAlunoSelecionado = alunosSelecionados.length === 0;
   const todosOsAlunosSelecionados = alunosSelecionados.length === alunos.length;
   const token = usuario.token;
   const botaoAlocarVisivel = alunosSelecionados.length > 0;
@@ -37,12 +38,14 @@ export default function GruposEdicao() {
       .catch((err) => alerta.adicionaAlerta(err));
   }, [estado, alerta, token]);
 
-  const editarAlunos = async (novosDados) => {
+  const editarAluno = async (novosDados) => {
     try {
-      await apiSFE.editarAlunos(token, novosDados);
-      setEstado(estado + 1);
+      const res = await apiSFE.editarAlunos(token, novosDados);
+      await atualizarGrupos();
+      setAlunos(res.data);
+      return "Alunos associados!";
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      throw err;
     }
   };
 
@@ -52,7 +55,7 @@ export default function GruposEdicao() {
       id_grupo: grupo.id_grupo,
     }));
 
-    return editarAlunos(novosDados);
+    return editarAluno(novosDados);
   };
 
   const aoAlocarAutomaticamente = () => {
@@ -70,7 +73,7 @@ export default function GruposEdicao() {
       indexGrupo = (indexGrupo + 1) % qtdGrupos;
     });
 
-    return editarAlunos(novosDados);
+    return editarAluno(novosDados);
   };
 
   const aoSelecionarTodos = () => {
@@ -99,20 +102,22 @@ export default function GruposEdicao() {
     <>
       <Col sm="12" xl="8" className="mb-3">
         <BotaoDrop
-          textoBotao="Alocar..."
+          textoBotao={nenhumAlunoSelecionado ? "Associar..." : "Associar ao..."}
           dadosMenu={grupos
             .map((g) => ({
               texto: g.nome_grupo,
               visible: botaoAlocarVisivel,
               acao: () => aoAlocarNoGrupo(g),
             }))
-            .concat([
-              {
-                texto: "Automaticamente",
-                visible: true,
-                acao: aoAlocarAutomaticamente,
-              },
-            ])}
+            .concat(
+              nenhumAlunoSelecionado && [
+                {
+                  texto: "Automaticamente",
+                  visible: true,
+                  acao: aoAlocarAutomaticamente,
+                },
+              ]
+            )}
         />
       </Col>
       <Col sm="12" xl="8" className="mb-1">
