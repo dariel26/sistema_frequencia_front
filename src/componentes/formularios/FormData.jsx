@@ -1,12 +1,16 @@
-import { useState } from "react";
+import { useRef, useState } from "react";
 import DatePicker from "react-datepicker";
 import ptBR from "date-fns/locale/pt-BR";
+import { Button, Form, InputGroup } from "react-bootstrap";
 
 export default function FormData({ titulo, aoSelecionarDatas, textoBotao }) {
   const [dataEscolhida, setDataEscolhida] = useState({
     data_inicial: null,
     data_final: null,
   });
+
+  const intervaloInvalido =
+    dataEscolhida.data_inicial === null || dataEscolhida.data_final === null;
 
   const aoMudarAData = (intervalo) => {
     setDataEscolhida({ data_inicial: intervalo[0], data_final: intervalo[1] });
@@ -17,11 +21,11 @@ export default function FormData({ titulo, aoSelecionarDatas, textoBotao }) {
     aoSelecionarDatas(dataEscolhida);
   };
   return (
-    <form className="row w-100 align-items-end">
-      <div className="col mb-1 pe-0">
-        <label className="ms-2 text-nowrap">{titulo}</label>
+    <>
+      <Form.Label className="ms-2 text-nowrap">{titulo}</Form.Label>
+      <InputGroup>
         <DatePicker
-          className="form-control"
+          className="form-control rounded-end-0"
           locale={ptBR}
           dateFormat="dd/MM/yyyy"
           onChange={(intervalo) => aoMudarAData(intervalo)}
@@ -29,19 +33,10 @@ export default function FormData({ titulo, aoSelecionarDatas, textoBotao }) {
           endDate={dataEscolhida.data_final}
           selectsRange
         />
-      </div>
-      <div className="col mb-1">
-        <button
-          disabled={
-            dataEscolhida.data_inicial === null ||
-            dataEscolhida.data_final === null
-          }
-          className="btn border-primary text-primary"
-          onClick={aoEscolherDatas}
-        >
+        <Button disabled={intervaloInvalido} onClick={aoEscolherDatas}>
           {textoBotao}
-        </button>
-      </div>
-    </form>
+        </Button>
+      </InputGroup>
+    </>
   );
 }
