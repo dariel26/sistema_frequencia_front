@@ -16,6 +16,7 @@ import Planejamento, {
 import Local from "../views/Local";
 import Cronograma from "../views/Cronograma/Cronograma";
 import Relatorio from "../views/Relatorio";
+import FiltroUsuario from "../filters/Usuario";
 
 function Router() {
   return (
@@ -23,7 +24,14 @@ function Router() {
       <Routes>
         <Route path="/" element={<Navigate to={links.sistemaFrequencia} />} />
         <Route path={links.login} element={<Login />} />
-        <Route path={links.sistemaFrequencia} element={<Home />}>
+        <Route
+          path={links.sistemaFrequencia}
+          element={
+            <FiltroUsuario>
+              <Home />
+            </FiltroUsuario>
+          }
+        >
           <Route path={links.usuarios} element={<Usuarios />}>
             <Route path={links.coordenadores} element={<Coordenadores />} />
             <Route path={links.preceptores} element={<Preceptores />} />

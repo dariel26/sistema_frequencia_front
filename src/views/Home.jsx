@@ -1,26 +1,29 @@
 import MenuLayout from "../layouts/menu/MenuLayout";
 import navs from "../navs/navs";
-import FiltroUsuario from "../filters/Usuario";
+import { UsuarioContext } from "../filters/Usuario";
 import { FiLogOut } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
+import { useContext } from "react";
 
 export default function Home() {
   const navigate = useNavigate();
+  const usuario = useContext(UsuarioContext);
+
+  const usuarioAluno = usuario?.papel === "ALUNO(A)";
+  console.log(usuario);
   return (
-    <FiltroUsuario>
-      <MenuLayout
-        navs={navs.admin}
-        actions={[
-          {
-            onClick: () => {
-              localStorage.removeItem("token");
-              navigate("/login");
-            },
-            name: "Sair",
-            icon: <FiLogOut size={18} />,
+    <MenuLayout
+      navs={usuarioAluno ? navs.aluno : navs.adminPreceptorCoordenador}
+      actions={[
+        {
+          onClick: () => {
+            localStorage.removeItem("token");
+            navigate("/login");
           },
-        ]}
-      />
-    </FiltroUsuario>
+          name: "Sair",
+          icon: <FiLogOut size={18} />,
+        },
+      ]}
+    />
   );
 }
