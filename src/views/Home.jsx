@@ -10,7 +10,6 @@ export default function Home() {
   const usuario = useContext(UsuarioContext);
 
   const usuarioAluno = usuario?.papel === "ALUNO(A)";
-  console.log(usuario);
   return (
     <MenuLayout
       navs={usuarioAluno ? navs.aluno : navs.adminPreceptorCoordenador}

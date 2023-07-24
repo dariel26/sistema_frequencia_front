@@ -31,7 +31,6 @@ export function gerarArquivoXLSX(dados) {
             s: { r: index, c: 0 },
             e: { r: index + 2, c: 0 }
         }
-        console.log(intervalo);
         worksheet["!merges"].push(intervalo);
     })
 

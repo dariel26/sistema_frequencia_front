@@ -100,7 +100,6 @@ export default function Preceptores() {
   }
 
   async function aoEditar(novosDados) {
-    console.log(novosDados);
     try {
       await apiSFE.editatPreceptores(token, [novosDados]);
       setPreceptores((existentes) => {

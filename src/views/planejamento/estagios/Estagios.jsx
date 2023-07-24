@@ -69,7 +69,7 @@ export default function Estagios() {
       {!editando ? (
         <>
           <div className="col-sm-12 col-xl-8">
-            {estagios.map(
+            {estagios?.map(
               ({ nome_coordenador, nome_estagio, grupos, id_estagio }) => {
                 const estagioSemCoordenador = nome_coordenador === null;
                 const colorSpan = estagioSemCoordenador ? "text-danger" : "";
@@ -121,7 +121,7 @@ export default function Estagios() {
           </div>
         </>
       ) : (
-        <EstagiosEdicao />
+        <EstagiosEdicao estagios={estagios} setEstagios={setEstagios}/>
       )}
     </div>
   );

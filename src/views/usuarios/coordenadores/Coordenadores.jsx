@@ -106,7 +106,6 @@ export default function Coordenadores() {
   }
 
   async function aoEditar(novosDados) {
-    console.log(novosDados);
     try {
       await apiSFE.editarCoordenadores(usuario.token, [novosDados]);
       setCoordenadores((existentes) => {

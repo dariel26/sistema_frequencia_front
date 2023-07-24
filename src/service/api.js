@@ -49,6 +49,7 @@ const apiSFE = {
 
     //ESTAGIO-GRUPO
     adicionarGruposAEstagios: async (token, dados) => await api.post("/api/v1/estagio-grupo", { dados }, { headers: { token } }),
+    editarGrupoEmEstagio: async (token, novosDados) => await api.put("/api/v1/estagio-grupo", { novosDados }, { headers: { token } }),
     deletarGruposDeEstagios: async (token, ids) => await api.delete("/api/v1/estagio-grupo/" + ids.join(","), { headers: { token } }),
 
     //ALUNO-SUBGRUPO

@@ -34,10 +34,7 @@ export default function TabelaPadrao({
       </thead>
       <tbody>
         {dados?.map((dado, index) => (
-          <tr
-            className="text-center align-middle"
-            key={uuid()}
-          >
+          <tr className="text-center align-middle" key={uuid()}>
             {numerado ? <td>{index + 1}</td> : undefined}
             {camposDados?.map(
               ({
@@ -53,9 +50,9 @@ export default function TabelaPadrao({
                     <td key={uuid()}>{dado[texto]}</td>
                   ) : data ? (
                     <td key={uuid()}>
-                      {`${dado[data].substring(8)}/
-                    ${dado[data].substring(5, 7)}/
-                    ${dado[data].substring(0, 4)}`}
+                      {`${dado[data]?.substring(8)}/
+                    ${dado[data]?.substring(5, 7)}/
+                    ${dado[data]?.substring(0, 4)}`}
                     </td>
                   ) : check ? (
                     <td key={uuid()} className="position-relative">

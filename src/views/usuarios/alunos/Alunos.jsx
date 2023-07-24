@@ -84,7 +84,6 @@ export default function Alunos() {
     if (novosAlunos.length < 1) return;
     try {
       const { data } = await apiSFE.adicionarAlunos(token, novosAlunos);
-      console.log(data);
       setAlunos(data);
     } catch (err) {
       throw err;
@@ -92,7 +91,6 @@ export default function Alunos() {
   }
 
   async function aoEditar(novosDados) {
-    console.log(novosDados);
     try {
       await apiSFE.editarAlunos(token, [novosDados]);
       setAlunos((existentes) => {

@@ -16,6 +16,8 @@ import InputNumero from "./inputs/InputNumero";
 import InputSelecao from "./inputs/InputSelecao";
 import Mapa from "./mapa/Mapa";
 import TabelaPadrao from "./tabelas/TabelaPadrao";
+import TextoInput from "./inputs/TextoInput";
+import BotaoOutline from "./botoes/BotoesOutline";
 
 export {
   BotaoDrop,
@@ -37,4 +39,6 @@ export {
   InputSelecao,
   Mapa,
   TabelaPadrao,
+  TextoInput,
+  BotaoOutline,
 };
