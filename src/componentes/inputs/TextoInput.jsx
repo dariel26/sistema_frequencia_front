@@ -13,14 +13,25 @@ export default function TextoInput({
   emptyLabel,
   aoMudar,
   opcoes,
+  larguraMaxima,
 }) {
   const [mudando, setMudando] = useState(false);
   const [salvando, setSalvando] = useState(false);
 
+  const inputRef = useRef();
   const alerta = useRef(useContext(AlertaContext)).current;
 
   function aoClicar() {
     setMudando(true);
+    setTimeout(() => {
+      inputRef.current.focus();
+    }, 100);
+  }
+
+  function aoCancelar() {
+    setTimeout(() => {
+      setMudando(false);
+    }, 100);
   }
 
   function aoMudarInternamente(coordenadores) {
@@ -33,17 +44,22 @@ export default function TextoInput({
         alerta.adicionaAlerta(err);
       })
       .finally(() => {
+        setMudando(false);
         setSalvando(false);
       });
   }
 
   return salvando ? (
-    <Spinner animation="grow" size="sm" />
+    <Spinner animation="grow" size="sm" className="p-0" />
   ) : mudando ? (
     <Typeahead
+      ref={inputRef}
+      onBlur={aoCancelar}
+      style={{ maxWidth: `${larguraMaxima}px` }}
       className={className}
       size={size}
       id={id}
+      defaultInputValue={texto??""}
       placeholder={placeholder}
       labelKey={labelKey}
       emptyLabel={emptyLabel}
@@ -53,7 +69,7 @@ export default function TextoInput({
   ) : (
     <label
       role="button"
-      className={`${!texto && "text-danger"}`}
+      className={`${!texto && "text-danger"} fw-bold`}
       onClick={aoClicar}
     >
       {texto ?? "INDEFINDO"}

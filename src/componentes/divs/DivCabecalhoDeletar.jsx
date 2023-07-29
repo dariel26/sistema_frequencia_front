@@ -7,6 +7,7 @@ export default function DivCabecalhoDeletar({
   aoDeletar,
   textoBotao,
   children,
+  className,
 }) {
   const [salvando, setSalvando] = useState(false);
 
@@ -26,7 +27,7 @@ export default function DivCabecalhoDeletar({
       });
   };
   return (
-    <div className="border-bottom border-4 border-primary">
+    <div className={className ?? "border-bottom border-4 border-primary"}>
       <div className="d-flex align-items-center justify-content-between">
         <span className="fs-5 fw-bold">{titulo}</span>
         <label role="button" className="text-primary" onClick={aoClicar}>

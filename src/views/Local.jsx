@@ -45,7 +45,7 @@ export default function Local() {
       .catch((err) => {
         alerta.adicionaAlerta(err);
       });
-  }, [token, preencherLocais]);
+  }, [token, preencherLocais, alerta]);
 
   const aoClicarNoMapa = useCallback(({ lat, lng }) => {
     setLatLon({ lat, lon: lng });

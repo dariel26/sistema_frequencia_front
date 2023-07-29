@@ -140,6 +140,7 @@ export default function Grupos() {
                       { texto: "#", visivel: true },
                       { texto: "Nome", visivel: true },
                       { texto: "Matricula", visivel: true },
+                      { texto: "id_aluno", visivel: true },
                       { texto: "Desassociar", visivel: desassociando },
                     ]}
                     dados={grupo?.alunos}
@@ -147,6 +148,7 @@ export default function Grupos() {
                     camposDados={[
                       { texto: "nome", visivel: true },
                       { texto: "matricula", visivel: true },
+                      {texto: "id_aluno", visivel: true},
                       {
                         check: true,
                         selecionado: (aluno) => alunoJaSelecionado(aluno),

@@ -39,6 +39,21 @@ export function amdEmData(string) {
   return new Date(parseInt(ano), parseInt(mes) - 1, parseInt(dia));
 }
 
+export function dataEmAmd(data) {
+  if (typeof data !== typeof new Date()) return;
+  const dia = data.getDate();
+  const mes = data.getMonth() + 1;
+  const ano = data.getFullYear();
+  return `${ano}-${mes < 10 ? "0" + mes : mes}-${dia < 10 ? "0" + dia : dia}`;
+}
+
+export function dataEmDm(data) {
+  if (typeof data !== typeof new Date()) return;
+  const dia = data.getDate();
+  const mes = data.getMonth() + 1;
+  return `${dia < 10 ? "0" + dia : dia}/${mes < 10 ? "0" + mes : mes}`;
+}
+
 export function dataEmDma(date) {
   if (typeof date !== typeof new Date()) return;
   const dia = date.getDate();

@@ -10,7 +10,6 @@ import apiSFE from "../../../service/api";
 export default function GruposEdicao({ atualizarGrupos }) {
   const [grupos, setGrupos] = useState([]);
   const [alunos, setAlunos] = useState([]);
-  const [estado, setEstado] = useState(0);
   const [alunosSelecionados, setAlunosSelecionados] = useState([]);
 
   const usuario = useContext(UsuarioContext);
@@ -36,7 +35,7 @@ export default function GruposEdicao({ atualizarGrupos }) {
       .listarAlunos(token)
       .then((res) => setAlunos(res.data))
       .catch((err) => alerta.adicionaAlerta(err));
-  }, [estado, alerta, token]);
+  }, [alerta, token]);
 
   const editarAluno = async (novosDados) => {
     try {

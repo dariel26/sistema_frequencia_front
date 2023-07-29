@@ -21,8 +21,9 @@ export default function CheckDias({
   const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
+    const datas = datasEscolhidas ?? [];
     const dias = [];
-    datasEscolhidas?.forEach((d) => {
+    datas.forEach((d) => {
       if (!dias.includes(d.getDay())) {
         dias.push(d.getDay());
       }

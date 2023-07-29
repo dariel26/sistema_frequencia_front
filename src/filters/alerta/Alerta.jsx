@@ -47,7 +47,11 @@ export default function FiltroAlerta(props) {
     let varianteAlerta = "";
     let mensagem = "";
     let estado = "";
-    if (error?.response?.status === 401) {
+    if (error?.response?.status === 400) {
+      varianteTexto = "text-warning";
+      varianteAlerta = "alert-warning";
+      mensagem = error.response?.data.message;
+    } else if (error?.response?.status === 401) {
       varianteTexto = "text-warning";
       varianteAlerta = "alert-warning";
       mensagem = error.response?.data.message;
@@ -74,7 +78,12 @@ export default function FiltroAlerta(props) {
       estado = "";
     }
     setStackAlerts((stack) => {
-      stack.push({ status: estado, message: mensagem, varianText: varianteTexto, variantAlert: varianteAlerta });
+      stack.push({
+        status: estado,
+        message: mensagem,
+        varianText: varianteTexto,
+        variantAlert: varianteAlerta,
+      });
       return Object.assign([], stack);
     });
   };
@@ -97,7 +106,9 @@ export default function FiltroAlerta(props) {
           <p>{alert.message}</p>
         </div>
       ) : undefined}
-      <AlertaContext.Provider value={{ addAlert: adicionaAlerta, adicionaAlerta }}>
+      <AlertaContext.Provider
+        value={{ addAlert: adicionaAlerta, adicionaAlerta }}
+      >
         {props.children}
       </AlertaContext.Provider>
     </>

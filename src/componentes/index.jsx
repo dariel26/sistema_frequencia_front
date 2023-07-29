@@ -18,6 +18,10 @@ import Mapa from "./mapa/Mapa";
 import TabelaPadrao from "./tabelas/TabelaPadrao";
 import TextoInput from "./inputs/TextoInput";
 import BotaoOutline from "./botoes/BotoesOutline";
+import CardAtividade from "./cards/CardAtividade";
+import HoraInput from "./inputs/HoraInput";
+import IntervaloInput from "./inputs/IntervaloInput";
+import NumeroInput from "./inputs/NumeroInput";
 
 export {
   BotaoDrop,
@@ -41,4 +45,9 @@ export {
   TabelaPadrao,
   TextoInput,
   BotaoOutline,
+  CardAtividade,
+  HoraInput,
+  IntervaloInput,
+  NumeroInput,
 };
+

@@ -1,6 +1,5 @@
 import { useContext, useRef } from "react";
 import { useEffect, useState } from "react";
-import CheckDias from "../../../componentes/inputs/CheckDias";
 import InputBotao from "../../../componentes/inputs/InputBotao";
 import { UsuarioContext } from "../../../filters/Usuario";
 import apiSFE from "../../../service/api";
@@ -9,25 +8,29 @@ import { AlertaContext } from "../../../filters/alerta/Alerta";
 import BotaoTexto from "../../../componentes/botoes/BotaoTexto";
 import { CardRadiosBarraFixa } from "../../../components/cards/CardRadios";
 import AtividadesEdicao from "./AtividadesEdicao";
+import uuid from "react-uuid";
+import { CardAtividade } from "../../../componentes";
 
 export default function Atividades() {
   const [alunos, setAlunos] = useState([]);
   const [atividades, setAtividades] = useState([]);
   const [estagios, setEstagios] = useState([]);
-  const [estado, setEstado] = useState(0);
+  const [preceptores, setPreceptores] = useState([]);
+  const [locais, setLocais] = useState([]);
   const [editando, setEditando] = useState(false);
 
   const usuario = useContext(UsuarioContext);
-  const alertaRef = useRef(useContext(AlertaContext));
+  const alerta = useRef(useContext(AlertaContext)).current;
+  const token = usuario.token;
 
-  let menorData = estagios[0]?.grupos[0]?.data_inicial;
-  let maiorData = estagios[0]?.grupos[0]?.data_inicial;
+  let dataInicialSemestre = estagios[0]?.grupos[0]?.data_inicial;
+  let dataFinalSemestre = estagios[0]?.grupos[0]?.data_inicial;
 
   estagios[0]?.grupos.forEach(({ data_inicial, data_final }) => {
-    if (data_inicial < menorData) menorData = data_inicial;
-    if (data_inicial > maiorData) maiorData = data_inicial;
-    if (data_final < menorData) menorData = data_final;
-    if (data_final > maiorData) maiorData = data_final;
+    if (data_inicial < dataInicialSemestre) dataInicialSemestre = data_inicial;
+    if (data_inicial > dataFinalSemestre) dataFinalSemestre = data_inicial;
+    if (data_final < dataInicialSemestre) dataInicialSemestre = data_final;
+    if (data_final > dataFinalSemestre) dataFinalSemestre = data_final;
   });
 
   const atividadesGerais = atividades.filter((a) => a.id_estagio === null);
@@ -39,8 +42,8 @@ export default function Atividades() {
         {
           nome: "Todos os alunos",
           alunos,
-          data_inicial: menorData,
-          data_final: maiorData,
+          data_inicial: dataInicialSemestre,
+          data_final: dataFinalSemestre,
         },
       ],
       atividades: atividadesGerais,
@@ -48,7 +51,6 @@ export default function Atividades() {
   ].concat(estagios);
 
   useEffect(() => {
-    const token = usuario.token;
     const p_alunos = apiSFE.listarAlunos(token);
     const p_preceptores = apiSFE.listarPreceptores(token);
     const p_estagios = apiSFE.listarEstagios(token);
@@ -63,23 +65,26 @@ export default function Atividades() {
       p_grupos,
       p_atividades,
       p_locais,
-    ]).then((res) => {
-      const alunos = res[0].data;
-      const estagios = res[2].data.map((e) => ({
-        ...e,
-        grupos: e.grupos.map((g) => ({
-          ...g,
-          data_inicial: transformarStringAMDEmData(g.data_inicial),
-          data_final: transformarStringAMDEmData(g.data_final),
-        })),
-      }));
-      const atividades = res[4].data;
-
-      setAlunos(alunos);
-      setEstagios(estagios);
-      setAtividades(atividades);
-    });
-  }, [usuario, estado, editando]);
+    ])
+      .then((res) => {
+        const alunos = res[0].data;
+        const estagios = res[2].data.map((e) => ({
+          ...e,
+          grupos: e.grupos.map((g) => ({
+            ...g,
+            data_inicial: transformarStringAMDEmData(g.data_inicial),
+            data_final: transformarStringAMDEmData(g.data_final),
+          })),
+        }));
+        const atividades = res[4].data;
+        setLocais(res[5].data);
+        setPreceptores(res[1].data);
+        setAlunos(alunos);
+        setEstagios(estagios);
+        setAtividades(atividades);
+      })
+      .catch((err) => alerta.adicionaAlerta(err));
+  }, [token, editando, alerta]);
 
   const aoEditar = () => {
     setEditando(!editando);
@@ -87,10 +92,85 @@ export default function Atividades() {
 
   const aoAlocarAtividade = async (id_estagio, nome) => {
     try {
-      await apiSFE.adicionarAtividades(usuario.token, [{ id_estagio, nome }]);
-      setEstado(estado + 1);
+      const novasAtividades = (
+        await apiSFE.adicionarAtividades(token, [{ id_estagio, nome }])
+      ).data;
+      const estagiosAtualizados = (await apiSFE.listarEstagios(token)).data;
+      setAtividades(novasAtividades);
+      setEstagios(estagiosAtualizados);
     } catch (err) {
-      alertaRef.current.addAlert(err);
+      throw err;
+    }
+  };
+
+  const aoDeletarAtividade = async ({ id_atividade }) => {
+    try {
+      await apiSFE.deletarAtividades(token, [id_atividade]);
+      setAtividades((existentes) =>
+        existentes.filter((a) => a.id_atividade !== id_atividade)
+      );
+      setEstagios((existentes) =>
+        existentes.map((estagio) => {
+          if (!estagio.atividades.some((a) => a.id_atividade === id_atividade))
+            return estagio;
+          return {
+            ...estagio,
+            atividades: estagio.atividades.filter(
+              (a) => a.id_atividade !== id_atividade
+            ),
+          };
+        })
+      );
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const aoAlocarPreceptor = async ({ id_preceptor, id_atividade }) => {
+    try {
+      await apiSFE.adicionarPreceptoresAAtividades(token, [
+        { id_preceptor, id_atividade },
+      ]);
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const aoAlocarLocal = async ({ id_local, id_atividade }) => {
+    try {
+      await apiSFE.adicionarLocaisAAtividades(token, [
+        { id_local, id_atividade },
+      ]);
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const aoAdicionarDatas = async ({ datas, id_atividade }) => {
+    try {
+      await apiSFE.adicionarDatasAAtividade(token, datas, id_atividade);
+      const atividadesAtualizadas = await apiSFE.listarAtividades(token);
+      return atividadesAtualizadas.data.find(
+        (a) => a.id_atividade === id_atividade
+      );
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const aoEditarAtividade = async (dado) => {
+    try {
+      return await apiSFE.editarAtividades(token, [dado]);
+    } catch (err) {
+      throw err;
+    }
+  };
+
+  const aoEditarDataDeAtividade = async (dado) => {
+    try {
+      await apiSFE.editarDatasDeAtividade(token, [dado]);
+    } catch (err) {
+      throw err;
     }
   };
 
@@ -128,9 +208,26 @@ export default function Atividades() {
               </span>
             </div>
             {estagio.atividades.map((atividade) => (
-              <div className="col-sm-12 col-xl-8 mb-2" key={gerarChaveUnica()}>
+              <div className="col-sm-12 col-xl-8 mb-2" key={uuid()}>
                 <div className="ms-1">
-                  <Atividade key={gerarChaveUnica()} atividade={atividade} />
+                  <CardAtividade
+                    key={gerarChaveUnica()}
+                    atividade={atividades.find(
+                      (a) => a.id_atividade === atividade.id_atividade
+                    )}
+                    dataInicial={dataInicialSemestre}
+                    dataFinal={dataFinalSemestre}
+                    preceptores={preceptores}
+                    locais={locais}
+                    aoAlocarPreceptor={aoAlocarPreceptor}
+                    aoAlocarLocal={aoAlocarLocal}
+                    aoDeletarAtividade={aoDeletarAtividade}
+                    aoAdicionarDatas={aoAdicionarDatas}
+                    aoEditarAtividade={aoEditarAtividade}
+                    grupos={estagio.grupos}
+                    numMaxDeAlunos={totalAlunosEstagio(estagio)}
+                    aoEditarDataDeAtividade={aoEditarDataDeAtividade}
+                  />
                 </div>
               </div>
             ))}
@@ -147,55 +244,6 @@ export default function Atividades() {
       ) : (
         <AtividadesEdicao />
       )}
-    </div>
-  );
-}
-
-function Atividade({ atividade }) {
-  const datasEscolhidas = atividade.datas.map((dataAtividade) => ({
-    ...dataAtividade,
-    data: transformarStringAMDEmData(dataAtividade.data),
-  }));
-
-  return (
-    <div className="row w-100 m-0 justify-content-center border border-2 overflow-hidden rounded">
-      <div className="col-sm-12 text-center">
-        <span className="fw-bold fs-5">{atividade.nome_atividade}</span>
-      </div>
-      <div className="col-sm-12 mb-1">
-        <span className="ms-1 me-2">Preceptor:</span>
-        <span> {atividade.nome_preceptor ?? "Nenhum"} </span>
-      </div>
-      <div className="col-sm-12 mb-1">
-        <span className="ms-1 me-2">Local:</span>
-        <span>{atividade.nome_local ?? "Nenhum"}</span>
-      </div>
-      <div className="col-sm-12 mb-1">
-        <span className="ms-1">Dias da semana:</span>
-      </div>
-      <div className="col-sm-12 mb-2">
-        <CheckDias
-          datasEscolhidas={datasEscolhidas.map((da) => da.data)}
-          desabilitado
-        />
-      </div>
-      <div className="col-sm-12 mb-1">
-        <span className="ms-1 me-2">Hora inicial:</span>
-        <span>{atividade.hora_inicial ?? "Não definido"}</span>
-      </div>
-      <div className="col-sm-12 mb-1">
-        <span className="ms-1 me-2">Hora final:</span>
-        <span>{atividade.hora_final ?? "Não definido"}</span>
-      </div>
-      <div className="col-sm-12 mb-1">
-        <span className="ms-1 me-2">Alunos na atividade: </span>
-        <span>[{atividade.intervalo_alunos ?? "Não definido"}]</span>
-      </div>
-      <div className="col-sm-12 mb-1">
-        <span className="ms-1">Alunos por dia: </span>
-        <span>{atividade.alunos_no_dia ?? "Não definido"}</span>
-      </div>
-      <div className="mb-3" />
     </div>
   );
 }
