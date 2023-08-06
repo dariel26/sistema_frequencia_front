@@ -6,6 +6,8 @@ import {
   BsFillCalendarWeekFill,
   BsFileEarmarkSpreadsheetFill,
 } from "react-icons/bs";
+import { HiClipboardDocumentCheck } from "react-icons/hi2";
+
 import links from "../links";
 
 const common = [
@@ -36,8 +38,16 @@ const adminPreceptorCoordenador = [
   },
 ];
 
+const alunos = [
+  {
+    path: links.presencas,
+    name: "Presenças",
+    icon: <HiClipboardDocumentCheck size={18} />,
+  },
+];
+
 const navs = {
-  aluno: common,
+  aluno: alunos.concat(common),
   adminPreceptorCoordenador: adminPreceptorCoordenador.concat(common),
 };
 

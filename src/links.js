@@ -8,6 +8,8 @@ const links = {
   preceptores: "/sistema-frequencia/usuarios/preceptores",
   alunos: "/sistema-frequencia/usuarios/alunos",
 
+  presencas: "/sistema-frequencia/presencas",
+
   locais: "/sistema-frequencia/locais",
   
   planejamento: "/sistema-frequencia/planejamento",

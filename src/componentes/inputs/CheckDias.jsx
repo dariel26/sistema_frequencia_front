@@ -1,5 +1,4 @@
-import { useEffect } from "react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
 
 const segunda = 1;
@@ -10,37 +9,36 @@ const sexta = 5;
 const sabado = 6;
 const domingo = 0;
 
-export default function CheckDias({
-  dias = [],
-  aoMudar,
-  datasEscolhidas,
-  id,
-  desabilitado,
-}) {
-  const [diasSelecionados, setDiasSelecionados] = useState(dias);
+export default function CheckDias({ dias = {}, aoMudar, id, desabilitado }) {
+  const [diasSelecionados, setDiasSelecionados] = useState({
+    segunda: false,
+    terca: false,
+    quarta: false,
+    quinta: false,
+    sexta: false,
+    sabado: false,
+    domingo: false,
+  });
   const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
-    const datas = datasEscolhidas ?? [];
-    const dias = [];
-    datas.forEach((d) => {
-      if (!dias.includes(d.getDay())) {
-        dias.push(d.getDay());
-      }
-    });
+    if (dias.segunda === undefined) return;
     setDiasSelecionados(dias);
-  }, [datasEscolhidas]);
+  }, [dias]);
 
   const aoSelecionar = (valor, selecionado) => {
-    let novosDias = diasSelecionados;
-    if (selecionado) {
-      novosDias.push(valor);
-    } else {
-      novosDias = novosDias.filter((v) => v !== valor);
-    }
+    let dado = {};
+    if (valor === 0) dado.domingo = selecionado;
+    else if (valor === 1) dado.segunda = selecionado;
+    else if (valor === 2) dado.terca = selecionado;
+    else if (valor === 3) dado.quarta = selecionado;
+    else if (valor === 4) dado.quinta = selecionado;
+    else if (valor === 5) dado.sexta = selecionado;
+    else if (valor === 6) dado.sabado = selecionado;
+
     setSalvando(true);
-    aoMudar(novosDias).finally(() => setSalvando(false));
-    setDiasSelecionados(Object.assign([], novosDias));
+    aoMudar(dado).finally(() => setSalvando(false));
+    setDiasSelecionados(Object.assign(dias, dado));
   };
 
   const MeuSpinner = () => {
@@ -68,7 +66,7 @@ export default function CheckDias({
         id={"segunda" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.some((v) => v === segunda)}
+        checked={diasSelecionados.segunda}
         onChange={(e) => aoSelecionar(segunda, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"segunda" + id}>
@@ -80,7 +78,7 @@ export default function CheckDias({
         id={"terca" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.some((v) => v === terca)}
+        checked={diasSelecionados.terca}
         onChange={(e) => aoSelecionar(terca, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"terca" + id}>
@@ -92,7 +90,7 @@ export default function CheckDias({
         id={"quarta" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.some((v) => v === quarta)}
+        checked={diasSelecionados.quarta}
         onChange={(e) => aoSelecionar(quarta, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"quarta" + id}>
@@ -104,7 +102,7 @@ export default function CheckDias({
         id={"quinta" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.some((v) => v === quinta)}
+        checked={diasSelecionados.quinta}
         onChange={(e) => aoSelecionar(quinta, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"quinta" + id}>
@@ -116,7 +114,7 @@ export default function CheckDias({
         id={"sexta" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.some((v) => v === sexta)}
+        checked={diasSelecionados.sexta}
         onChange={(e) => aoSelecionar(sexta, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"sexta" + id}>
@@ -128,7 +126,7 @@ export default function CheckDias({
         id={"sabado" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.some((v) => v === sabado)}
+        checked={diasSelecionados.sabado}
         onChange={(e) => aoSelecionar(sabado, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"sabado" + id}>
@@ -140,7 +138,7 @@ export default function CheckDias({
         id={"domingo" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.some((v) => v === domingo)}
+        checked={diasSelecionados.domingo}
         onChange={(e) => aoSelecionar(domingo, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"domingo" + id}>

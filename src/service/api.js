@@ -138,8 +138,8 @@ const apiSFE = {
     await api.delete("/api/v1/atividade/" + ids.join(","), {
       headers: { token },
     }),
-  editarAtividades: async (token, novosDados) =>
-    await api.put("/api/v1/atividade", { novosDados }, { headers: { token } }),
+  editarAtividades: async (token, novoDado) =>
+    await api.put("/api/v1/atividade", { novoDado }, { headers: { token } }),
 
   //PREC-ATIVIADE
   adicionarPreceptoresAAtividades: async (token, dados) =>

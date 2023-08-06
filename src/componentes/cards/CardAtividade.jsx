@@ -1,6 +1,5 @@
 import { Col, OverlayTrigger, Table, Tooltip } from "react-bootstrap";
-import { amdEmData } from "../../utils/datas";
-import { obterDatasPorDiaSemana } from "../../utils";
+import { amdEmData, dataEmDm } from "../../utils/datas";
 import { useEffect, useState } from "react";
 import {
   CheckDias,
@@ -24,9 +23,6 @@ export default function CardAtividade({
   aoAlocarPreceptor,
   aoAlocarLocal,
   aoDeletarAtividade,
-  dataInicial,
-  dataFinal,
-  aoAdicionarDatas,
   aoEditarAtividade,
   grupos,
   numMaxDeAlunos,
@@ -51,9 +47,19 @@ export default function CardAtividade({
     parseInt(estaAtividade?.intervalo_alunos?.split("-")[1] ?? numMaxDeAlunos) -
     1;
 
+  const dias = {
+    segunda: estaAtividade.segunda,
+    terca: estaAtividade.terca,
+    quarta: estaAtividade.quarta,
+    quinta: estaAtividade.quinta,
+    sexta: estaAtividade.sexta,
+    sabado: estaAtividade.sabado,
+    domingo: estaAtividade.domingo,
+  };
+
   useEffect(() => {
-    if (atividade === undefined || grupos === undefined) return;
     console.log(atividade);
+    if (atividade === undefined || grupos === undefined) return;
     setEstaAtividade({
       ...atividade,
       grupos,
@@ -87,17 +93,15 @@ export default function CardAtividade({
   };
 
   const aoAlocarDatas = async (diasSemana) => {
-    const datas = obterDatasPorDiaSemana(dataInicial, dataFinal, diasSemana);
     try {
-      const atividadeAtualizada = await aoAdicionarDatas({
-        datas,
-        id_atividade: estaAtividade.id_atividade,
-      });
-
+      const atividadeAtualizada = (
+        await aoEditarAtividade({
+          id_atividade: atividade.id_atividade,
+          ...diasSemana,
+        })
+      ).data;
       setEstaAtividade({
         ...atividadeAtualizada,
-        grupos,
-        datas: atividadeAtualizada.datas.map((d) => amdEmData(d.data)),
         eventos: atividadeAtualizada.datas,
       });
     } catch (err) {
@@ -135,7 +139,7 @@ export default function CardAtividade({
         id_atividade: atividade.id_atividade,
         intervalo_alunos,
       });
-      const subgrupos = res.data;
+      const { subgrupos } = res.data;
       setEstaAtividade((estadoAtual) => ({
         ...estadoAtual,
         intervalo_alunos,
@@ -237,7 +241,7 @@ export default function CardAtividade({
           <Col sm="12" className="mb-2 overflow-hidden">
             <CheckDias
               id={estaAtividade.id_atividade}
-              datasEscolhidas={estaAtividade?.datas}
+              dias={dias}
               aoMudar={aoAlocarDatas}
             />
           </Col>
@@ -294,7 +298,7 @@ export default function CardAtividade({
                         </tr>
                       </thead>
                       <tbody>
-                        {subG?.map((aluno, idx) => (
+                        {subG?.alunos?.map((aluno, idx) => (
                           <tr key={uuid()}>
                             <td>{idx + 1}</td>
                             <td>{aluno.nome_aluno}</td>
@@ -307,8 +311,9 @@ export default function CardAtividade({
                 </Tooltip>
               }
             >
-              <label role="button" className="ms-2 text-primary">
-                Subgrupo {i + 1}
+              <label role="button" className="ms-2 me-2 text-primary">
+                {dataEmDm(new Date(subG.data_inicial))}-
+                {dataEmDm(new Date(subG.data_final))}
               </label>
             </OverlayTrigger>
           ))}

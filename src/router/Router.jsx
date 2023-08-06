@@ -17,6 +17,7 @@ import Local from "../views/Local";
 import Cronograma from "../views/Cronograma/Cronograma";
 import Relatorio from "../views/Relatorio";
 import FiltroUsuario from "../filters/Usuario";
+import Presencas from "../views/Presencas";
 
 function Router() {
   return (
@@ -38,6 +39,8 @@ function Router() {
             <Route path={links.alunos} element={<Alunos />} />
             <Route index element={<Navigate to={links.coordenadores} />} />
           </Route>
+
+          <Route path={links.presencas} element={<Presencas />} />
 
           <Route path={links.planejamento} element={<Planejamento />}>
             <Route path={links.grupos} element={<Grupos />} />

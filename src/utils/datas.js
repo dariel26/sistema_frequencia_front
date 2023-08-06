@@ -70,6 +70,29 @@ export function filtraDatasPorIntervalo(data_inicial, data_final, datas) {
   return datasEntreIntervalo;
 }
 
+export function obterDatasPorDiaSemana(dataInicio, dataFim, diasSemana) {
+  if (dataInicio === undefined) return [];
+  if (dataFim === undefined) return [];
+  if (diasSemana === undefined) return [];
+  if (typeof dataInicio !== typeof new Date()) return [];
+  if (typeof dataFim !== typeof new Date()) return [];
+
+  var datas = [];
+  var dataAtual = new Date(dataInicio);
+
+  while (dataAtual <= dataFim) {
+      var diaSemanaAtual = dataAtual?.getDay();
+
+      if (diasSemana?.includes(diaSemanaAtual)) {
+          datas.push(new Date(dataAtual));
+      }
+
+      dataAtual?.setDate(dataAtual?.getDate() + 1);
+  }
+
+  return datas;
+}
+
 export function todasAsDatasNoIntervalo(dataInicio, dataFim) {
   const diasSemana = [0, 1, 2, 3, 4, 5, 6];
   if (dataInicio === undefined) return [];

@@ -15,7 +15,7 @@ export default function TextoCalendario({ aoMudar, eventos }) {
 
   const alerta = useRef(useContext(AlertaContext)).current;
 
-  const datasExcluidas = eventos.filter((e) => e.excluida);
+  const datasExcluidas = eventos ? eventos.filter((e) => e.excluida) : [];
 
   useEffect(() => {
     const eventosFormatados = eventos?.map(
