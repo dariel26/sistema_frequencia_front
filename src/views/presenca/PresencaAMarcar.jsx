@@ -1,39 +1,22 @@
 import { Button, Col, Row, Spinner } from "react-bootstrap";
-import { BotaoTexto } from "../../componentes";
 import { amdEmData, dataEmDma } from "../../utils/datas";
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { AlertaContext } from "../../filters/alerta/Alerta";
 import apiSFE from "../../service/api";
 import { UsuarioContext } from "../../filters/Usuario";
 
-export default function PresencaAMarcar({ presenca, aoCancelar }) {
-  const [coordenadas, setCoordenadas] = useState({ lat: null, lon: null });
+export default function PresencaAMarcar({
+  presenca,
+  coordenadas,
+  setPresencas,
+  aoCancelar,
+}) {
   const [marcando, setMarcando] = useState(false);
 
   const alerta = useRef(useContext(AlertaContext)).current;
   const usuario = useContext(UsuarioContext);
 
   const erroNasCoordenadas = !coordenadas.lat || !coordenadas.lon;
-
-  useEffect(() => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (posicao) => {
-          const { latitude, longitude } = posicao.coords;
-          setCoordenadas({ lat: latitude, lon: longitude });
-        },
-        (_) => {
-          alerta.adicionaAlerta(
-            new Error("Não foi possível obter a posição geográfica do usuário")
-          );
-        }
-      );
-    } else {
-      alerta.adicionaAlerta(
-        new Error("O navegador usado, não suporta geolocalização")
-      );
-    }
-  }, [alerta]);
 
   const aoMarcarPresenca = (e) => {
     e.preventDefault();
@@ -42,18 +25,25 @@ export default function PresencaAMarcar({ presenca, aoCancelar }) {
       .editarPresenca(usuario.token, {
         id_alunodataatividade: presenca.id_alunodataatividade,
         coordenadas,
-        estado: 1,
+        estado: "1",
       })
-      .then((res) => {})
+      .then(() => {
+        setPresencas((antigas) =>
+          antigas.map((p) =>
+            p.id_alunodataatividade === presenca.id_alunodataatividade
+              ? { ...p, estado: "1" }
+              : p
+          )
+        );
+        alerta.adicionaAlerta(undefined, "Presença marcada");
+        aoCancelar();
+      })
       .catch((err) => alerta.adicionaAlerta(err))
       .finally(() => setMarcando(false));
   };
 
   return (
     <>
-      <Col sm="12" className="mb-2">
-        <BotaoTexto texto="Cancelar" aoClicar={aoCancelar} visivel={true} />
-      </Col>
       <Col sm="12" xl="8">
         <Row className="justify-content-center">
           <Col sm="12" xl="6" className="text-center mb-2">

@@ -68,12 +68,15 @@ export default function Relatorio() {
       grupo.alunos.forEach((aluno) => {
         const datasDoAluno = alunos
           .find((a) => a.id_aluno === aluno.id_aluno)
-          ?.datas?.map(({ data, hora_inicial, hora_final, estado }) => ({
-            dataDM: formatarDataDM(amdEmData(data)),
-            hora_inicial,
-            hora_final,
-            estado
-          }));
+          ?.datas?.map(
+            ({ data, hora_inicial, hora_final, estado, excluida }) => ({
+              dataDM: formatarDataDM(amdEmData(data)),
+              hora_inicial,
+              hora_final,
+              estado,
+              excluida,
+            })
+          );
         const datasCabecalho = cabecalho.slice(2);
         const linhaManha = [periodos.MANHA];
         const linhaTarde = [periodos.TARDE];
@@ -93,13 +96,19 @@ export default function Relatorio() {
                 dataDMAluno.hora_final
               );
               if (periodo === periodos.MANHA) {
-                linhaManha.push(dataDMAluno.estado);
+                linhaManha.push(
+                  dataDMAluno.excluida ? "livre" : dataDMAluno.estado
+                );
                 tempos.manha = true;
               } else if (periodo === periodos.TARDE) {
-                linhaTarde.push(dataDMAluno.estado);
+                linhaTarde.push(
+                  dataDMAluno.excluida ? "livre" : dataDMAluno.estado
+                );
                 tempos.tarde = true;
               } else if (periodo === periodos.NOITE) {
-                linhaNoite.push(dataDMAluno.estado);
+                linhaNoite.push(
+                  dataDMAluno.excluida ? "livre" : dataDMAluno.estado
+                );
                 tempos.noite = true;
               }
             }
