@@ -5,10 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { AlertaContext } from "../filters/alerta/Alerta";
 import links from "../links";
 import apiSFE from "../service/api";
+import { Spinner } from "react-bootstrap";
 
 export default function Login(props) {
   const [login, setLogin] = useState("");
   const [password, setPassword] = useState("");
+  const [carregando, setCarregando] = useState(false);
 
   const navigate = useNavigate();
   const alert = useRef(useContext(AlertaContext));
@@ -25,6 +27,7 @@ export default function Login(props) {
 
   async function enter(e) {
     e.preventDefault();
+    setCarregando(true);
     await apiSFE
       .login(login, password)
       .then((res) => {
@@ -33,7 +36,8 @@ export default function Login(props) {
       })
       .catch((err) => {
         alert.current.addAlert(err);
-      });
+      })
+      .finally(() => setCarregando(false));
   }
 
   return (
@@ -67,6 +71,9 @@ export default function Login(props) {
               />
             </div>
             <button type="submit" className="btn btn-primary" onClick={enter}>
+              {carregando && (
+                <Spinner animation="grow" className="me-2" size="sm" />
+              )}
               Entrar
             </button>
           </form>

@@ -54,6 +54,20 @@ export function dataEmDm(data) {
   return `${dia < 10 ? "0" + dia : dia}/${mes < 10 ? "0" + mes : mes}`;
 }
 
+export function dataEmDmahm(date) {
+  if (typeof date !== typeof new Date()) return;
+  const dia = date.getDate();
+  const mes = date.getMonth() + 1;
+  const ano = date.getFullYear();
+  const hora = date.getHours();
+  const minutos = date.getMinutes();
+  return `${dia < 10 ? "0" + dia : dia}/${
+    mes < 10 ? "0" + mes : mes
+  }/${ano} - ${hora < 10 ? "0" + hora : hora}:${
+    minutos < 10 ? "0" + minutos : minutos
+  }`;
+}
+
 export function dataEmDma(date) {
   if (typeof date !== typeof new Date()) return;
   const dia = date.getDate();
@@ -81,13 +95,13 @@ export function obterDatasPorDiaSemana(dataInicio, dataFim, diasSemana) {
   var dataAtual = new Date(dataInicio);
 
   while (dataAtual <= dataFim) {
-      var diaSemanaAtual = dataAtual?.getDay();
+    var diaSemanaAtual = dataAtual?.getDay();
 
-      if (diasSemana?.includes(diaSemanaAtual)) {
-          datas.push(new Date(dataAtual));
-      }
+    if (diasSemana?.includes(diaSemanaAtual)) {
+      datas.push(new Date(dataAtual));
+    }
 
-      dataAtual?.setDate(dataAtual?.getDate() + 1);
+    dataAtual?.setDate(dataAtual?.getDate() + 1);
   }
 
   return datas;
@@ -181,4 +195,17 @@ export function comparaObjComDataInicial(objA, objB) {
   if (dataA < dataB) return -1;
   if (dataA > dataB) return 1;
   return 0;
+}
+
+export function diferencaAbsEmHoras(dataChegada, dataAtividade) {
+  const milisegundos = dataAtividade.getTime() - dataChegada.getTime();
+  const horas = milisegundos / (1000 * 60 * 60);
+  return horas;
+}
+
+export function horarioEmData(data, horario) {
+  const [hour, minute] = horario.split(":").map(Number);
+  data.setHours(hour);
+  data.setMinutes(minute);
+  return data;
 }

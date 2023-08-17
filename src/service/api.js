@@ -174,6 +174,16 @@ const apiSFE = {
       { dados },
       { headers: { token } }
     ),
+  buscarPresencasPorAluno: async (token, id_aluno) =>
+    await api.get("/api/v1/aluno-data-atividade/id_aluno/" + id_aluno, {
+      headers: { token },
+    }),
+  editarPresenca: async (token, novosDados) =>
+    await api.put(
+      "api/v1/aluno-data-atividade",
+      { novosDados },
+      { headers: { token } }
+    ),
 };
 
 export default apiSFE;

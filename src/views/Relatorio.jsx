@@ -68,10 +68,11 @@ export default function Relatorio() {
       grupo.alunos.forEach((aluno) => {
         const datasDoAluno = alunos
           .find((a) => a.id_aluno === aluno.id_aluno)
-          ?.datas?.map(({ data, hora_inicial, hora_final }) => ({
+          ?.datas?.map(({ data, hora_inicial, hora_final, estado }) => ({
             dataDM: formatarDataDM(amdEmData(data)),
             hora_inicial,
             hora_final,
+            estado
           }));
         const datasCabecalho = cabecalho.slice(2);
         const linhaManha = [periodos.MANHA];
@@ -79,31 +80,37 @@ export default function Relatorio() {
         const linhaNoite = [periodos.NOITE];
         linha.push(aluno.nome);
         datasCabecalho.forEach((dataDM) => {
-          const dataDMAluno = datasDoAluno.find((d) => d.dataDM === dataDM);
-          if (!dataDMAluno) {
+          const datasDMAluno = datasDoAluno.filter((d) => d.dataDM === dataDM);
+          if (datasDMAluno.length < 1) {
             linhaManha.push(" ");
             linhaTarde.push(" ");
             linhaNoite.push(" ");
           } else {
-            const periodo = obterPeriodoDoDia(
-              dataDMAluno.hora_inicial,
-              dataDMAluno.hora_final
-            );
-            if (periodo === periodos.MANHA) {
-              //TODO Verificar se aluno tem presenca e colocar 1
-              linhaManha.push("0");
-              linhaTarde.push(" ");
-              linhaNoite.push(" ");
-            } else if (periodo === periodos.TARDE) {
-              //TODO Verificar se aluno tem presenca e colocar 1
+            const tempos = { manha: false, tarde: false, noite: false };
+            for (let dataDMAluno of datasDMAluno) {
+              const periodo = obterPeriodoDoDia(
+                dataDMAluno.hora_inicial,
+                dataDMAluno.hora_final
+              );
+              if (periodo === periodos.MANHA) {
+                linhaManha.push(dataDMAluno.estado);
+                tempos.manha = true;
+              } else if (periodo === periodos.TARDE) {
+                linhaTarde.push(dataDMAluno.estado);
+                tempos.tarde = true;
+              } else if (periodo === periodos.NOITE) {
+                linhaNoite.push(dataDMAluno.estado);
+                tempos.noite = true;
+              }
+            }
+            if (!tempos.manha) {
               linhaManha.push(" ");
-              linhaTarde.push("0");
-              linhaNoite.push(" ");
-            } else {
-              //TODO Verificar se aluno tem presenca e colocar 1
-              linhaManha.push(" ");
+            }
+            if (!tempos.tarde) {
               linhaTarde.push(" ");
-              linhaNoite.push("0");
+            }
+            if (!tempos.noite) {
+              linhaNoite.push(" ");
             }
           }
         });
@@ -182,7 +189,9 @@ export default function Relatorio() {
       <Row className="justify-content-center m-0">
         <Col sm="12" className="mb-4 text-center">
           {nenhumDadoAMostrar ? (
-            <span className="fs-5 w-100 fw-bold">Nenhum registro a ser mostrado</span>
+            <span className="fs-5 w-100 fw-bold">
+              Nenhum registro a ser mostrado
+            </span>
           ) : (
             <Table
               responsive

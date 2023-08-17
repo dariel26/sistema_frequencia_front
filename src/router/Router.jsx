@@ -17,7 +17,7 @@ import Local from "../views/Local";
 import Cronograma from "../views/Cronograma/Cronograma";
 import Relatorio from "../views/Relatorio";
 import FiltroUsuario from "../filters/Usuario";
-import Presencas from "../views/Presencas";
+import Presencas from "../views/presenca/Presencas";
 
 function Router() {
   return (
