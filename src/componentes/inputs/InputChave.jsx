@@ -20,7 +20,7 @@ export default function InputChave({
         type="checkbox"
         role="switch"
         id="flexSwitchCheckChecked"
-        checked={ativo}
+        checked={ativo ?? false}
         onChange={aoClicar}
       />
       <label className="form-check-label" htmlFor="flexSwitchCheckChecked">

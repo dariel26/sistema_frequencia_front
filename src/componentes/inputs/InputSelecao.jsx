@@ -1,6 +1,7 @@
-import { useState } from "react";
-import { Spinner } from "react-bootstrap";
+import { useContext, useRef, useState } from "react";
+import { InputGroup, Spinner } from "react-bootstrap";
 import { Typeahead } from "react-bootstrap-typeahead";
+import { AlertaContext } from "../../filters/alerta/Alerta";
 
 export default function InputSelecao({
   textoReferencia,
@@ -15,6 +16,8 @@ export default function InputSelecao({
   const [valor, setValor] = useState({});
   const [salvando, setSalvado] = useState(false);
 
+  const alerta = useRef(useContext(AlertaContext)).current;
+
   const aoMudar = (valor) => {
     if (valor.length < 1) {
       return setValor({});
@@ -25,7 +28,10 @@ export default function InputSelecao({
   const aoClicar = (e) => {
     e.preventDefault();
     setSalvado(true);
-    aoSubmeter(valor).finally(() => setSalvado(false));
+    aoSubmeter(valor)
+      .then((strSucesso) => alerta.adicionaAlerta(undefined, strSucesso))
+      .catch((err) => alerta.adicionaAlerta(err))
+      .finally(() => setSalvado(false));
   };
 
   return (
@@ -33,7 +39,7 @@ export default function InputSelecao({
       className="row w-100 align-items-end"
       style={{ maxWidth: `${larguraMaxima}px` }}
     >
-      <div className="col pe-0">
+      <InputGroup size="sm">
         <Typeahead
           id="typeahead"
           placeholder={textoReferencia}
@@ -41,10 +47,8 @@ export default function InputSelecao({
           emptyLabel={textoVazio}
           onChange={aoMudar}
           options={opcoesSelecao}
-          defaultInputValue={textoInicial}
+          defaultInputValue={textoInicial ?? ""}
         />
-      </div>
-      <div className="col mt-1">
         <button
           disabled={valor[campoSelecao] === undefined || salvando}
           className="btn btn-secondary"
@@ -55,7 +59,7 @@ export default function InputSelecao({
           ) : undefined}
           {textoBotao}
         </button>
-      </div>
+      </InputGroup>
     </form>
   );
 }

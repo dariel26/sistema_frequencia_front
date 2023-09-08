@@ -66,7 +66,7 @@ export default function CheckDias({ dias = {}, aoMudar, id, desabilitado }) {
         id={"segunda" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.segunda}
+        checked={diasSelecionados.segunda ?? false}
         onChange={(e) => aoSelecionar(segunda, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"segunda" + id}>
@@ -78,7 +78,7 @@ export default function CheckDias({ dias = {}, aoMudar, id, desabilitado }) {
         id={"terca" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.terca}
+        checked={diasSelecionados.terca ?? false}
         onChange={(e) => aoSelecionar(terca, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"terca" + id}>
@@ -90,7 +90,7 @@ export default function CheckDias({ dias = {}, aoMudar, id, desabilitado }) {
         id={"quarta" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.quarta}
+        checked={diasSelecionados.quarta ?? false}
         onChange={(e) => aoSelecionar(quarta, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"quarta" + id}>
@@ -102,7 +102,7 @@ export default function CheckDias({ dias = {}, aoMudar, id, desabilitado }) {
         id={"quinta" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.quinta}
+        checked={diasSelecionados.quinta ?? false}
         onChange={(e) => aoSelecionar(quinta, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"quinta" + id}>
@@ -114,7 +114,7 @@ export default function CheckDias({ dias = {}, aoMudar, id, desabilitado }) {
         id={"sexta" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.sexta}
+        checked={diasSelecionados.sexta ?? false}
         onChange={(e) => aoSelecionar(sexta, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"sexta" + id}>
@@ -126,7 +126,7 @@ export default function CheckDias({ dias = {}, aoMudar, id, desabilitado }) {
         id={"sabado" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.sabado}
+        checked={diasSelecionados.sabado ?? false}
         onChange={(e) => aoSelecionar(sabado, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"sabado" + id}>
@@ -138,7 +138,7 @@ export default function CheckDias({ dias = {}, aoMudar, id, desabilitado }) {
         id={"domingo" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.domingo}
+        checked={diasSelecionados.domingo ?? false}
         onChange={(e) => aoSelecionar(domingo, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"domingo" + id}>

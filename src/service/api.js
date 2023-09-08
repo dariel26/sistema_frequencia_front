@@ -5,6 +5,10 @@ const api = axios.create({
 });
 
 const apiSFE = {
+  //USUARIOS
+  editarUsuario: async (token, novosDados) =>
+    await api.put("/api/v1/usuario", { novosDados }, { headers: { token } }),
+
   //ALUNOS
   listarAlunos: async (token) =>
     await api.get("/api/v1/aluno", { headers: { token } }),
@@ -111,6 +115,14 @@ const apiSFE = {
       headers: { token },
     }),
 
+  //ALUNO-GRUPO
+  adicionarAlunoAGrupo: async (token, dados) =>
+    await api.post("/api/v1/aluno-grupo", { dados }, { headers: { token } }),
+  desassociarAlunoGrupo: async (token, idsAlunos) =>
+    await api.delete("/api/v1/aluno-grupo/" + idsAlunos.join(","), {
+      headers: { token },
+    }),
+
   //ALUNO-SUBGRUPO
   adicionarAlunosASubgrupos: async (token, dados) =>
     await api.post("/api/v1/aluno-subgrupo", { dados }, { headers: { token } }),
@@ -138,8 +150,8 @@ const apiSFE = {
     await api.delete("/api/v1/atividade/" + ids.join(","), {
       headers: { token },
     }),
-  editarAtividades: async (token, novoDado) =>
-    await api.put("/api/v1/atividade", { novoDado }, { headers: { token } }),
+  editarAtividades: async (token, novosDados) =>
+    await api.put("/api/v1/atividade", { novosDados }, { headers: { token } }),
 
   //PREC-ATIVIADE
   adicionarPreceptoresAAtividades: async (token, dados) =>

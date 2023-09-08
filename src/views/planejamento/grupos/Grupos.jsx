@@ -10,6 +10,7 @@ import { gerarChaveUnica } from "../../../utils";
 import { CardRadiosBarraFixa } from "../../../components/cards/CardRadios";
 import GruposEdicao from "./GruposEdicao";
 import { Col } from "react-bootstrap";
+import { SistemaContext } from "../../../filters/sistema/Sistema";
 
 export default function Grupos() {
   const [grupos, setGrupos] = useState([]);
@@ -26,18 +27,21 @@ export default function Grupos() {
       : "Cancelar"
     : "Selecionar";
 
+  const { carregando } = useRef(useContext(SistemaContext)).current;
   const alerta = useRef(useContext(AlertaContext)).current;
   const usuario = useContext(UsuarioContext);
   const token = usuario.token;
 
   useEffect(() => {
+    carregando(true);
     apiSFE
       .listarGrupos(token)
       .then((res) => setGrupos(res.data))
       .catch((err) => {
         alerta.adicionaAlerta(err);
-      });
-  }, [usuario, token, alerta]);
+      })
+      .finally(() => carregando(false));
+  }, [usuario, token, alerta, carregando]);
 
   const aoCriarGrupo = async (nome) => {
     try {
@@ -50,14 +54,14 @@ export default function Grupos() {
   };
 
   const alunoJaSelecionado = (aluno) =>
-    alunosSelecionados.some((a) => a.id_aluno === aluno.id_aluno);
+    alunosSelecionados.some((a) => a.id_usuario === aluno.id_usuario);
 
   const aoSelecionarAluno = (aluno) => {
     let novosAlunos = alunosSelecionados;
     if (!alunoJaSelecionado(aluno)) novosAlunos.push(aluno);
     else {
       novosAlunos = alunosSelecionados.filter(
-        (a) => a.id_aluno !== aluno.id_aluno
+        (a) => a.id_usuario !== aluno.id_usuario
       );
     }
     setAlunosSelecionados(Object.assign([], novosAlunos));
@@ -80,12 +84,9 @@ export default function Grupos() {
       setDesassociando(!desassociando);
       return;
     }
-    const novosDados = alunosSelecionados.map(({ id_aluno }) => ({
-      id_aluno,
-      id_grupo: null,
-    }));
+    const idsAlunos = alunosSelecionados.map(({ id_usuario }) => id_usuario);
     try {
-      await apiSFE.editarAlunos(token, novosDados);
+      await apiSFE.desassociarAlunoGrupo(token, idsAlunos);
       const res = await apiSFE.listarGrupos(token);
       setAlunosSelecionados([]);
       setGrupos(res.data);
@@ -140,15 +141,13 @@ export default function Grupos() {
                       { texto: "#", visivel: true },
                       { texto: "Nome", visivel: true },
                       { texto: "Matricula", visivel: true },
-                      { texto: "id_aluno", visivel: true },
                       { texto: "Desassociar", visivel: desassociando },
                     ]}
                     dados={grupo?.alunos}
-                    campoDadosUnico="id_aluno"
+                    campoDadosUnico="id_usuario"
                     camposDados={[
                       { texto: "nome", visivel: true },
                       { texto: "matricula", visivel: true },
-                      {texto: "id_aluno", visivel: true},
                       {
                         check: true,
                         selecionado: (aluno) => alunoJaSelecionado(aluno),

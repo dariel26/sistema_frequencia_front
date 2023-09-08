@@ -22,6 +22,8 @@ import CardAtividade from "./cards/CardAtividade";
 import HoraInput from "./inputs/HoraInput";
 import IntervaloInput from "./inputs/IntervaloInput";
 import NumeroInput from "./inputs/NumeroInput";
+import ModalConcorda from "./modals/ModalConcorda";
+import ModalCarregando from "./modals/ModalCarregando";
 
 export {
   BotaoDrop,
@@ -49,5 +51,6 @@ export {
   HoraInput,
   IntervaloInput,
   NumeroInput,
+  ModalConcorda,
+  ModalCarregando,
 };
-

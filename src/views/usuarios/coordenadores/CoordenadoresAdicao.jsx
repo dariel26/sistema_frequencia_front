@@ -50,7 +50,7 @@ export default function CoordenadoresAdicao({
   }
 
   function coordenadorExiste({ email }) {
-    return coordenadores?.some((c) => c.email === email);
+    return coordenadores?.some((c) => c.login === email);
   }
 
   function aoAdicionarCoordenadorManualmente(e) {

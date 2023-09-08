@@ -6,12 +6,14 @@ import TabelaPadrao from "../../../componentes/tabelas/TabelaPadrao";
 import { AlertaContext } from "../../../filters/alerta/Alerta";
 import { UsuarioContext } from "../../../filters/Usuario";
 import apiSFE from "../../../service/api";
+import { SistemaContext } from "../../../filters/sistema/Sistema";
 
 export default function GruposEdicao({ atualizarGrupos }) {
   const [grupos, setGrupos] = useState([]);
   const [alunos, setAlunos] = useState([]);
   const [alunosSelecionados, setAlunosSelecionados] = useState([]);
 
+  const { carregando } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
   const alerta = useRef(useContext(AlertaContext)).current;
 
@@ -24,22 +26,24 @@ export default function GruposEdicao({ atualizarGrupos }) {
     : "Selecionar todos";
 
   useEffect(() => {
-    apiSFE
-      .listarGrupos(token)
-      .then((res) => setGrupos(res.data))
-      .catch((err) => alerta.adicionaAlerta(err));
-  }, [token, alerta]);
-
-  useEffect(() => {
-    apiSFE
-      .listarAlunos(token)
-      .then((res) => setAlunos(res.data))
-      .catch((err) => alerta.adicionaAlerta(err));
-  }, [alerta, token]);
+    carregando(true);
+    const p_grupos = apiSFE.listarGrupos(token);
+    const p_alunos = apiSFE.listarAlunos(token);
+    Promise.all([p_grupos, p_alunos])
+      .then((res) => {
+        const grupos = res[0].data;
+        const alunos = res[1].data;
+        setGrupos(grupos);
+        setAlunos(alunos);
+      })
+      .catch((err) => alerta.adicionaAlerta(err))
+      .finally(() => carregando(false));
+  }, [token, alerta, carregando]);
 
   const editarAluno = async (novosDados) => {
     try {
-      const res = await apiSFE.editarAlunos(token, novosDados);
+      await apiSFE.adicionarAlunoAGrupo(token, novosDados);
+      const res = await apiSFE.listarAlunos(token);
       await atualizarGrupos();
       setAlunos(res.data);
       return "Alunos associados!";
@@ -49,8 +53,8 @@ export default function GruposEdicao({ atualizarGrupos }) {
   };
 
   const aoAlocarNoGrupo = (grupo) => {
-    const novosDados = alunosSelecionados.map(({ id_aluno }) => ({
-      id_aluno,
+    const novosDados = alunosSelecionados.map(({ id_usuario }) => ({
+      id_usuario,
       id_grupo: grupo.id_grupo,
     }));
 
@@ -62,10 +66,10 @@ export default function GruposEdicao({ atualizarGrupos }) {
     const qtdGrupos = grupos.length;
     let indexGrupo = 0;
 
-    alunos.forEach(({ id_aluno }) => {
+    alunos.forEach(({ id_usuario }) => {
       const grupoAtual = grupos[indexGrupo];
       const novoDado = {
-        id_aluno,
+        id_usuario,
         id_grupo: grupoAtual.id_grupo,
       };
       novosDados.push(novoDado);
@@ -82,7 +86,7 @@ export default function GruposEdicao({ atualizarGrupos }) {
   };
 
   const alunoJaSelecionado = (aluno) => {
-    return alunosSelecionados.some((a) => a.id_aluno === aluno.id_aluno);
+    return alunosSelecionados.some((a) => a.id_usuario === aluno.id_usuario);
   };
 
   const aoSelecionarAlunos = (aluno) => {
@@ -91,7 +95,7 @@ export default function GruposEdicao({ atualizarGrupos }) {
       novosAlunos.push(aluno);
     } else {
       novosAlunos = alunosSelecionados.filter(
-        (a) => a.id_aluno !== aluno.id_aluno
+        (a) => a.id_usuario !== aluno.id_usuario
       );
     }
     setAlunosSelecionados(Object.assign([], novosAlunos));

@@ -3,7 +3,7 @@ import { createContext, useState } from "react";
 import { GrClose } from "react-icons/gr";
 import "./Alerta.css";
 
-export const AlertaContext = createContext();
+export const AlertaContext = createContext({adicionaAlerta: (err, msgSucesso) => {}});
 
 export default function FiltroAlerta(props) {
   const [alert, setAlert] = useState({});

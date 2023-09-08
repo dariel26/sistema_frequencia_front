@@ -7,7 +7,7 @@ import Usuarios, {
   Preceptores,
   Alunos,
 } from "../views/usuarios";
-import MyAccount from "../views/MyAccount";
+import MinhaConta from "../views/MinhaConta";
 import Planejamento, {
   Grupos,
   Atividades,
@@ -49,7 +49,7 @@ function Router() {
             <Route index element={<Navigate to={links.grupos} />} />
           </Route>
 
-          <Route path={links.conta} element={<MyAccount />} />
+          <Route path={links.conta} element={<MinhaConta />} />
           <Route path={links.locais} element={<Local />} />
           <Route path={links.cronograma} element={<Cronograma />} />
           <Route path={links.relatorio} element={<Relatorio />} />

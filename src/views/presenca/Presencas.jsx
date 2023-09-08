@@ -14,6 +14,7 @@ import {
 } from "../../utils/datas";
 import PresencaAMarcar from "./PresencaAMarcar";
 import { CardSimplesBarraFixa } from "../../componentes/cards/CardSimples";
+import { SistemaContext } from "../../filters/sistema/Sistema";
 
 export default function Presencas() {
   const [presencas, setPresencas] = useState([]);
@@ -21,6 +22,7 @@ export default function Presencas() {
   const [presencaAMarcar, setPresencaAMarcar] = useState();
   const [coordenadas, setCoordenadas] = useState({ lat: null, lon: null });
 
+  const { concorda, carregando } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
   const alerta = useRef(useContext(AlertaContext)).current;
 
@@ -32,8 +34,9 @@ export default function Presencas() {
           setCoordenadas({ lat: latitude, lon: longitude });
         },
         (_) => {
-          alerta.adicionaAlerta(
-            new Error("Não foi possível obter a posição geográfica do usuário")
+          setCoordenadas({ lat: null, lon: null });
+          concorda(
+            "Não foi possível acessar suas coordenadas. Tente fechar o aplicativo, verifique as configurações de permissão do aplicativo e abra-o novamente."
           );
         }
       );
@@ -42,12 +45,13 @@ export default function Presencas() {
         new Error("O navegador usado, não suporta geolocalização")
       );
     }
-  }, [alerta]);
+  }, [alerta, concorda]);
 
   useEffect(() => {
-    if (usuario.id === undefined) return;
+    carregando(true);
+    if (usuario.id_usuario === undefined) return;
     apiSFE
-      .buscarPresencasPorAluno(usuario.token, usuario.id)
+      .buscarPresencasPorAluno(usuario.token, usuario.id_usuario)
       .then((res) => {
         setPresencas(
           res.data.presencas.map((p) => ({
@@ -56,11 +60,11 @@ export default function Presencas() {
           }))
         );
         localiza();
-        const { year, month, day, hours, minutes } = res.data.dataHora;
-        setDataArarangua(new Date(year, month - 1, day, hours, minutes));
+        setDataArarangua(new Date(res.data.dataAtual));
       })
-      .catch((err) => alerta.adicionaAlerta(err));
-  }, [usuario, alerta, localiza]);
+      .catch((err) => alerta.adicionaAlerta(err))
+      .finally(() => carregando(false));
+  }, [usuario, alerta, localiza, concorda, carregando]);
 
   const aoClicarEmMarcar = (dado) => {
     setPresencaAMarcar(dado);
@@ -68,9 +72,10 @@ export default function Presencas() {
 
   const atualiza = async () => {
     try {
+      carregando(true);
       const res = await apiSFE.buscarPresencasPorAluno(
         usuario.token,
-        usuario.id
+        usuario.id_usuario
       );
       setPresencas(
         res.data.presencas.map((p) => ({
@@ -79,10 +84,11 @@ export default function Presencas() {
         }))
       );
       localiza();
-      const { year, month, day, hours, minutes } = res.data.dataHora;
-      setDataArarangua(new Date(year, month - 1, day, hours, minutes));
+      setDataArarangua(new Date(res.data.dataAtual));
     } catch (err) {
       alerta.adicionaAlerta(err);
+    } finally {
+      carregando(false);
     }
   };
 
@@ -153,7 +159,7 @@ export default function Presencas() {
 
                     return dado.excluida === 1 ? (
                       "Livre"
-                    ) : dado.estado === "1" ? (
+                    ) : dado.estado === "PRESENTE" ? (
                       "Presente"
                     ) : dataPassou ? (
                       "Faltou"

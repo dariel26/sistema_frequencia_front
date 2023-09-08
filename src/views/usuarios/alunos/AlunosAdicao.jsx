@@ -50,7 +50,7 @@ import {
     }
   
     function alunoExistente({ matricula }) {
-      return alunos?.some((p) => p.matricula === matricula);
+      return alunos?.some((p) => p.login === matricula);
     }
   
     function aoAdicionarAlunoManualmente(e) {

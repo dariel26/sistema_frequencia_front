@@ -10,6 +10,7 @@ import CardSimples from "../componentes/cards/CardSimples";
 import { Button, Col, Form, Row, Spinner } from "react-bootstrap";
 import TabelaPadrao from "../componentes/tabelas/TabelaPadrao";
 import Mapa from "../componentes/mapa/Mapa";
+import { SistemaContext } from "../filters/sistema/Sistema";
 
 const latLonInicial = { lat: "", lon: "" };
 
@@ -22,6 +23,7 @@ export default function Local() {
 
   const usuario = useContext(UsuarioContext);
   const alerta = useRef(useContext(AlertaContext)).current;
+  const { carregando } = useRef(useContext(SistemaContext)).current;
 
   const token = usuario.token;
   const camposInvalidos = latLon.lat === "" || latLon.lon === "" || nome === "";
@@ -37,6 +39,7 @@ export default function Local() {
   }, []);
 
   useEffect(() => {
+    carregando(true);
     apiSFE
       .listarLocais(token)
       .then((res) => {
@@ -44,8 +47,9 @@ export default function Local() {
       })
       .catch((err) => {
         alerta.adicionaAlerta(err);
-      });
-  }, [token, preencherLocais, alerta]);
+      })
+      .finally(() => carregando(false));
+  }, [token, preencherLocais, alerta, carregando]);
 
   const aoClicarNoMapa = useCallback(({ lat, lng }) => {
     setLatLon({ lat, lon: lng });

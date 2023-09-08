@@ -7,6 +7,7 @@ import { gerarChaveUnica, transformarStringAMDEmData } from "../../../utils";
 import { AlertaContext } from "../../../filters/alerta/Alerta";
 import uuid from "react-uuid";
 import { CardAtividade } from "../../../componentes";
+import { SistemaContext } from "../../../filters/sistema/Sistema";
 
 export default function Atividades() {
   const [alunos, setAlunos] = useState([]);
@@ -14,7 +15,9 @@ export default function Atividades() {
   const [estagios, setEstagios] = useState([]);
   const [preceptores, setPreceptores] = useState([]);
   const [locais, setLocais] = useState([]);
+  const [coordenadores, setCoordeandores] = useState([]);
 
+  const { carregando } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
   const alerta = useRef(useContext(AlertaContext)).current;
   const token = usuario.token;
@@ -47,8 +50,10 @@ export default function Atividades() {
   ].concat(estagios);
 
   useEffect(() => {
+    carregando(true);
     const p_alunos = apiSFE.listarAlunos(token);
     const p_preceptores = apiSFE.listarPreceptores(token);
+    const p_coordenadores = apiSFE.listarCoordenadores(token);
     const p_estagios = apiSFE.listarEstagios(token);
     const p_grupos = apiSFE.listarGrupos(token);
     const p_atividades = apiSFE.listarAtividades(token);
@@ -61,6 +66,7 @@ export default function Atividades() {
       p_grupos,
       p_atividades,
       p_locais,
+      p_coordenadores,
     ])
       .then((res) => {
         const alunos = res[0].data;
@@ -78,9 +84,11 @@ export default function Atividades() {
         setAlunos(alunos);
         setEstagios(estagios);
         setAtividades(atividades);
+        setCoordeandores(res[6].data);
       })
-      .catch((err) => alerta.adicionaAlerta(err));
-  }, [token, alerta]);
+      .catch((err) => alerta.adicionaAlerta(err))
+      .finally(() => carregando(false));
+  }, [token, alerta, carregando]);
 
   const aoAlocarAtividade = async (id_estagio, nome) => {
     try {
@@ -117,10 +125,10 @@ export default function Atividades() {
     }
   };
 
-  const aoAlocarPreceptor = async ({ id_preceptor, id_atividade }) => {
+  const aoAlocarPreceptor = async ({ id_usuario, id_atividade }) => {
     try {
       await apiSFE.adicionarPreceptoresAAtividades(token, [
-        { id_preceptor, id_atividade },
+        { id_usuario, id_atividade },
       ]);
     } catch (err) {
       throw err;
@@ -200,6 +208,7 @@ export default function Atividades() {
                   dataInicial={dataInicialSemestre}
                   dataFinal={dataFinalSemestre}
                   preceptores={preceptores}
+                  coordenadores={coordenadores}
                   locais={locais}
                   aoAlocarPreceptor={aoAlocarPreceptor}
                   aoAlocarLocal={aoAlocarLocal}

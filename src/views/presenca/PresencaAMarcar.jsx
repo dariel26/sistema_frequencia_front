@@ -25,13 +25,13 @@ export default function PresencaAMarcar({
       .editarPresenca(usuario.token, {
         id_alunodataatividade: presenca.id_alunodataatividade,
         coordenadas,
-        estado: "1",
+        estado: "PRESENTE",
       })
       .then(() => {
         setPresencas((antigas) =>
           antigas.map((p) =>
             p.id_alunodataatividade === presenca.id_alunodataatividade
-              ? { ...p, estado: "1" }
+              ? { ...p, estado: "PRESENTE" }
               : p
           )
         );

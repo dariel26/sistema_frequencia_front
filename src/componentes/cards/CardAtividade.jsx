@@ -1,6 +1,6 @@
 import { Col, OverlayTrigger, Table, Tooltip } from "react-bootstrap";
 import { amdEmData, dataEmDm } from "../../utils/datas";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useRef, useState } from "react";
 import {
   CheckDias,
   NumeroInput,
@@ -11,6 +11,7 @@ import {
 } from "../index";
 import uuid from "react-uuid";
 import TextoCalendario from "../calendario/TextoCalendario";
+import { AlertaContext } from "../../filters/alerta/Alerta";
 
 const larguraInput = 200;
 const larguraHora = 140;
@@ -19,6 +20,7 @@ const estiloTabela = { maxHeight: "250px" };
 export default function CardAtividade({
   atividade,
   preceptores,
+  coordenadores,
   locais,
   aoAlocarPreceptor,
   aoAlocarLocal,
@@ -47,6 +49,8 @@ export default function CardAtividade({
     parseInt(estaAtividade?.intervalo_alunos?.split("-")[1] ?? numMaxDeAlunos) -
     1;
 
+  const alerta = useRef(useContext(AlertaContext)).current;
+
   const dias = {
     segunda: estaAtividade.segunda,
     terca: estaAtividade.terca,
@@ -58,8 +62,8 @@ export default function CardAtividade({
   };
 
   useEffect(() => {
-    console.log(atividade);
     if (atividade === undefined || grupos === undefined) return;
+    console.log(atividade);
     setEstaAtividade({
       ...atividade,
       grupos,
@@ -69,17 +73,17 @@ export default function CardAtividade({
   }, [atividade, grupos]);
 
   const mudarNomePreceptor = async ({
-    id_preceptor,
+    id_usuario,
     nome_preceptor,
     id_atividade,
   }) => {
     try {
-      await aoAlocarPreceptor({ id_preceptor, id_atividade });
+      await aoAlocarPreceptor({ id_usuario, id_atividade });
       setEstaAtividade((estadoAtual) => {
         return { ...estadoAtual, nome_preceptor };
       });
     } catch (err) {
-      throw err;
+      alerta.adicionaAlerta(err);
     }
   };
 
@@ -88,7 +92,7 @@ export default function CardAtividade({
       await aoAlocarLocal({ id_local, id_atividade });
       setEstaAtividade((estadoAtual) => ({ ...estadoAtual, nome_local }));
     } catch (err) {
-      throw err;
+      alerta.adicionaAlerta(err);
     }
   };
 
@@ -105,7 +109,7 @@ export default function CardAtividade({
         eventos: atividadeAtualizada.datas,
       });
     } catch (err) {
-      throw err;
+      alerta.adicionaAlerta(err);
     }
   };
 
@@ -117,7 +121,7 @@ export default function CardAtividade({
       });
       setEstaAtividade((estadoAtual) => ({ ...estadoAtual, hora_inicial }));
     } catch (err) {
-      throw err;
+      alerta.adicionaAlerta(err);
     }
   };
 
@@ -129,7 +133,7 @@ export default function CardAtividade({
       });
       setEstaAtividade((estadoAtual) => ({ ...estadoAtual, hora_final }));
     } catch (err) {
-      throw err;
+      alerta.adicionaAlerta(err);
     }
   };
 
@@ -146,7 +150,7 @@ export default function CardAtividade({
         subgrupos,
       }));
     } catch (err) {
-      throw err;
+      alerta.adicionaAlerta(err);
     }
   };
 
@@ -158,7 +162,7 @@ export default function CardAtividade({
       });
       setEstaAtividade((estadoAtual) => ({ ...estadoAtual, alunos_no_dia }));
     } catch (err) {
-      throw err;
+      alerta.adicionaAlerta(err);
     }
   };
 
@@ -177,7 +181,7 @@ export default function CardAtividade({
         }),
       }));
     } catch (err) {
-      throw err;
+      alerta.adicionaAlerta(err);
     }
   };
 
@@ -202,12 +206,12 @@ export default function CardAtividade({
           emptyLabel="Nenhum registro"
           aoMudar={(preceptores) =>
             mudarNomePreceptor({
-              id_preceptor: preceptores[0].id_preceptor,
+              id_usuario: preceptores[0].id_usuario,
               id_atividade: estaAtividade.id_atividade,
               nome_preceptor: preceptores[0].nome,
             })
           }
-          opcoes={preceptores}
+          opcoes={preceptores.concat(coordenadores)}
         />
       </Col>
       {possuiPreceptor && (
@@ -301,8 +305,8 @@ export default function CardAtividade({
                         {subG?.alunos?.map((aluno, idx) => (
                           <tr key={uuid()}>
                             <td>{idx + 1}</td>
-                            <td>{aluno.nome_aluno}</td>
-                            <td>{aluno.aluno_incluido ? "Sim" : "Não"}</td>
+                            <td>{aluno.nome}</td>
+                            <td>{aluno.incluido ? "Sim" : "Não"}</td>
                           </tr>
                         ))}
                       </tbody>

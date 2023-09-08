@@ -8,23 +8,23 @@ export default function PreceptoresEdicao({
   setPreceptorEmEdicao,
 }) {
   const [nome, setNome] = useState(preceptor.nome);
-  const [email, setEmail] = useState(preceptor.email);
+  const [login, setLogin] = useState(preceptor.login);
   const [trocarSenha, setTrocarSenha] = useState(false);
   const [salvando, setSalvando] = useState(false);
 
   const alerta = useRef(useContext(AlertaContext)).current;
 
   const houveMudanca =
-    trocarSenha || nome !== preceptor.nome || email !== preceptor.email;
+    trocarSenha || nome !== preceptor.nome || login !== preceptor.login;
 
   function aoSalvarMudancas() {
     if (!houveMudanca) return;
     const novosDados = {
-      id_preceptor: preceptor.id_preceptor,
+      id_usuario: preceptor.id_usuario,
       nome,
-      email,
+      login,
     };
-    if (trocarSenha) novosDados.senha = email;
+    if (trocarSenha) novosDados.senha = login;
     setSalvando(true);
     aoSalvar(novosDados)
       .then(() => setPreceptorEmEdicao({}))
@@ -49,8 +49,8 @@ export default function PreceptoresEdicao({
         <Form.Group>
           <Form.Label>E-mail</Form.Label>
           <Form.Control
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            value={login}
+            onChange={(e) => setLogin(e.target.value)}
           />
         </Form.Group>
       </Col>
@@ -62,7 +62,7 @@ export default function PreceptoresEdicao({
           checked={trocarSenha}
           onChange={() => setTrocarSenha(!trocarSenha)}
         >
-          {trocarSenha ? "A senha será redefinda" : "Redefinir senha"}
+          {trocarSenha ? "Não redefinir" : "Redefinir senha"}
         </ToggleButton>
       </Col>
 

@@ -11,7 +11,7 @@ export default function InputNumero({
   numeroMin = 1,
   textoInicial = "",
 }) {
-  const [valor, setValor] = useState(textoInicial);
+  const [valor, setValor] = useState(textoInicial ?? "");
 
   const valorInvalido =
     isNaN(parseInt(valor)) || valor > numeroMax || valor < numeroMin;
@@ -37,7 +37,7 @@ export default function InputNumero({
       <input
         className="form-control"
         placeholder={textoReferencia}
-        value={valor}
+        value={valor??""}
         onKeyUp={(e) => (e.key === "Enter" ? aoSubmeter(e) : undefined)}
         onChange={aoEscrever}
       />

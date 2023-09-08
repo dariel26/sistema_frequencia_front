@@ -11,6 +11,7 @@ import {
 import { FaUserEdit } from "react-icons/fa";
 import AlunoAdicao from "./AlunosAdicao";
 import AlunosEdicao from "./AlunosEdicao";
+import { SistemaContext } from "../../../filters/sistema/Sistema";
 
 export default function Alunos() {
   const [alunos, setAlunos] = useState([]);
@@ -19,6 +20,7 @@ export default function Alunos() {
   const [alunoEmEdicao, setAlunoEmEdicao] = useState({});
   const [alunosSelecionados, setAlunosSelecionados] = useState([]);
 
+  const { carregando } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
   const alerta = useRef(useContext(AlertaContext)).current;
   const token = usuario.token;
@@ -32,6 +34,7 @@ export default function Alunos() {
     : "Selecionar";
 
   useEffect(() => {
+    carregando(true);
     apiSFE
       .listarAlunos(token)
       .then((res) => {
@@ -39,8 +42,9 @@ export default function Alunos() {
       })
       .catch((err) => {
         alerta.adicionaAlerta(err);
-      });
-  }, [token, alerta]);
+      })
+      .finally(() => carregando(false));
+  }, [token, alerta, carregando]);
 
   async function aoClicarSelecionar() {
     if (nenhumAlunoSelecionado) return setSelecionando(!selecionando);
@@ -54,17 +58,17 @@ export default function Alunos() {
   function aoClicarSelecionarAluno(aluno) {
     if (alunoSelecionado(aluno))
       setAlunosSelecionados((selecionados) =>
-        selecionados.filter((p) => p.id_aluno !== aluno.id_aluno)
+        selecionados.filter((p) => p.id_usuario !== aluno.id_usuario)
       );
     else setAlunosSelecionados((selecionados) => [...selecionados, aluno]);
   }
 
-  function alunoSelecionado({ id_aluno }) {
-    return alunosSelecionados.some((c) => c.id_aluno === id_aluno);
+  function alunoSelecionado({ id_usuario }) {
+    return alunosSelecionados.some((c) => c.id_usuario === id_usuario);
   }
 
   async function aoDeletar() {
-    const ids = alunosSelecionados.map((p) => p.id_aluno);
+    const ids = alunosSelecionados.map((p) => p.id_usuario);
     const alunosRestantes = alunos.filter((pr) => !alunoSelecionado(pr));
     try {
       await apiSFE.deletarAlunos(token, ids);
@@ -78,7 +82,7 @@ export default function Alunos() {
   async function aoAdicionar(alunos) {
     const novosAlunos = alunos.map(({ nome, matricula }) => ({
       nome,
-      matricula,
+      login: matricula,
       senha: String(matricula), //TODO API deveria fazer isto e assegurar a conversão
     }));
     if (novosAlunos.length < 1) return;
@@ -92,10 +96,10 @@ export default function Alunos() {
 
   async function aoEditar(novosDados) {
     try {
-      await apiSFE.editarAlunos(token, [novosDados]);
+      await apiSFE.editarAlunos(token, novosDados);
       setAlunos((existentes) => {
         const index = existentes.findIndex(
-          (p) => p.id_aluno === novosDados.id_aluno
+          (p) => p.id_usuario === novosDados.id_usuario
         );
         existentes[index] = { ...existentes[index], ...novosDados };
         return existentes;
@@ -115,20 +119,20 @@ export default function Alunos() {
           }}
           className="mb-2 me-3"
           texto={textoBotaoAdicionar}
-          visivel={!alunoEmEdicao.id_aluno}
+          visivel={!alunoEmEdicao.id_usuario}
         />
         <BotaoTexto
           aoClicar={aoClicarSelecionar}
           className="mb-2"
           texto={textoBotaoSelecionar}
-          visivel={!adicionando && !alunoEmEdicao.id_aluno}
+          visivel={!adicionando && !alunoEmEdicao.id_usuario}
           assincrono
         />
         <BotaoTexto
           aoClicar={() => setAlunoEmEdicao({})}
           className="mb-2"
           texto={"Cancelar"}
-          visivel={alunoEmEdicao.id_aluno}
+          visivel={alunoEmEdicao.id_usuario}
         />
       </CardLinksBarraFixa>
       {adicionando ? (
@@ -137,7 +141,7 @@ export default function Alunos() {
           aoAdicionarNovosAlunos={aoAdicionar}
           setAdicionando={setAdicionando}
         />
-      ) : alunoEmEdicao.id_aluno ? (
+      ) : alunoEmEdicao.id_usuario ? (
         <AlunosEdicao
           aluno={alunoEmEdicao}
           aoSalvar={aoEditar}
@@ -155,11 +159,11 @@ export default function Alunos() {
               { texto: "Editar", visivel: true },
               { texto: "Deletar", visivel: selecionando },
             ]}
-            campoDadoUnico="id_aluno"
+            campoDadoUnico="id_usuario"
             dados={alunos}
             camposDados={[
               { texto: "nome", visivel: true },
-              { texto: "matricula", visivel: true },
+              { texto: "login", visivel: true },
               {
                 funcaoComponente: (dado) => (
                   <label

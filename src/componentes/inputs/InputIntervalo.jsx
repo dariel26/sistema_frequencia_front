@@ -10,7 +10,7 @@ export default function InputIntervalo({
   textoInicial = "",
   maximoValor = 10,
 }) {
-  const [valor, setValor] = useState(textoInicial);
+  const [valor, setValor] = useState(textoInicial ?? "");
 
   const valorInicial = parseInt(valor.split("-")[0] ?? 0);
   const valorFinal = parseInt(valor.split("-")[1] ?? 0);
@@ -41,7 +41,7 @@ export default function InputIntervalo({
       <input
         className="form-control"
         placeholder={textoReferencia}
-        value={valor}
+        value={valor??""}
         onKeyUp={(e) => (e.key === "Enter" ? aoSubmeter(e) : undefined)}
         onChange={aoEscrever}
       />

@@ -1,6 +1,5 @@
 import { useContext, useRef, useState } from "react";
 import { Button, Col, Form, Row, Spinner, ToggleButton } from "react-bootstrap";
-import { Typeahead } from "react-bootstrap-typeahead";
 import { AlertaContext } from "../../../filters/alerta/Alerta";
 
 export default function CoordenadorEdicao({
@@ -9,26 +8,30 @@ export default function CoordenadorEdicao({
   setCoordenadorEmEdicao,
 }) {
   const [nome, setNome] = useState(coordenador.nome);
-  const [email, setEmail] = useState(coordenador.email);
-  const [papel, setPapel] = useState(coordenador.papel);
+  const [email, setEmail] = useState(coordenador.login);
   const [trocarSenha, setTrocarSenha] = useState(false);
+  const [tornarAdmin, setTornarAdmin] = useState(
+    coordenador.papeis.includes("ADMIN")
+  );
   const [salvando, setSalvando] = useState(false);
 
   const alerta = useRef(useContext(AlertaContext)).current;
 
   const houveMudanca =
     trocarSenha ||
+    tornarAdmin !== coordenador.papeis.includes("ADMIN") ||
     nome !== coordenador.nome ||
-    email !== coordenador.email ||
-    papel !== coordenador.papel;
+    email !== coordenador.login;
 
   function aoSalvarMudancas() {
     if (!houveMudanca) return;
     const novosDados = {
-      id_coordenador: coordenador.id_coordenador,
+      id_usuario: coordenador.id_usuario,
       nome,
-      email,
-      papel,
+      login: email,
+      papeis: tornarAdmin
+        ? [...coordenador.papeis, "ADMIN"]
+        : coordenador.papeis.filter((p) => p !== "ADMIN"),
     };
     if (trocarSenha) novosDados.senha = email;
     setSalvando(true);
@@ -38,13 +41,6 @@ export default function CoordenadorEdicao({
       .finally(() => {
         setSalvando(false);
       });
-  }
-
-  function selecionaTexto(e) {
-    const input = e.target;
-    setTimeout(() => {
-      input.setSelectionRange(0, e.target.value.length);
-    }, 200);
   }
 
   return (
@@ -68,28 +64,25 @@ export default function CoordenadorEdicao({
         </Form.Group>
       </Col>
       <Col sm="6" xl="3" className="mb-2">
-        <Form.Group>
-          <Form.Label>Papel</Form.Label>
-          <Typeahead
-            id="papel-coordenador"
-            emptyLabel={"Nenhum registro"}
-            onChange={(papeis) => setPapel(papeis[0])}
-            options={["ADMIN", "COORDENADOR(A)"]}
-            defaultInputValue={papel}
-            onFocus={selecionaTexto}
-            multiple={false}
-          />
-        </Form.Group>
+        <ToggleButton
+          id="admin"
+          type="checkbox"
+          variant="outline-primary"
+          checked={tornarAdmin}
+          onChange={() => setTornarAdmin(!tornarAdmin)}
+        >
+          {tornarAdmin ? "Retirar papel ADMIN" : "Adicionar papel ADMIN"}
+        </ToggleButton>
       </Col>
       <Col sm="6" xl="3" className="mb-2">
         <ToggleButton
-          id="toggle-check"
+          id="senha"
           type="checkbox"
           variant="outline-primary"
           checked={trocarSenha}
           onChange={() => setTrocarSenha(!trocarSenha)}
         >
-          {trocarSenha ? "A senha será redefinda" : "Redefinir senha"}
+          {trocarSenha ? "Não redefinir" : "Redefinir senha"}
         </ToggleButton>
       </Col>
 

@@ -11,6 +11,7 @@ import TabelaPadrao from "../../../componentes/tabelas/TabelaPadrao";
 import { FaUserEdit } from "react-icons/fa";
 import PreceptoresAdicao from "./PreceptoresAdicao";
 import PreceptoresEdicao from "./PreceptoresEdicao";
+import { SistemaContext } from "../../../filters/sistema/Sistema";
 
 export default function Preceptores() {
   const [preceptores, setPreceptores] = useState([]);
@@ -19,6 +20,7 @@ export default function Preceptores() {
   const [preceptorEmEdicao, setPreceptorEmEdicao] = useState({});
   const [preceptoresSelecionados, setPreceptoresSelecionados] = useState([]);
 
+  const { carregando } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
   const alerta = useRef(useContext(AlertaContext)).current;
   const token = usuario.token;
@@ -32,6 +34,7 @@ export default function Preceptores() {
     : "Selecionar";
 
   useEffect(() => {
+    carregando(true);
     apiSFE
       .listarPreceptores(token)
       .then((res) => {
@@ -39,8 +42,9 @@ export default function Preceptores() {
       })
       .catch((err) => {
         alerta.adicionaAlerta(err);
-      });
-  }, [token, alerta]);
+      })
+      .finally(() => carregando(false));
+  }, [token, alerta, carregando]);
 
   async function aoClicarSelecionar() {
     if (nenhumPreceptorSelecionado) return setSelecionando(!selecionando);
@@ -54,7 +58,7 @@ export default function Preceptores() {
   function aoClicarSelecionarPreceptor(preceptor) {
     if (preceptorSelecionado(preceptor))
       setPreceptoresSelecionados((selecionados) =>
-        selecionados.filter((p) => p.id_preceptor !== preceptor.id_preceptor)
+        selecionados.filter((p) => p.id_usuario !== preceptor.id_usuario)
       );
     else
       setPreceptoresSelecionados((selecionados) => [
@@ -63,12 +67,12 @@ export default function Preceptores() {
       ]);
   }
 
-  function preceptorSelecionado({ id_preceptor }) {
-    return preceptoresSelecionados.some((c) => c.id_preceptor === id_preceptor);
+  function preceptorSelecionado({ id_usuario }) {
+    return preceptoresSelecionados.some((c) => c.id_usuario === id_usuario);
   }
 
   async function aoDeletar() {
-    const ids = preceptoresSelecionados.map((p) => p.id_preceptor);
+    const ids = preceptoresSelecionados.map((p) => p.id_usuario);
     const preceptoresRestantes = preceptores.filter(
       (pr) => !preceptorSelecionado(pr)
     );
@@ -84,7 +88,7 @@ export default function Preceptores() {
   async function aoAdicionar(preceptores) {
     const novosPreceptores = preceptores.map(({ nome, email }) => ({
       nome,
-      email,
+      login: email,
       senha: email, //TODO API deveria fazer isto
     }));
     if (novosPreceptores.length < 1) return;
@@ -101,10 +105,10 @@ export default function Preceptores() {
 
   async function aoEditar(novosDados) {
     try {
-      await apiSFE.editatPreceptores(token, [novosDados]);
+      await apiSFE.editatPreceptores(token, novosDados);
       setPreceptores((existentes) => {
         const index = existentes.findIndex(
-          (p) => p.id_preceptor === novosDados.id_preceptor
+          (p) => p.id_usuario === novosDados.id_usuario
         );
         existentes[index] = { ...existentes[index], ...novosDados };
         return existentes;
@@ -124,20 +128,20 @@ export default function Preceptores() {
           }}
           className="mb-2 me-3"
           texto={textoBotaoAdicionar}
-          visivel={!preceptorEmEdicao.id_preceptor}
+          visivel={!preceptorEmEdicao.id_usuario}
         />
         <BotaoTexto
           aoClicar={aoClicarSelecionar}
           className="mb-2"
           texto={textoBotaoSelecionar}
-          visivel={!adicionando && !preceptorEmEdicao.id_preceptor}
+          visivel={!adicionando && !preceptorEmEdicao.id_usuario}
           assincrono
         />
         <BotaoTexto
           aoClicar={() => setPreceptorEmEdicao({})}
           className="mb-2"
           texto={"Cancelar"}
-          visivel={preceptorEmEdicao.id_preceptor}
+          visivel={preceptorEmEdicao.id_usuario}
         />
       </CardLinksBarraFixa>
       {adicionando ? (
@@ -146,7 +150,7 @@ export default function Preceptores() {
           aoAdicionarNovosPreceptores={aoAdicionar}
           setAdicionando={setAdicionando}
         />
-      ) : preceptorEmEdicao.id_preceptor ? (
+      ) : preceptorEmEdicao.id_usuario ? (
         <PreceptoresEdicao
           preceptor={preceptorEmEdicao}
           aoSalvar={aoEditar}
@@ -164,11 +168,11 @@ export default function Preceptores() {
               { texto: "Editar", visivel: true },
               { texto: "Deletar", visivel: selecionando },
             ]}
-            campoDadoUnico="id_preceptor"
+            campoDadoUnico="id_usuario"
             dados={preceptores}
             camposDados={[
               { texto: "nome", visivel: true },
-              { texto: "email", visivel: true },
+              { texto: "login", visivel: true },
               {
                 funcaoComponente: (dado) => (
                   <label

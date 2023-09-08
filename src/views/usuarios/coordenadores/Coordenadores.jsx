@@ -11,6 +11,7 @@ import TabelaPadrao from "../../../componentes/tabelas/TabelaPadrao";
 import CoordenadoresAdicao from "./CoordenadoresAdicao";
 import { FaUserEdit } from "react-icons/fa";
 import CoordenadorEdicao from "./CoordenadoresEdicao";
+import { SistemaContext } from "../../../filters/sistema/Sistema";
 
 export default function Coordenadores() {
   const [coordenadores, setCoordenadores] = useState([]);
@@ -21,6 +22,7 @@ export default function Coordenadores() {
     []
   );
 
+  const { carregando } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
   const alerta = useRef(useContext(AlertaContext)).current;
   const token = usuario.token;
@@ -34,6 +36,7 @@ export default function Coordenadores() {
     : "Selecionar";
 
   useEffect(() => {
+    carregando(true);
     apiSFE
       .listarCoordenadores(usuario.token)
       .then((res) => {
@@ -41,8 +44,9 @@ export default function Coordenadores() {
       })
       .catch((err) => {
         alerta.adicionaAlerta(err);
-      });
-  }, [usuario, alerta]);
+      })
+      .finally(() => carregando(false));
+  }, [usuario, alerta, carregando]);
 
   async function aoClicarSelecionar() {
     if (nenhumCoordenadorSelecionado) return setSelecionando(!selecionando);
@@ -56,9 +60,7 @@ export default function Coordenadores() {
   function aoClicarSelecionarCoordenador(coordenador) {
     if (coordenadorSelecionado(coordenador))
       setCoordenadoresSelecionados((selecionados) =>
-        selecionados.filter(
-          (c) => c.id_coordenador !== coordenador.id_coordenador
-        )
+        selecionados.filter((c) => c.id_usuario !== coordenador.id_usuario)
       );
     else
       setCoordenadoresSelecionados((selecionados) => [
@@ -67,14 +69,12 @@ export default function Coordenadores() {
       ]);
   }
 
-  function coordenadorSelecionado({ id_coordenador }) {
-    return coordenadoresSelecionados.some(
-      (c) => c.id_coordenador === id_coordenador
-    );
+  function coordenadorSelecionado({ id_usuario }) {
+    return coordenadoresSelecionados.some((c) => c.id_usuario === id_usuario);
   }
 
   async function aoDeletar() {
-    const ids = coordenadoresSelecionados.map((c) => c.id_coordenador);
+    const ids = coordenadoresSelecionados.map((c) => c.id_usuario);
     const coordenadoresRestantes = coordenadores.filter(
       (cr) => !coordenadorSelecionado(cr)
     );
@@ -90,7 +90,7 @@ export default function Coordenadores() {
   async function aoAdicionar(coordenadores) {
     const novosCoordenadores = coordenadores.map(({ nome, email }) => ({
       nome,
-      email,
+      login: email,
       senha: email,
     }));
     if (novosCoordenadores.length < 1) return;
@@ -100,6 +100,7 @@ export default function Coordenadores() {
         novosCoordenadores
       );
       setCoordenadores(data);
+      return "Coordenadores adicionados!";
     } catch (err) {
       throw err;
     }
@@ -107,15 +108,15 @@ export default function Coordenadores() {
 
   async function aoEditar(novosDados) {
     try {
-      await apiSFE.editarCoordenadores(usuario.token, [novosDados]);
+      await apiSFE.editarCoordenadores(usuario.token, novosDados);
       setCoordenadores((existentes) => {
         const index = existentes.findIndex(
-          (c) => c.id_coordenador === novosDados.id_coordenador
+          (c) => c.id_usuario === novosDados.id_usuario
         );
         existentes[index] = { ...existentes[index], ...novosDados };
         return existentes;
       });
-      return true;
+      return "Coordenador editado!";
     } catch (err) {
       throw err;
     }
@@ -130,20 +131,20 @@ export default function Coordenadores() {
           }}
           className="mb-2 me-3"
           texto={textoBotaoAdicionar}
-          visivel={!coordenadorEmEdicao.id_coordenador}
+          visivel={!coordenadorEmEdicao.id_usuario}
         />
         <BotaoTexto
           aoClicar={aoClicarSelecionar}
           className="mb-2"
           texto={textoBotaoSelecionar}
-          visivel={!adicionando && !coordenadorEmEdicao.id_coordenador}
+          visivel={!adicionando && !coordenadorEmEdicao.id_usuario}
           assincrono
         />
         <BotaoTexto
           aoClicar={() => setCoordenadorEmEdicao({})}
           className="mb-2"
           texto={"Cancelar"}
-          visivel={coordenadorEmEdicao.id_coordenador}
+          visivel={coordenadorEmEdicao.id_usuario}
         />
       </CardLinksBarraFixa>
       {adicionando ? (
@@ -152,7 +153,7 @@ export default function Coordenadores() {
           aoAdicionarNovosCoordenadores={aoAdicionar}
           setAdicionando={setAdicionando}
         />
-      ) : coordenadorEmEdicao.id_coordenador ? (
+      ) : coordenadorEmEdicao.id_usuario ? (
         <CoordenadorEdicao
           coordenador={coordenadorEmEdicao}
           aoSalvar={aoEditar}
@@ -167,26 +168,33 @@ export default function Coordenadores() {
               { texto: "#", visivel: true },
               { texto: "Nome", visivel: true },
               { texto: "Email", visivel: true },
-              { texto: "Papel", visivel: true },
+              { texto: "Administrador", visivel: true },
               { texto: "Editar", visivel: true },
               { texto: "Deletar", visivel: selecionando },
             ]}
-            campoDadoUnico="id_coordenador"
+            campoDadoUnico="id_usuario"
             dados={coordenadores}
             camposDados={[
               { texto: "nome", visivel: true },
-              { texto: "email", visivel: true },
-              { texto: "papel", visivel: true },
+              { texto: "login", visivel: true },
               {
-                funcaoComponente: (dado) => (
-                  <label
-                    type="button"
-                    className="p-0"
-                    onClick={() => setCoordenadorEmEdicao(dado)}
-                  >
-                    <FaUserEdit size={18} />
-                  </label>
-                ),
+                funcaoComponente: (dado) => {
+                  return dado.papeis.includes("ADMIN") ? "Sim" : "Não";
+                },
+                visivel: true,
+              },
+              {
+                funcaoComponente: (dado) => {
+                  return dado.id_usuario !== usuario.id_usuario ? (
+                    <label
+                      type="button"
+                      className="p-0"
+                      onClick={() => setCoordenadorEmEdicao(dado)}
+                    >
+                      <FaUserEdit size={18} />
+                    </label>
+                  ) : undefined;
+                },
                 visivel: true,
               },
               {

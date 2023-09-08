@@ -63,7 +63,7 @@ export default function IntervaloInput({
   function aoCancelar() {
     setTimeout(() => {
       setMudando(false);
-    }, 100);
+    }, 200);
   }
 
   return salvando ? (
@@ -76,7 +76,7 @@ export default function IntervaloInput({
         onBlur={aoCancelar}
         size={size}
         placeholder={"1-5"}
-        value={valor}
+        value={valor??""}
         onKeyUp={(e) => (e.key === "Enter" ? aoSubmeter(e) : undefined)}
         onChange={aoEscrever}
         style={{ maxWidth: `${larguraMaxima}px` }}

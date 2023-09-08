@@ -36,7 +36,7 @@ export default function NumeroInput({
     if (valorInvalido) return;
     e.preventDefault();
     setSalvando(true);
-    aoMudar(valor)
+    aoMudar(parseInt(valor))
       .then(
         (strSucesso) =>
           strSucesso && alerta.adicionaAlerta(undefined, strSucesso)
@@ -58,7 +58,7 @@ export default function NumeroInput({
   function aoCancelar() {
     setTimeout(() => {
       setMudando(false);
-    }, 100);
+    }, 200);
   }
 
   return salvando ? (
@@ -70,7 +70,7 @@ export default function NumeroInput({
         ref={inputRef}
         onBlur={aoCancelar}
         size={size}
-        value={valor}
+        value={valor??""}
         onKeyUp={(e) => (e.key === "Enter" ? aoSubmeter(e) : undefined)}
         onChange={aoEscrever}
         style={{ maxWidth: `${larguraMaxima}px` }}

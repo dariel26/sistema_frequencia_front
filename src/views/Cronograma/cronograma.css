@@ -1,14 +1,10 @@
-#edit-cronograma {
-  height: 0px;
-  width: 0px;
-  position: absolute;
-  right: 0px;
-  bottom: 0px;
-  z-index: 5;
-  transition: width 300ms, height 300ms;
+.cronograma{
+    height: calc(100vh - 90px);
+    min-height: 200px;
 }
 
-#edit-button{
-    z-index: 5;
-    transition: transform 300ms;
+.popover{
+    max-height: 300px;
+    overflow-y: auto;
+    overflow-x: hidden;
 }

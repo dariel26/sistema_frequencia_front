@@ -31,7 +31,7 @@ export default function TextoInput({
   function aoCancelar() {
     setTimeout(() => {
       setMudando(false);
-    }, 100);
+    }, 200);
   }
 
   function aoMudarInternamente(coordenadores) {

@@ -13,6 +13,7 @@ import {
 } from "../../../utils/datas";
 import uuid from "react-uuid";
 import { BotaoOutline, TextoInput } from "../../../componentes";
+import { SistemaContext } from "../../../filters/sistema/Sistema";
 
 const styleColumnCoordenador = { width: "180px" };
 const styleColumnGrupo = { width: "150px" };
@@ -22,11 +23,13 @@ export default function EstagiosEdicao({ estagios, setEstagios }) {
   const [grupos, setGrupos] = useState([]);
   const [datasComGrupos, setDatasComGrupos] = useState([]);
 
+  const { carregando } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
   const alerta = useRef(useContext(AlertaContext)).current;
   const token = usuario.token;
 
   useEffect(() => {
+    carregando(true);
     const datas = estagios
       ?.flatMap(({ id_estagio, grupos }) =>
         grupos.map(
@@ -49,11 +52,12 @@ export default function EstagiosEdicao({ estagios, setEstagios }) {
         setCoordenadores(res[0].data);
         setGrupos(res[1].data);
       })
-      .catch((err) => alerta.adicionaAlerta(err));
-  }, [alerta, token, estagios]);
+      .catch((err) => alerta.adicionaAlerta(err))
+      .finally(() => carregando(false));
+  }, [alerta, token, estagios, carregando]);
 
-  const aoAdicionarCoordenador = async ({ id_coordenador, id_estagio }) => {
-    let dados = [{ id_estagio, id_coordenador }];
+  const aoAdicionarCoordenador = async ({ id_usuario, id_estagio }) => {
+    let dados = [{ id_estagio, id_usuario }];
     try {
       await apiSFE.adicionarCoordenadoresAEstagios(token, dados);
       const res = await apiSFE.listarEstagios(token);
@@ -88,70 +92,9 @@ export default function EstagiosEdicao({ estagios, setEstagios }) {
     }
   };
 
-  const aoAlocarAutomatico = async () => {
-    if (datasComGrupos.length === 0)
-      return alerta.adicionaAlerta(new Error("Nenhuma data adicionada"));
-    if (estagios?.length === 0)
-      return alerta.adicionaAlerta(new Error("Nenhum estágio encontrado"));
-    if (datasComGrupos.length !== grupos.length)
-      alerta.adicionaAlerta(
-        new Error(
-          "O número de intervalos de datas deve ser igual a " + grupos.length
-        )
-      );
-    else {
-      try {
-        const dados = [];
-        const gruposAgrupados = [];
-        for (let k = 0; k < grupos.length; k++) {
-          const iteracao = gruposAgrupados.length;
-          const vetorGrupo = [];
-          const vetorAuxiliar = [];
-          for (let i = 0; i < grupos.length; i++) {
-            const ultimo = grupos.length - 1;
-            if (iteracao >= i + 1) {
-              vetorAuxiliar.push(grupos[i].id_grupo);
-            } else if (i === ultimo) {
-              vetorGrupo.push(grupos[i].id_grupo);
-              gruposAgrupados.push(vetorGrupo.concat(vetorAuxiliar));
-            } else {
-              vetorGrupo.push(grupos[i].id_grupo);
-            }
-          }
-        }
-        const gruposOrdenados = gruposAgrupados.flat();
-        const gruposDatas = [];
-        for (let i = 0; i < gruposOrdenados.length; i++) {
-          const dado = {};
-          dado.id_grupo = gruposOrdenados[i];
-          dado.data_inicial =
-            datasComGrupos[i % datasComGrupos.length].data_inicial;
-          dado.data_final =
-            datasComGrupos[i % datasComGrupos.length].data_final;
-          gruposDatas.push(dado);
-        }
-        for (let i = 0; i < estagios.length; i++) {
-          const id_estagio = estagios[i].id_estagio;
-          for (let j = 0; j < estagios.length; j++) {
-            if (gruposDatas[i * estagios.length + j] === undefined) break;
-            const dado = gruposDatas[i * estagios.length + j];
-            dado.id_estagio = id_estagio;
-            dados.push(dado);
-          }
-        }
-
-        await apiSFE.adicionarGruposAEstagios(token, dados);
-        const res = await apiSFE.listarEstagios(token);
-        setEstagios(res.data);
-      } catch (err) {
-        throw err;
-      }
-    }
-  };
-
   const aoAlocarGrupo = async (dado) => {
     try {
-      await apiSFE.editarGrupoEmEstagio(token, [dado]);
+      await apiSFE.editarGrupoEmEstagio(token, dado);
       const res = await apiSFE.listarEstagios(token);
       setEstagios(res.data);
     } catch (err) {
@@ -183,13 +126,6 @@ export default function EstagiosEdicao({ estagios, setEstagios }) {
         />
       </Col>
       <Col sm="4" xl="2" className="mb-2 d-flex justify-content-end">
-        <BotaoOutline
-          variant="primary"
-          aoClicar={aoAlocarAutomatico}
-          textoBotao="Alocação Automática"
-        />
-      </Col>
-      <Col sm="12" xl="8" className="mb-2 d-flex justify-content-end">
         <BotaoOutline
           variant="danger"
           aoClicar={aoLimparAlocacoes}
@@ -229,7 +165,7 @@ export default function EstagiosEdicao({ estagios, setEstagios }) {
                           emptyLabel="Nenhum registro"
                           aoMudar={(coordenadores) =>
                             aoAdicionarCoordenador({
-                              id_coordenador: coordenadores[0].id_coordenador,
+                              id_usuario: coordenadores[0].id_usuario,
                               id_estagio,
                             })
                           }

@@ -25,12 +25,14 @@ import {
 import gerarChaveUnica from "../utils/indexAleatorio";
 import { FaFileDownload } from "react-icons/fa";
 import { gerarArquivoXLSX } from "../utils/xlsx";
+import { SistemaContext } from "../filters/sistema/Sistema";
 
 export default function Relatorio() {
   const [grupos, setGrupos] = useState([]);
   const [alunos, setAlunos] = useState([]);
   const [indexTabela, setIndexTabela] = useState(0);
 
+  const { carregando } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
   const token = usuario.token;
   const alerta = useRef(useContext(AlertaContext)).current;
@@ -67,7 +69,7 @@ export default function Relatorio() {
       linha = [];
       grupo.alunos.forEach((aluno) => {
         const datasDoAluno = alunos
-          .find((a) => a.id_aluno === aluno.id_aluno)
+          .find((a) => a.id_usuario === aluno.id_usuario)
           ?.datas?.map(
             ({ data, hora_inicial, hora_final, estado, excluida }) => ({
               dataDM: formatarDataDM(amdEmData(data)),
@@ -97,17 +99,29 @@ export default function Relatorio() {
               );
               if (periodo === periodos.MANHA) {
                 linhaManha.push(
-                  dataDMAluno.excluida ? "livre" : dataDMAluno.estado
+                  dataDMAluno.excluida
+                    ? "livre"
+                    : dataDMAluno.estado === "CRIADA"
+                    ? 0
+                    : 1
                 );
                 tempos.manha = true;
               } else if (periodo === periodos.TARDE) {
                 linhaTarde.push(
-                  dataDMAluno.excluida ? "livre" : dataDMAluno.estado
+                  dataDMAluno.excluida
+                    ? "livre"
+                    : dataDMAluno.estado === "CRIADA"
+                    ? 0
+                    : 1
                 );
                 tempos.tarde = true;
               } else if (periodo === periodos.NOITE) {
                 linhaNoite.push(
-                  dataDMAluno.excluida ? "livre" : dataDMAluno.estado
+                  dataDMAluno.excluida
+                    ? "livre"
+                    : dataDMAluno.estado === "CRIADA"
+                    ? 0
+                    : 1
                 );
                 tempos.noite = true;
               }
@@ -157,6 +171,7 @@ export default function Relatorio() {
   }));
 
   useEffect(() => {
+    carregando(true);
     const p_grupos = apiSFE.listarGrupos(token);
     const p_alunos = apiSFE.listarAlunos(token);
     Promise.all([p_grupos, p_alunos])
@@ -164,8 +179,9 @@ export default function Relatorio() {
         setGrupos(res[0].data);
         setAlunos(res[1].data);
       })
-      .catch((err) => alerta.adicionaAlerta(err));
-  }, [token, alerta]);
+      .catch((err) => alerta.adicionaAlerta(err))
+      .finally(() => carregando(false));
+  }, [token, alerta, carregando]);
 
   const aoMudarRadio = (radioIndex) => {
     setIndexTabela(radios[radioIndex].indexCabecalho);

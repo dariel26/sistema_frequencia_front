@@ -10,11 +10,13 @@ import { gerarChaveUnica } from "../../../utils";
 import TabelaPadrao from "../../../componentes/tabelas/TabelaPadrao";
 import { CardRadiosBarraFixa } from "../../../components/cards/CardRadios";
 import EstagiosEdicao from "./EstagiosEdicao";
+import { SistemaContext } from "../../../filters/sistema/Sistema";
 
 export default function Estagios() {
   const [estagios, setEstagios] = useState([]);
   const [editando, setEditando] = useState(false);
 
+  const { carregando } = useRef(useContext(SistemaContext)).current;
   const alerta = useRef(useContext(AlertaContext)).current;
   const usuario = useContext(UsuarioContext);
   const token = usuario.token;
@@ -22,6 +24,7 @@ export default function Estagios() {
   const nenhumEstagioSalvo = estagios.length === 0;
 
   useEffect(() => {
+    carregando(true);
     apiSFE
       .listarEstagios(token)
       .then((res) => {
@@ -30,8 +33,9 @@ export default function Estagios() {
       })
       .catch((err) => {
         alerta.adicionaAlerta(err);
-      });
-  }, [token, alerta]);
+      })
+      .finally(() => carregando(false));
+  }, [token, alerta, carregando]);
 
   const aoAdicionarEstagio = async (nome) => {
     try {
@@ -121,7 +125,7 @@ export default function Estagios() {
           </div>
         </>
       ) : (
-        <EstagiosEdicao estagios={estagios} setEstagios={setEstagios}/>
+        <EstagiosEdicao estagios={estagios} setEstagios={setEstagios} />
       )}
     </div>
   );

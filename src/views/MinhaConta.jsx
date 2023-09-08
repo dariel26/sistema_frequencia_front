@@ -2,36 +2,36 @@ import { useEffect } from "react";
 import { useState } from "react";
 import { useRef } from "react";
 import { useContext } from "react";
-import CardDefault from "../components/cards/CardDefault";
 import { AlertaContext } from "../filters/alerta/Alerta";
-import { UsuarioContext } from "../filters/Usuario";
+import { UsuarioContext, tiposUsuario } from "../filters/Usuario";
 import apiSFE from "../service/api";
+import { CardSimples, InputSelecao } from "../componentes";
+import { Col, Row } from "react-bootstrap";
+import { SistemaContext } from "../filters/sistema/Sistema";
 
-export default function MyAccount() {
-  const [defaultUser, setDefaultUser] = useState(false);
+export default function MinhaConta() {
+  const [senhaPadrao, setSenhaPadrao] = useState(false);
   const [senha, setSenha] = useState("");
   const [senhaConfirmada, setSenhaConfirmada] = useState("");
-  const [estado, setEstado] = useState(0);
 
+  const { carregando } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
   const alert = useRef(useContext(AlertaContext));
 
-  const arrInfoUsuario = Object.entries(usuario).filter(([campo]) => {
-    return campo === "nome" || campo === "login" || campo === "papel";
-  });
-
   useEffect(() => {
+    carregando(true);
     if (usuario.login === undefined) return;
     if (usuario.token === undefined) return;
     apiSFE
       .usuarioPadrao(usuario.token)
       .then((res) => {
-        setDefaultUser(res.data.padrao);
+        setSenhaPadrao(res.data.padrao);
       })
       .catch((err) => {
         alert.current.addAlert(err);
-      });
-  }, [usuario, estado]);
+      })
+      .finally(() => carregando(false));
+  }, [usuario, carregando]);
 
   const onSubmit = (e) => {
     e.preventDefault();
@@ -48,7 +48,7 @@ export default function MyAccount() {
         .mudarSenha(token, novosDados)
         .then(() => {
           alert.current.addAlert(undefined, "Senha modificada!");
-          setEstado((estado) => estado + 1);
+          setSenhaPadrao(false);
         })
         .catch((err) => {
           alert.current.addAlert(err);
@@ -57,37 +57,43 @@ export default function MyAccount() {
   };
 
   return (
-    <CardDefault title="Minha Conta">
-      <div className="row justify-content-center">
-        {arrInfoUsuario?.map((info, i) => {
-          const title =
-            info[0] === "nome"
-              ? "Nome"
-              : info[0] === "email"
-              ? "E-mail"
-              : info[0] === "papel"
-              ? "Papel"
-              : "Login";
-          const value = info[1];
-          return value === undefined ? undefined : (
-            <div className="mb-3 col-sm-4" key={i}>
-              <h6>{title}:</h6>
-              <p className="ps-2">{value}</p>
-            </div>
-          );
-        })}
-        {defaultUser ? (
+    <CardSimples titulo="Minha Conta">
+      <Row className="justify-content-center m-0">
+        <Col sm="4" className="mb-3">
+          <h6>Nome:</h6>
+          <span>{usuario.nome}</span>
+        </Col>
+        <Col sm="4" className="mb-3">
+          <h6>Login:</h6>
+          <span>{usuario.login}</span>
+        </Col>
+        <Col sm="4" className="mb-3">
+          <h6>Papel Atual</h6>
+          {usuario.tipo === tiposUsuario.coordenador ? (
+            <InputSelecao
+              campoSelecao={"valor"}
+              textoReferencia="Papel do usuário"
+              opcoesSelecao={usuario.papeis.map((p) => ({ valor: p }))}
+              textoBotao="Mudar"
+              aoSubmeter={usuario.mudarPapelAtual}
+              textoInicial={usuario.papel_atual}
+            />
+          ) : (
+            <span>{usuario.papel_atual}</span>
+          )}
+        </Col>
+        {senhaPadrao ? (
           <h5 className="text-danger text-center">
             Parece que sua conta está com uma senha padrão, por segurança mude
             sua senha
           </h5>
         ) : undefined}
         <hr />
-        {defaultUser ? (
+        {senhaPadrao ? (
           <form className="d-flex flex-column" style={{ maxWidth: "300px" }}>
             <div className="mb-3">
               <label htmlFor="password1" className="form-label">
-                Senha
+                Nova senha
               </label>
               <input
                 type="password"
@@ -102,7 +108,7 @@ export default function MyAccount() {
             </div>
             <div className="mb-3">
               <label htmlFor="password2" className="form-label">
-                Confirmar Senha
+                Confirmar nova senha
               </label>
               <input
                 type="password"
@@ -125,7 +131,7 @@ export default function MyAccount() {
             </button>
           </form>
         ) : undefined}
-      </div>
-    </CardDefault>
+      </Row>
+    </CardSimples>
   );
 }

@@ -64,7 +64,7 @@ export default function HoraInput({
   function aoCancelar() {
     setTimeout(() => {
       setMudando(false);
-    }, 100);
+    }, 200);
   }
 
   return salvando ? (
@@ -76,7 +76,7 @@ export default function HoraInput({
         onBlur={aoCancelar}
         size={size}
         placeholder={"00:00"}
-        value={valor}
+        value={valor??""}
         onKeyUp={(e) => (e.key === "Enter" ? aoSubmeter(e) : undefined)}
         onChange={aoEscrever}
         style={{ maxWidth: `${larguraMaxima}px` }}

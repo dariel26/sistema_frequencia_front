@@ -45,7 +45,7 @@ export default function InputBotao({
       <input
         className="form-control"
         placeholder={textoReferencia}
-        value={valor}
+        value={valor ?? ""}
         onKeyUp={(e) => (e.key === "Enter" ? aoSubmeter(e) : undefined)}
         onChange={aoEscrever}
       />

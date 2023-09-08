@@ -1,18 +1,21 @@
-import React from 'react';
-import * as serviceWorkerRegistration from './serviceWorkerRegistration';
-import ReactDOM from 'react-dom/client';
-import reportWebVitals from './reportWebVitals';
-import Router from './router/Router';
-import './index.css';
-import './custom.scss';
-import FiltroAlerta from './filters/alerta/Alerta';
+import React from "react";
+import * as serviceWorkerRegistration from "./serviceWorkerRegistration";
+import ReactDOM from "react-dom/client";
+import reportWebVitals from "./reportWebVitals";
+import Router from "./router/Router";
+import "./index.css";
+import "./custom.scss";
+import FiltroAlerta from "./filters/alerta/Alerta";
+import FiltroSistema from "./filters/sistema/Sistema";
 
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <FiltroAlerta>
-      <Router />
-    </FiltroAlerta>
+    <FiltroSistema>
+      <FiltroAlerta>
+        <Router />
+      </FiltroAlerta>
+    </FiltroSistema>
   </React.StrictMode>
 );
 

@@ -4,23 +4,23 @@ import { AlertaContext } from "../../../filters/alerta/Alerta";
 
 export default function AlunosEdicao({ aluno, aoSalvar, setAlunoEmEdicao }) {
   const [nome, setNome] = useState(aluno.nome);
-  const [matricula, setMatricula] = useState(aluno.matricula);
+  const [login, setLogin] = useState(aluno.login);
   const [trocarSenha, setTrocarSenha] = useState(false);
   const [salvando, setSalvando] = useState(false);
 
   const alerta = useRef(useContext(AlertaContext)).current;
 
   const houveMudanca =
-    trocarSenha || nome !== aluno.nome || matricula !== aluno.matricula;
+    trocarSenha || nome !== aluno.nome || login !== aluno.login;
 
   function aoSalvarMudancas() {
     if (!houveMudanca) return;
     const novosDados = {
-      id_aluno: aluno.id_aluno,
+      id_usuario: aluno.id_usuario,
       nome,
-      matricula,
+      login,
     };
-    if (trocarSenha) novosDados.senha = matricula;
+    if (trocarSenha) novosDados.senha = login;
     setSalvando(true);
     aoSalvar(novosDados)
       .then(() => setAlunoEmEdicao({}))
@@ -45,8 +45,8 @@ export default function AlunosEdicao({ aluno, aoSalvar, setAlunoEmEdicao }) {
         <Form.Group>
           <Form.Label>Matrícula</Form.Label>
           <Form.Control
-            value={matricula}
-            onChange={(e) => setMatricula(e.target.value)}
+            value={login}
+            onChange={(e) => setLogin(e.target.value)}
           />
         </Form.Group>
       </Col>
@@ -58,7 +58,7 @@ export default function AlunosEdicao({ aluno, aoSalvar, setAlunoEmEdicao }) {
           checked={trocarSenha}
           onChange={() => setTrocarSenha(!trocarSenha)}
         >
-          {trocarSenha ? "A senha será redefinda" : "Redefinir senha"}
+          {trocarSenha ? "Não redefinir" : "Redefinir senha"}
         </ToggleButton>
       </Col>
 

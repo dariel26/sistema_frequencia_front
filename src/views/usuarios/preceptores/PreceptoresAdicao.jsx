@@ -50,7 +50,7 @@ export default function PreceptoresAdicao({
   }
 
   function preceptorExistente({ email }) {
-    return preceptores?.some((p) => p.email === email);
+    return preceptores?.some((p) => p.login === email);
   }
 
   function aoAdicionarPreceptorManualmente(e) {
