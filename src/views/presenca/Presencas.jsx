@@ -1,9 +1,13 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
-import { BotaoTexto, CardSimples, TabelaPadrao } from "../../componentes";
-import { UsuarioContext } from "../../filters/Usuario";
+import {
+  BotaoTexto,
+  CardSimples,
+  TabelaPadrao,
+  CardSimplesBarraFixa,
+} from "../../componentes";
 import apiSFE from "../../service/api";
-import { AlertaContext } from "../../filters/alerta/Alerta";
-import { Col, Row } from "react-bootstrap";
+import { SistemaContext, UsuarioContext } from "../../contexts";
+import { Col, OverlayTrigger, Row, Tooltip } from "react-bootstrap";
 import { BiMapPin } from "react-icons/bi";
 import {
   amdEmData,
@@ -11,10 +15,10 @@ import {
   dataEmDmahm,
   diferencaAbsEmHoras,
   horarioEmData,
-} from "../../utils/datas";
+  errors,
+} from "../../utils";
 import PresencaAMarcar from "./PresencaAMarcar";
-import { CardSimplesBarraFixa } from "../../componentes/cards/CardSimples";
-import { SistemaContext } from "../../filters/sistema/Sistema";
+import { presencaEstados } from "../gerir_presenca/GerirPresencas";
 
 export default function Presencas() {
   const [presencas, setPresencas] = useState([]);
@@ -22,9 +26,10 @@ export default function Presencas() {
   const [presencaAMarcar, setPresencaAMarcar] = useState();
   const [coordenadas, setCoordenadas] = useState({ lat: null, lon: null });
 
-  const { concorda, carregando } = useRef(useContext(SistemaContext)).current;
+  const { concorda, carregando, error, aviso } = useRef(
+    useContext(SistemaContext)
+  ).current;
   const usuario = useContext(UsuarioContext);
-  const alerta = useRef(useContext(AlertaContext)).current;
 
   const localiza = useCallback(() => {
     if ("geolocation" in navigator) {
@@ -41,11 +46,9 @@ export default function Presencas() {
         }
       );
     } else {
-      alerta.adicionaAlerta(
-        new Error("O navegador usado, não suporta geolocalização")
-      );
+      aviso("O navegador usado não suporta geolocalização.");
     }
-  }, [alerta, concorda]);
+  }, [aviso, concorda]);
 
   useEffect(() => {
     carregando(true);
@@ -62,9 +65,9 @@ export default function Presencas() {
         localiza();
         setDataArarangua(new Date(res.data.dataAtual));
       })
-      .catch((err) => alerta.adicionaAlerta(err))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => carregando(false));
-  }, [usuario, alerta, localiza, concorda, carregando]);
+  }, [usuario, error, localiza, concorda, carregando]);
 
   const aoClicarEmMarcar = (dado) => {
     setPresencaAMarcar(dado);
@@ -86,7 +89,7 @@ export default function Presencas() {
       localiza();
       setDataArarangua(new Date(res.data.dataAtual));
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      error(errors.filtraMensagem(err));
     } finally {
       carregando(false);
     }
@@ -159,12 +162,28 @@ export default function Presencas() {
 
                     return dado.excluida === 1 ? (
                       "Livre"
-                    ) : dado.estado === "PRESENTE" ? (
+                    ) : dado.estado === presencaEstados.PRESENTE ? (
                       "Presente"
-                    ) : dataPassou ? (
+                    ) : dado.estado === presencaEstados.CRIADA && dataPassou ? (
                       "Faltou"
-                    ) : muitoCedo ? (
+                    ) : dado.estado === presencaEstados.CRIADA && muitoCedo ? (
                       "Espera"
+                    ) : dado.estado === presencaEstados.ATESTADO ? (
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={
+                          <Tooltip>Presença marcada com atestado.</Tooltip>
+                        }
+                      >
+                        <span className="fw-bold text-primary">Atestado</span>
+                      </OverlayTrigger>
+                    ) : dado.estado === presencaEstados.REJEITADA ? (
+                      <OverlayTrigger
+                        placement="top"
+                        overlay={<Tooltip>Um superior marcou a falta.</Tooltip>}
+                      >
+                        <span className="text-danger fw-bold">Rejeitada</span>
+                      </OverlayTrigger>
                     ) : (
                       <label
                         role="button"

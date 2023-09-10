@@ -1,8 +1,8 @@
 import { createContext, useEffect } from "react";
 import { useState } from "react";
 import { Navigate } from "react-router-dom";
-import links from "../links";
-import apiSFE from "../service/api";
+import links from "../../links";
+import apiSFE from "../../service/api";
 
 export const UsuarioContext = createContext({
   mudarPapelAtual: (novoPapel) => {},
@@ -21,7 +21,7 @@ export const tiposUsuario = {
   preceptor: "PRECEPTOR",
 };
 
-export default function FiltroUsuario(props) {
+export default function UsuarioProvider(props) {
   const [infoUsuario, setInfoUsuario] = useState(userModel({}));
   const [esperandoDados, setEsperandoDados] = useState(true);
   const [recarregar, setRecarregar] = useState(false);

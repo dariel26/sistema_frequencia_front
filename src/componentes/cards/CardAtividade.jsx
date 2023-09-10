@@ -1,6 +1,6 @@
 import { Col, OverlayTrigger, Table, Tooltip } from "react-bootstrap";
-import { amdEmData, dataEmDm } from "../../utils/datas";
-import { useContext, useEffect, useRef, useState } from "react";
+import { amdEmData, dataEmDm, errors } from "../../utils";
+import { useContext, useEffect, useState } from "react";
 import {
   CheckDias,
   NumeroInput,
@@ -8,10 +8,10 @@ import {
   DivCabecalhoDeletar,
   TextoInput,
   HoraInput,
+  TextoCalendario,
 } from "../index";
 import uuid from "react-uuid";
-import TextoCalendario from "../calendario/TextoCalendario";
-import { AlertaContext } from "../../filters/alerta/Alerta";
+import { SistemaContext } from "../../contexts";
 
 const larguraInput = 200;
 const larguraHora = 140;
@@ -34,7 +34,15 @@ export default function CardAtividade({
 
   const possuiPreceptor = estaAtividade?.nome_preceptor !== null;
   const possuiLocal = estaAtividade?.nome_local !== null && possuiPreceptor;
-  const possuiDatas = estaAtividade?.datas?.length > 0 && possuiLocal;
+  const possuiDatas =
+    (estaAtividade?.segunda ||
+      estaAtividade?.terca ||
+      estaAtividade?.quarta ||
+      estaAtividade?.quinta ||
+      estaAtividade?.sexta ||
+      estaAtividade?.sabado ||
+      estaAtividade?.domingo) &&
+    possuiLocal;
   const possuiHoraInicial = estaAtividade?.hora_inicial !== null && possuiDatas;
   const possuiHoraFinal =
     estaAtividade?.hora_final !== null && possuiHoraInicial;
@@ -49,7 +57,7 @@ export default function CardAtividade({
     parseInt(estaAtividade?.intervalo_alunos?.split("-")[1] ?? numMaxDeAlunos) -
     1;
 
-  const alerta = useRef(useContext(AlertaContext)).current;
+  const { error } = useContext(SistemaContext);
 
   const dias = {
     segunda: estaAtividade.segunda,
@@ -63,7 +71,6 @@ export default function CardAtividade({
 
   useEffect(() => {
     if (atividade === undefined || grupos === undefined) return;
-    console.log(atividade);
     setEstaAtividade({
       ...atividade,
       grupos,
@@ -83,7 +90,7 @@ export default function CardAtividade({
         return { ...estadoAtual, nome_preceptor };
       });
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      error(errors.filtraMensagem(err));
     }
   };
 
@@ -92,7 +99,7 @@ export default function CardAtividade({
       await aoAlocarLocal({ id_local, id_atividade });
       setEstaAtividade((estadoAtual) => ({ ...estadoAtual, nome_local }));
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      error(errors.filtraMensagem(err));
     }
   };
 
@@ -109,7 +116,7 @@ export default function CardAtividade({
         eventos: atividadeAtualizada.datas,
       });
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      error(errors.filtraMensagem(err));
     }
   };
 
@@ -121,7 +128,7 @@ export default function CardAtividade({
       });
       setEstaAtividade((estadoAtual) => ({ ...estadoAtual, hora_inicial }));
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      error(errors.filtraMensagem(err));
     }
   };
 
@@ -133,7 +140,7 @@ export default function CardAtividade({
       });
       setEstaAtividade((estadoAtual) => ({ ...estadoAtual, hora_final }));
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      error(errors.filtraMensagem(err));
     }
   };
 
@@ -150,7 +157,7 @@ export default function CardAtividade({
         subgrupos,
       }));
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      error(errors.filtraMensagem(err));
     }
   };
 
@@ -162,7 +169,7 @@ export default function CardAtividade({
       });
       setEstaAtividade((estadoAtual) => ({ ...estadoAtual, alunos_no_dia }));
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      error(errors.filtraMensagem(err));
     }
   };
 
@@ -181,7 +188,7 @@ export default function CardAtividade({
         }),
       }));
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      error(errors.filtraMensagem(err));
     }
   };
 
@@ -214,7 +221,7 @@ export default function CardAtividade({
           opcoes={preceptores.concat(coordenadores)}
         />
       </Col>
-      {possuiPreceptor && (
+      {possuiPreceptor === true && (
         <Col sm="12" className="mb-1">
           <label className="me-2">Local:</label>
           <TextoInput
@@ -237,7 +244,7 @@ export default function CardAtividade({
         </Col>
       )}
 
-      {possuiLocal && (
+      {possuiLocal === true && (
         <>
           <Col sm="12" className="mb-1">
             <span>Dias da semana:</span>
@@ -252,7 +259,7 @@ export default function CardAtividade({
         </>
       )}
 
-      {possuiDatas && (
+      {possuiDatas === true && (
         <Col sm="12" className="mb-1">
           <span className="me-2">Hora inicial:</span>
           <HoraInput
@@ -263,7 +270,7 @@ export default function CardAtividade({
           />
         </Col>
       )}
-      {possuiHoraInicial && (
+      {possuiHoraInicial === true && (
         <Col sm="12" className="mb-1">
           <span className="me-2">Hora final:</span>
           <HoraInput
@@ -274,7 +281,7 @@ export default function CardAtividade({
           />
         </Col>
       )}
-      {possuiHoraFinal && (
+      {possuiHoraFinal === true && (
         <Col sm="12" className="mb-1">
           <span className="me-2">Alunos na atividade: </span>
           <IntervaloInput
@@ -323,7 +330,7 @@ export default function CardAtividade({
           ))}
         </Col>
       )}
-      {possuiAlunos && ( //TODO Colocar tooltip falando o que será feito com o valor colocado
+      {possuiAlunos === true && ( //TODO Colocar tooltip falando o que será feito com o valor colocado
         <Col sm="12" className="mb-1">
           <span className="me-2">Alunos por dia: </span>
           <NumeroInput
@@ -334,7 +341,7 @@ export default function CardAtividade({
           />
         </Col>
       )}
-      {possuiAlunosNoDia && (
+      {possuiAlunosNoDia === true && (
         <Col sm="12" className="mb-1">
           <span className="me-2">Escolher datas de exceção: </span>
           <TextoCalendario

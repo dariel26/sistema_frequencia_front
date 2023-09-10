@@ -1,6 +1,7 @@
 import { useContext, useEffect, useRef, useState } from "react";
 import { Button, Form, InputGroup, Spinner } from "react-bootstrap";
-import { AlertaContext } from "../../filters/alerta/Alerta";
+import { SistemaContext } from "../../contexts";
+import { errors } from "../../utils";
 
 export default function NumeroInput({
   aoMudar,
@@ -13,7 +14,7 @@ export default function NumeroInput({
   const [salvando, setSalvando] = useState(false);
   const [mudando, setMudando] = useState(false);
 
-  const alerta = useRef(useContext(AlertaContext)).current;
+  const { sucesso, error } = useContext(SistemaContext);
   const inputRef = useRef();
 
   const valorInvalido =
@@ -37,11 +38,8 @@ export default function NumeroInput({
     e.preventDefault();
     setSalvando(true);
     aoMudar(parseInt(valor))
-      .then(
-        (strSucesso) =>
-          strSucesso && alerta.adicionaAlerta(undefined, strSucesso)
-      )
-      .catch((err) => alerta.adicionaAlerta(err))
+      .then((msg) => msg && sucesso(msg))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => {
         setSalvando(false);
         setMudando(false);
@@ -70,7 +68,7 @@ export default function NumeroInput({
         ref={inputRef}
         onBlur={aoCancelar}
         size={size}
-        value={valor??""}
+        value={valor ?? ""}
         onKeyUp={(e) => (e.key === "Enter" ? aoSubmeter(e) : undefined)}
         onChange={aoEscrever}
         style={{ maxWidth: `${larguraMaxima}px` }}

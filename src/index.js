@@ -5,17 +5,14 @@ import reportWebVitals from "./reportWebVitals";
 import Router from "./router/Router";
 import "./index.css";
 import "./custom.scss";
-import FiltroAlerta from "./filters/alerta/Alerta";
-import FiltroSistema from "./filters/sistema/Sistema";
+import { SistemaProvider } from "./contexts";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
-    <FiltroSistema>
-      <FiltroAlerta>
-        <Router />
-      </FiltroAlerta>
-    </FiltroSistema>
+    <SistemaProvider>
+      <Router />
+    </SistemaProvider>
   </React.StrictMode>
 );
 

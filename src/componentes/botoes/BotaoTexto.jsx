@@ -1,6 +1,7 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useState } from "react";
 import { Spinner } from "react-bootstrap";
-import { AlertaContext } from "../../filters/alerta/Alerta";
+import { SistemaContext } from "../../contexts";
+import { errors } from "../../utils";
 
 export default function BotaoTexto({
   className,
@@ -11,18 +12,15 @@ export default function BotaoTexto({
 }) {
   const [salvando, setSalvando] = useState(false);
 
-  const alerta = useRef(useContext(AlertaContext)).current;
+  const { error, sucesso } = useContext(SistemaContext);
 
   const aoSubmeter = (e) => {
     e.preventDefault();
     if (assincrono) {
       setSalvando(true);
       aoClicar()
-        .then(
-          (strSucesso) =>
-            strSucesso && alerta.adicionaAlerta(undefined, strSucesso)
-        )
-        .catch((err) => alerta.adicionaAlerta(err))
+        .then((msg) => msg && sucesso(msg))
+        .catch((err) => error(errors.filtraMensagem(err)))
         .finally(() => setSalvando(false));
     } else {
       aoClicar();

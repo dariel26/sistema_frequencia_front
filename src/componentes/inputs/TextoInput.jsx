@@ -1,7 +1,8 @@
 import { useContext, useRef, useState } from "react";
 import { Typeahead } from "react-bootstrap-typeahead";
-import { AlertaContext } from "../../filters/alerta/Alerta";
 import { Spinner } from "react-bootstrap";
+import { SistemaContext } from "../../contexts";
+import { errors } from "../../utils";
 
 export default function TextoInput({
   texto,
@@ -18,8 +19,8 @@ export default function TextoInput({
   const [mudando, setMudando] = useState(false);
   const [salvando, setSalvando] = useState(false);
 
+  const { sucesso, error } = useContext(SistemaContext);
   const inputRef = useRef();
-  const alerta = useRef(useContext(AlertaContext)).current;
 
   function aoClicar() {
     setMudando(true);
@@ -37,12 +38,8 @@ export default function TextoInput({
   function aoMudarInternamente(coordenadores) {
     setSalvando(true);
     aoMudar(coordenadores)
-      .then((strSucesso) => {
-        strSucesso && alerta.adicionaAlerta(undefined, strSucesso);
-      })
-      .catch((err) => {
-        alerta.adicionaAlerta(err);
-      })
+      .then((msg) => msg && sucesso(msg))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => {
         setMudando(false);
         setSalvando(false);
@@ -59,7 +56,7 @@ export default function TextoInput({
       className={className}
       size={size}
       id={id}
-      defaultInputValue={texto??""}
+      defaultInputValue={texto ?? ""}
       placeholder={placeholder}
       labelKey={labelKey}
       emptyLabel={emptyLabel}

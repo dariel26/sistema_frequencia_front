@@ -1,23 +1,23 @@
 import { useState, useContext, useEffect, useRef } from "react";
-import { AlertaContext } from "../../../filters/alerta/Alerta";
 import apiSFE from "../../../service/api";
-import { UsuarioContext } from "../../../filters/Usuario";
+import { UsuarioContext, SistemaContext } from "../../../contexts";
 import "react-datepicker/dist/react-datepicker.css";
-import InputBotao from "../../../componentes/inputs/InputBotao";
-import BotaoTexto from "../../../componentes/botoes/BotaoTexto";
-import DivCabecalhoDeletar from "../../../componentes/divs/DivCabecalhoDeletar";
-import { gerarChaveUnica } from "../../../utils";
-import TabelaPadrao from "../../../componentes/tabelas/TabelaPadrao";
-import { CardRadiosBarraFixa } from "../../../components/cards/CardRadios";
 import EstagiosEdicao from "./EstagiosEdicao";
-import { SistemaContext } from "../../../filters/sistema/Sistema";
+import {
+  CardLinksBarraFixa,
+  TabelaPadrao,
+  DivCabecalhoDeletar,
+  BotaoTexto,
+  InputBotao,
+} from "../../../componentes";
+import uuid from "react-uuid";
+import { errors } from "../../../utils";
 
 export default function Estagios() {
   const [estagios, setEstagios] = useState([]);
   const [editando, setEditando] = useState(false);
 
-  const { carregando } = useRef(useContext(SistemaContext)).current;
-  const alerta = useRef(useContext(AlertaContext)).current;
+  const { carregando, error } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
   const token = usuario.token;
 
@@ -31,11 +31,9 @@ export default function Estagios() {
         const estagios = res.data;
         setEstagios(estagios);
       })
-      .catch((err) => {
-        alerta.adicionaAlerta(err);
-      })
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => carregando(false));
-  }, [token, alerta, carregando]);
+  }, [token, error, carregando]);
 
   const aoAdicionarEstagio = async (nome) => {
     try {
@@ -62,14 +60,14 @@ export default function Estagios() {
 
   return (
     <div className="row w-100 justify-content-center m-0">
-      <CardRadiosBarraFixa>
+      <CardLinksBarraFixa>
         <BotaoTexto
           aoClicar={() => setEditando(!editando)}
           className="mb-2 me-3"
           texto={editando ? "Voltar" : "Editar"}
           visivel={!nenhumEstagioSalvo}
         />
-      </CardRadiosBarraFixa>
+      </CardLinksBarraFixa>
       {!editando ? (
         <>
           <div className="col-sm-12 col-xl-8">
@@ -81,7 +79,7 @@ export default function Estagios() {
                   ? "Nenhum"
                   : nome_coordenador;
                 return (
-                  <div className="mb-2" key={gerarChaveUnica()}>
+                  <div className="mb-2" key={uuid()}>
                     <DivCabecalhoDeletar
                       textoBotao="Deletar Estagio"
                       titulo={nome_estagio}

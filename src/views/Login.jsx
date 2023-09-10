@@ -1,11 +1,10 @@
-import { useRef } from "react";
-import { useContext } from "react";
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { AlertaContext } from "../filters/alerta/Alerta";
 import links from "../links";
 import apiSFE from "../service/api";
 import { Spinner } from "react-bootstrap";
+import { errors } from "../utils";
+import { SistemaContext } from "../contexts";
 
 export default function Login(props) {
   const [login, setLogin] = useState("");
@@ -13,7 +12,7 @@ export default function Login(props) {
   const [carregando, setCarregando] = useState(false);
 
   const navigate = useNavigate();
-  const alert = useRef(useContext(AlertaContext));
+  const { error } = useContext(SistemaContext);
 
   function onChangeLogin(e) {
     e.preventDefault();
@@ -34,9 +33,7 @@ export default function Login(props) {
         localStorage.setItem("token", res.data);
         navigate(links.sistemaFrequencia);
       })
-      .catch((err) => {
-        alert.current.addAlert(err);
-      })
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => setCarregando(false));
   }
 

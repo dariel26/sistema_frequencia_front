@@ -1,17 +1,21 @@
 import { useState } from "react";
 import { useRef } from "react";
 import { useContext, useEffect } from "react";
-import { AlertaContext } from "../../../filters/alerta/Alerta";
-import { UsuarioContext } from "../../../filters/Usuario";
 import apiSFE from "../../../service/api";
 import { Col, Row } from "react-bootstrap";
-import { CardLinksBarraFixa } from "../../../componentes/cards/CardLinks";
-import BotaoTexto from "../../../componentes/botoes/BotaoTexto";
-import TabelaPadrao from "../../../componentes/tabelas/TabelaPadrao";
+import {
+  CardLinksBarraFixa,
+  BotaoTexto,
+  TabelaPadrao,
+} from "../../../componentes";
 import CoordenadoresAdicao from "./CoordenadoresAdicao";
 import { FaUserEdit } from "react-icons/fa";
 import CoordenadorEdicao from "./CoordenadoresEdicao";
-import { SistemaContext } from "../../../filters/sistema/Sistema";
+import {
+  SistemaContext,
+  UsuarioContext,
+} from "../../../contexts";
+import { errors } from "../../../utils";
 
 export default function Coordenadores() {
   const [coordenadores, setCoordenadores] = useState([]);
@@ -22,9 +26,8 @@ export default function Coordenadores() {
     []
   );
 
-  const { carregando } = useRef(useContext(SistemaContext)).current;
+  const { carregando, error } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
-  const alerta = useRef(useContext(AlertaContext)).current;
   const token = usuario.token;
 
   const nenhumCoordenadorSelecionado = coordenadoresSelecionados.length === 0;
@@ -42,18 +45,16 @@ export default function Coordenadores() {
       .then((res) => {
         setCoordenadores(res.data);
       })
-      .catch((err) => {
-        alerta.adicionaAlerta(err);
-      })
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => carregando(false));
-  }, [usuario, alerta, carregando]);
+  }, [usuario, error, carregando]);
 
   async function aoClicarSelecionar() {
     if (nenhumCoordenadorSelecionado) return setSelecionando(!selecionando);
     try {
       await aoDeletar();
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      error(errors.filtraMensagem(err));
     }
   }
 
@@ -83,7 +84,7 @@ export default function Coordenadores() {
       setCoordenadores([...coordenadoresRestantes]);
       setCoordenadoresSelecionados([]);
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      error(errors.filtraMensagem(err));
     }
   }
 

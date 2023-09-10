@@ -1,17 +1,16 @@
-import { useState } from "react";
-import { useRef } from "react";
-import { useContext, useEffect } from "react";
-import { AlertaContext } from "../../../filters/alerta/Alerta";
-import { UsuarioContext } from "../../../filters/Usuario";
+import { useState, useRef, useContext, useEffect } from "react";
 import apiSFE from "../../../service/api";
 import { Col, Row } from "react-bootstrap";
-import { CardLinksBarraFixa } from "../../../componentes/cards/CardLinks";
-import BotaoTexto from "../../../componentes/botoes/BotaoTexto";
-import TabelaPadrao from "../../../componentes/tabelas/TabelaPadrao";
+import {
+  TabelaPadrao,
+  BotaoTexto,
+  CardLinksBarraFixa,
+} from "../../../componentes";
 import { FaUserEdit } from "react-icons/fa";
 import PreceptoresAdicao from "./PreceptoresAdicao";
 import PreceptoresEdicao from "./PreceptoresEdicao";
-import { SistemaContext } from "../../../filters/sistema/Sistema";
+import { SistemaContext, UsuarioContext } from "../../../contexts";
+import { errors } from "../../../utils";
 
 export default function Preceptores() {
   const [preceptores, setPreceptores] = useState([]);
@@ -20,9 +19,8 @@ export default function Preceptores() {
   const [preceptorEmEdicao, setPreceptorEmEdicao] = useState({});
   const [preceptoresSelecionados, setPreceptoresSelecionados] = useState([]);
 
-  const { carregando } = useRef(useContext(SistemaContext)).current;
+  const { carregando, error } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
-  const alerta = useRef(useContext(AlertaContext)).current;
   const token = usuario.token;
 
   const nenhumPreceptorSelecionado = preceptoresSelecionados.length === 0;
@@ -40,18 +38,16 @@ export default function Preceptores() {
       .then((res) => {
         setPreceptores(res.data);
       })
-      .catch((err) => {
-        alerta.adicionaAlerta(err);
-      })
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => carregando(false));
-  }, [token, alerta, carregando]);
+  }, [token, error, carregando]);
 
   async function aoClicarSelecionar() {
     if (nenhumPreceptorSelecionado) return setSelecionando(!selecionando);
     try {
       await aoDeletar();
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      error(errors.filtraMensagem(err));
     }
   }
 
@@ -81,7 +77,7 @@ export default function Preceptores() {
       setPreceptores([...preceptoresRestantes]);
       setPreceptoresSelecionados([]);
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      error(errors.filtraMensagem(err));
     }
   }
 

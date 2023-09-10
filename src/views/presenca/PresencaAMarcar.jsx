@@ -1,9 +1,8 @@
 import { Button, Col, Row, Spinner } from "react-bootstrap";
-import { amdEmData, dataEmDma } from "../../utils/datas";
+import { amdEmData, dataEmDma, errors } from "../../utils";
 import { useContext, useRef, useState } from "react";
-import { AlertaContext } from "../../filters/alerta/Alerta";
 import apiSFE from "../../service/api";
-import { UsuarioContext } from "../../filters/Usuario";
+import { UsuarioContext, SistemaContext } from "../../contexts";
 
 export default function PresencaAMarcar({
   presenca,
@@ -13,7 +12,7 @@ export default function PresencaAMarcar({
 }) {
   const [marcando, setMarcando] = useState(false);
 
-  const alerta = useRef(useContext(AlertaContext)).current;
+  const { error, sucesso } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
 
   const erroNasCoordenadas = !coordenadas.lat || !coordenadas.lon;
@@ -22,7 +21,7 @@ export default function PresencaAMarcar({
     e.preventDefault();
     setMarcando(true);
     apiSFE
-      .editarPresenca(usuario.token, {
+      .marcarPresenca(usuario.token, {
         id_alunodataatividade: presenca.id_alunodataatividade,
         coordenadas,
         estado: "PRESENTE",
@@ -35,10 +34,10 @@ export default function PresencaAMarcar({
               : p
           )
         );
-        alerta.adicionaAlerta(undefined, "Presença marcada");
+        sucesso("Presença marcada");
         aoCancelar();
       })
-      .catch((err) => alerta.adicionaAlerta(err))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => setMarcando(false));
   };
 

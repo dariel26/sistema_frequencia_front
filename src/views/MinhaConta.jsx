@@ -1,13 +1,9 @@
-import { useEffect } from "react";
-import { useState } from "react";
-import { useRef } from "react";
-import { useContext } from "react";
-import { AlertaContext } from "../filters/alerta/Alerta";
-import { UsuarioContext, tiposUsuario } from "../filters/Usuario";
+import { useEffect, useState, useRef, useContext } from "react";
+import { UsuarioContext, tiposUsuario, SistemaContext } from "../contexts";
 import apiSFE from "../service/api";
 import { CardSimples, InputSelecao } from "../componentes";
 import { Col, Row } from "react-bootstrap";
-import { SistemaContext } from "../filters/sistema/Sistema";
+import { errors } from "../utils";
 
 export default function MinhaConta() {
   const [senhaPadrao, setSenhaPadrao] = useState(false);
@@ -16,7 +12,7 @@ export default function MinhaConta() {
 
   const { carregando } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
-  const alert = useRef(useContext(AlertaContext));
+  const { sucesso, error, aviso } = useRef(useContext(SistemaContext)).current;
 
   useEffect(() => {
     carregando(true);
@@ -24,35 +20,27 @@ export default function MinhaConta() {
     if (usuario.token === undefined) return;
     apiSFE
       .usuarioPadrao(usuario.token)
-      .then((res) => {
-        setSenhaPadrao(res.data.padrao);
-      })
-      .catch((err) => {
-        alert.current.addAlert(err);
-      })
+      .then((res) => setSenhaPadrao(res.data.padrao))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => carregando(false));
-  }, [usuario, carregando]);
+  }, [usuario, carregando, error]);
 
   const onSubmit = (e) => {
     e.preventDefault();
     const token = usuario.token;
     if (senha !== senhaConfirmada) {
-      alert.current.addAlert(new Error("As senhas devem ser corresponder"));
+      aviso("As senhas devem ser iguais");
     } else if (senha.length < 3) {
-      alert.current.addAlert(
-        new Error("A senha deve conter no mínimo 3 carateres")
-      );
+      aviso("A senha deve conter no mínimo 3 carateres");
     } else {
       const novosDados = [{ id: usuario.id, senha }];
       apiSFE
         .mudarSenha(token, novosDados)
         .then(() => {
-          alert.current.addAlert(undefined, "Senha modificada!");
+          sucesso("Senha modificada!");
           setSenhaPadrao(false);
         })
-        .catch((err) => {
-          alert.current.addAlert(err);
-        });
+        .catch((err) => error(errors.filtraMensagem(err)));
     }
   };
 

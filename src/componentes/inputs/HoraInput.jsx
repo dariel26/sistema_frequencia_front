@@ -1,18 +1,15 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState, useRef } from "react";
 import { Button, Form, InputGroup, Spinner } from "react-bootstrap";
-import { AlertaContext } from "../../filters/alerta/Alerta";
+import { SistemaContext } from "../../contexts";
+import { errors } from "../../utils";
 
-export default function HoraInput({
-  texto,
-  size,
-  larguraMaxima,
-  aoMudar,
-}) {
+export default function HoraInput({ texto, size, larguraMaxima, aoMudar }) {
   const [valor, setValor] = useState("");
   const [salvando, setSalvando] = useState(false);
   const [mudando, setMudando] = useState(false);
 
-  const alerta = useRef(useContext(AlertaContext)).current;
+  const { sucesso, error } = useContext(SistemaContext);
+
   const inputRef = useRef();
 
   const valorIncompleto = valor === undefined || valor?.length < 5;
@@ -43,11 +40,8 @@ export default function HoraInput({
     e.preventDefault();
     setSalvando(true);
     aoMudar(valor)
-      .then(
-        (strSucesso) =>
-          strSucesso && alerta.adicionaAlerta(undefined, strSucesso)
-      )
-      .catch((err) => alerta.adicionaAlerta(err))
+      .then((msg) => msg && sucesso(msg))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => {
         setSalvando(false);
         setMudando(false);
@@ -76,7 +70,7 @@ export default function HoraInput({
         onBlur={aoCancelar}
         size={size}
         placeholder={"00:00"}
-        value={valor??""}
+        value={valor ?? ""}
         onKeyUp={(e) => (e.key === "Enter" ? aoSubmeter(e) : undefined)}
         onChange={aoEscrever}
         style={{ maxWidth: `${larguraMaxima}px` }}

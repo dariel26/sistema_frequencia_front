@@ -9,9 +9,10 @@ import {
 } from "react-bootstrap";
 import { read, utils } from "xlsx";
 import { FiCheckCircle, FiAlertTriangle } from "react-icons/fi";
-import TabelaPadrao from "../../../componentes/tabelas/TabelaPadrao";
+import { TabelaPadrao } from "../../../componentes";
 import { useContext, useRef, useState } from "react";
-import { AlertaContext } from "../../../filters/alerta/Alerta";
+import { SistemaContext } from "../../../contexts";
+import { errors } from "../../../utils";
 
 export default function PreceptoresAdicao({
   preceptores,
@@ -24,7 +25,7 @@ export default function PreceptoresAdicao({
   const [email, setEmail] = useState("");
   const [salvando, setSalvando] = useState(false);
 
-  const alerta = useRef(useContext(AlertaContext)).current;
+  const { error } = useRef(useContext(SistemaContext)).current;
 
   const textoValido = "Preceptor válido";
   const textoInvalido =
@@ -68,7 +69,7 @@ export default function PreceptoresAdicao({
     setSalvando(true);
     aoAdicionarNovosPreceptores(preceptoresNaoRepetidos)
       .then(() => setAdicionando(false))
-      .catch((err) => alerta.adicionaAlerta(err))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => setSalvando(false));
     setNovosPreceptores([]);
   }

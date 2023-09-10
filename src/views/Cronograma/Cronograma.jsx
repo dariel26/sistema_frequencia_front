@@ -10,12 +10,11 @@ import { CardSimples } from "../../componentes";
 import { CloseButton, Col, Overlay, Popover, Row } from "react-bootstrap";
 import { useContext, useEffect, useRef, useState } from "react";
 import apiSFE from "../../service/api";
-import { UsuarioContext } from "../../filters/Usuario";
-import { AlertaContext } from "../../filters/alerta/Alerta";
-import { amdEmData, horarioEmData } from "../../utils/datas";
+import { UsuarioContext } from "../../contexts/usuario/Usuario";
+import { amdEmData, errors, horarioEmData } from "../../utils";
 import obterCor from "../../utils/cores";
 import uuid from "react-uuid";
-import { SistemaContext } from "../../filters/sistema/Sistema";
+import { SistemaContext } from "../../contexts/sistema/Sistema";
 
 export default function Cronograma() {
   const [eventos, setEventos] = useState([]);
@@ -26,7 +25,7 @@ export default function Cronograma() {
   const ref = useRef(null);
 
   const { token } = useContext(UsuarioContext);
-  const { adicionaAlerta } = useRef(useContext(AlertaContext)).current;
+  const { error } = useRef(useContext(SistemaContext)).current;
   const { carregando } = useRef(useContext(SistemaContext)).current;
 
   useEffect(() => {
@@ -49,9 +48,9 @@ export default function Cronograma() {
         setDatasAtividades(atividades.flatMap((a) => a.datas));
         setEventos(eventos);
       })
-      .catch((err) => adicionaAlerta(err))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => carregando(false));
-  }, [adicionaAlerta, token, carregando]);
+  }, [error, token, carregando]);
 
   function aoClicarEmEvento(info) {
     setMostrarPop(true);
@@ -59,7 +58,6 @@ export default function Cronograma() {
       (d) =>
         d.id_dataatividade === parseInt(info.el.fcSeg.eventRange.def.publicId)
     );
-    console.log(datasAtividades[index]);
     setIndexDataAtividade(index);
     setTarget(info.jsEvent.target);
   }

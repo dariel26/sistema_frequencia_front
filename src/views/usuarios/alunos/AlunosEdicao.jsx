@@ -1,6 +1,7 @@
 import { useContext, useRef, useState } from "react";
 import { Button, Col, Form, Row, Spinner, ToggleButton } from "react-bootstrap";
-import { AlertaContext } from "../../../filters/alerta/Alerta";
+import { SistemaContext } from "../../../contexts";
+import { errors } from "../../../utils";
 
 export default function AlunosEdicao({ aluno, aoSalvar, setAlunoEmEdicao }) {
   const [nome, setNome] = useState(aluno.nome);
@@ -8,7 +9,7 @@ export default function AlunosEdicao({ aluno, aoSalvar, setAlunoEmEdicao }) {
   const [trocarSenha, setTrocarSenha] = useState(false);
   const [salvando, setSalvando] = useState(false);
 
-  const alerta = useRef(useContext(AlertaContext)).current;
+  const { error } = useRef(useContext(SistemaContext)).current;
 
   const houveMudanca =
     trocarSenha || nome !== aluno.nome || login !== aluno.login;
@@ -24,7 +25,7 @@ export default function AlunosEdicao({ aluno, aoSalvar, setAlunoEmEdicao }) {
     setSalvando(true);
     aoSalvar(novosDados)
       .then(() => setAlunoEmEdicao({}))
-      .catch((err) => alerta.adicionaAlerta(err))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => {
         setSalvando(false);
       });

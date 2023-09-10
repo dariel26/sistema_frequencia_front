@@ -53,7 +53,6 @@ export default function MenuLayout(props) {
   };
 
   const onMouseDown = (e) => {
-    console.log("menuClicado");
     setStartMouse(e.clientX ?? e.targetTouches[0].clientX);
   };
 

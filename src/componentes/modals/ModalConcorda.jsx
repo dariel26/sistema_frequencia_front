@@ -4,7 +4,7 @@ import Modal from "react-bootstrap/Modal";
 function ModalConcorda({ show, mensagem, resAviso }) {
   return (
     <>
-      <Modal show={show} backdrop="static" keyboard={false}>
+      <Modal show={show} backdrop="static" keyboard={false} className="z-n">
         <Modal.Header closeButton>
           <Modal.Title>Aviso</Modal.Title>
         </Modal.Header>

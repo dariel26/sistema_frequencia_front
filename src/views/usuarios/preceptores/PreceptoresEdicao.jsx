@@ -1,6 +1,7 @@
 import { useContext, useRef, useState } from "react";
 import { Button, Col, Form, Row, Spinner, ToggleButton } from "react-bootstrap";
-import { AlertaContext } from "../../../filters/alerta/Alerta";
+import { SistemaContext } from "../../../contexts";
+import { errors } from "../../../utils";
 
 export default function PreceptoresEdicao({
   preceptor,
@@ -12,7 +13,7 @@ export default function PreceptoresEdicao({
   const [trocarSenha, setTrocarSenha] = useState(false);
   const [salvando, setSalvando] = useState(false);
 
-  const alerta = useRef(useContext(AlertaContext)).current;
+  const { error } = useRef(useContext(SistemaContext)).current;
 
   const houveMudanca =
     trocarSenha || nome !== preceptor.nome || login !== preceptor.login;
@@ -28,7 +29,7 @@ export default function PreceptoresEdicao({
     setSalvando(true);
     aoSalvar(novosDados)
       .then(() => setPreceptorEmEdicao({}))
-      .catch((err) => alerta.adicionaAlerta(err))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => {
         setSalvando(false);
       });

@@ -1,19 +1,15 @@
-import React, { useRef, useState } from "react";
-import { useContext } from "react";
-import { useEffect } from "react";
-import FormData from "../../../componentes/formularios/FormData";
-import { AlertaContext } from "../../../filters/alerta/Alerta";
-import { UsuarioContext } from "../../../filters/Usuario";
+import React, { useRef, useState, useContext, useEffect } from "react";
+import { UsuarioContext, SistemaContext } from "../../../contexts";
 import apiSFE from "../../../service/api";
 import { Col, Row, Table } from "react-bootstrap";
 import {
   amdEmData,
   dataEmDma,
   comparaObjComDataInicial,
-} from "../../../utils/datas";
+  errors,
+} from "../../../utils";
 import uuid from "react-uuid";
-import { BotaoOutline, TextoInput } from "../../../componentes";
-import { SistemaContext } from "../../../filters/sistema/Sistema";
+import { BotaoOutline, TextoInput, FormData } from "../../../componentes";
 
 const styleColumnCoordenador = { width: "180px" };
 const styleColumnGrupo = { width: "150px" };
@@ -23,9 +19,8 @@ export default function EstagiosEdicao({ estagios, setEstagios }) {
   const [grupos, setGrupos] = useState([]);
   const [datasComGrupos, setDatasComGrupos] = useState([]);
 
-  const { carregando } = useRef(useContext(SistemaContext)).current;
+  const { carregando, error } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
-  const alerta = useRef(useContext(AlertaContext)).current;
   const token = usuario.token;
 
   useEffect(() => {
@@ -52,9 +47,9 @@ export default function EstagiosEdicao({ estagios, setEstagios }) {
         setCoordenadores(res[0].data);
         setGrupos(res[1].data);
       })
-      .catch((err) => alerta.adicionaAlerta(err))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => carregando(false));
-  }, [alerta, token, estagios, carregando]);
+  }, [error, token, estagios, carregando]);
 
   const aoAdicionarCoordenador = async ({ id_usuario, id_estagio }) => {
     let dados = [{ id_estagio, id_usuario }];

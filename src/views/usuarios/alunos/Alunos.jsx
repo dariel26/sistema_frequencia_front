@@ -1,6 +1,4 @@
 import { useState, useRef, useContext, useEffect } from "react";
-import { AlertaContext } from "../../../filters/alerta/Alerta";
-import { UsuarioContext } from "../../../filters/Usuario";
 import apiSFE from "../../../service/api";
 import { Col, Row } from "react-bootstrap";
 import {
@@ -11,7 +9,8 @@ import {
 import { FaUserEdit } from "react-icons/fa";
 import AlunoAdicao from "./AlunosAdicao";
 import AlunosEdicao from "./AlunosEdicao";
-import { SistemaContext } from "../../../filters/sistema/Sistema";
+import { SistemaContext, UsuarioContext } from "../../../contexts";
+import { errors } from "../../../utils";
 
 export default function Alunos() {
   const [alunos, setAlunos] = useState([]);
@@ -20,9 +19,8 @@ export default function Alunos() {
   const [alunoEmEdicao, setAlunoEmEdicao] = useState({});
   const [alunosSelecionados, setAlunosSelecionados] = useState([]);
 
-  const { carregando } = useRef(useContext(SistemaContext)).current;
+  const { carregando, error } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
-  const alerta = useRef(useContext(AlertaContext)).current;
   const token = usuario.token;
 
   const nenhumAlunoSelecionado = alunosSelecionados.length === 0;
@@ -40,18 +38,16 @@ export default function Alunos() {
       .then((res) => {
         setAlunos(res.data);
       })
-      .catch((err) => {
-        alerta.adicionaAlerta(err);
-      })
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => carregando(false));
-  }, [token, alerta, carregando]);
+  }, [token, error, carregando]);
 
   async function aoClicarSelecionar() {
     if (nenhumAlunoSelecionado) return setSelecionando(!selecionando);
     try {
       await aoDeletar();
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      error(errors.filtraMensagem(err));
     }
   }
 
@@ -75,7 +71,7 @@ export default function Alunos() {
       setAlunos([...alunosRestantes]);
       setAlunosSelecionados([]);
     } catch (err) {
-      alerta.adicionaAlerta(err);
+      error(errors.filtraMensagem(err));
     }
   }
 

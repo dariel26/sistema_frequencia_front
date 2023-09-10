@@ -1,16 +1,17 @@
 import { useState, useContext, useEffect, useRef } from "react";
-import { AlertaContext } from "../../../filters/alerta/Alerta";
 import apiSFE from "../../../service/api";
-import { UsuarioContext } from "../../../filters/Usuario";
-import InputBotao from "../../../componentes/inputs/InputBotao";
-import TabelaPadrao from "../../../componentes/tabelas/TabelaPadrao";
-import BotaoTexto from "../../../componentes/botoes/BotaoTexto";
-import DivCabecalhoDeletar from "../../../componentes/divs/DivCabecalhoDeletar";
-import { gerarChaveUnica } from "../../../utils";
-import { CardRadiosBarraFixa } from "../../../components/cards/CardRadios";
+import { UsuarioContext, SistemaContext } from "../../../contexts";
 import GruposEdicao from "./GruposEdicao";
 import { Col } from "react-bootstrap";
-import { SistemaContext } from "../../../filters/sistema/Sistema";
+import {
+  CardLinksBarraFixa,
+  InputBotao,
+  BotaoTexto,
+  DivCabecalhoDeletar,
+  TabelaPadrao,
+} from "../../../componentes";
+import uuid from "react-uuid";
+import { errors } from "../../../utils";
 
 export default function Grupos() {
   const [grupos, setGrupos] = useState([]);
@@ -27,8 +28,7 @@ export default function Grupos() {
       : "Cancelar"
     : "Selecionar";
 
-  const { carregando } = useRef(useContext(SistemaContext)).current;
-  const alerta = useRef(useContext(AlertaContext)).current;
+  const { carregando, error } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
   const token = usuario.token;
 
@@ -37,11 +37,9 @@ export default function Grupos() {
     apiSFE
       .listarGrupos(token)
       .then((res) => setGrupos(res.data))
-      .catch((err) => {
-        alerta.adicionaAlerta(err);
-      })
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => carregando(false));
-  }, [usuario, token, alerta, carregando]);
+  }, [usuario, token, error, carregando]);
 
   const aoCriarGrupo = async (nome) => {
     try {
@@ -107,7 +105,7 @@ export default function Grupos() {
 
   return (
     <div className="row w-100 justify-content-center m-0">
-      <CardRadiosBarraFixa>
+      <CardLinksBarraFixa>
         <BotaoTexto
           aoClicar={() => {
             setEditando(!editando);
@@ -123,12 +121,12 @@ export default function Grupos() {
           visivel={!editando}
           assincrono
         />
-      </CardRadiosBarraFixa>
+      </CardLinksBarraFixa>
       {!editando ? (
         <>
           <Col sm="12" xl="8" className="mb-5">
             {grupos.map((grupo) => (
-              <div className="mb-2" key={gerarChaveUnica()}>
+              <div className="mb-2" key={uuid()}>
                 <DivCabecalhoDeletar
                   titulo={grupo.nome_grupo}
                   textoBotao="Deletar Grupo"

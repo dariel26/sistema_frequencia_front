@@ -3,14 +3,14 @@ import { useRef, useState } from "react";
 import { useEffect } from "react";
 import apiSFE from "../service/api";
 import { useContext } from "react";
-import { UsuarioContext } from "../filters/Usuario";
-import { AlertaContext } from "../filters/alerta/Alerta";
+import { UsuarioContext } from "../contexts/usuario/Usuario";
 import { useCallback } from "react";
 import CardSimples from "../componentes/cards/CardSimples";
 import { Button, Col, Form, Row, Spinner } from "react-bootstrap";
 import TabelaPadrao from "../componentes/tabelas/TabelaPadrao";
 import Mapa from "../componentes/mapa/Mapa";
-import { SistemaContext } from "../filters/sistema/Sistema";
+import { SistemaContext } from "../contexts/sistema/Sistema";
+import { errors } from "../utils";
 
 const latLonInicial = { lat: "", lon: "" };
 
@@ -22,7 +22,7 @@ export default function Local() {
   const [nome, setNome] = useState("");
 
   const usuario = useContext(UsuarioContext);
-  const alerta = useRef(useContext(AlertaContext)).current;
+  const { error } = useRef(useContext(SistemaContext)).current;
   const { carregando } = useRef(useContext(SistemaContext)).current;
 
   const token = usuario.token;
@@ -46,10 +46,10 @@ export default function Local() {
         preencherLocais(res.data);
       })
       .catch((err) => {
-        alerta.adicionaAlerta(err);
+        error(errors.filtraMensagem(err));
       })
       .finally(() => carregando(false));
-  }, [token, preencherLocais, alerta, carregando]);
+  }, [token, error, preencherLocais, carregando]);
 
   const aoClicarNoMapa = useCallback(({ lat, lng }) => {
     setLatLon({ lat, lon: lng });
@@ -64,7 +64,7 @@ export default function Local() {
           existentes.filter((l) => l.id_local !== local.id_local)
         )
       )
-      .catch((err) => alerta.adicionaAlerta(err))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => setIdLocalDeletando(undefined));
   };
 
@@ -83,7 +83,7 @@ export default function Local() {
         setLatLon(latLon);
         preencherLocais(res.data);
       })
-      .catch((err) => alerta.adicionaAlerta(err))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => setSalvando(false));
   };
 

@@ -1,6 +1,7 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useState } from "react";
 import { Spinner } from "react-bootstrap"; //TODO componentizar
-import { AlertaContext } from "../../filters/alerta/Alerta";
+import { SistemaContext } from "../../contexts";
+import { errors } from "../../utils";
 
 export default function InputBotao({
   textoReferencia,
@@ -13,7 +14,7 @@ export default function InputBotao({
   const [valor, setValor] = useState(textoInicial);
   const [salvando, setSalvando] = useState(false);
 
-  const alerta = useRef(useContext(AlertaContext)).current;
+  const { sucesso, error } = useContext(SistemaContext);
 
   const valorVazio = valor === "" || valor === undefined;
 
@@ -28,18 +29,15 @@ export default function InputBotao({
 
     setSalvando(true);
     aoClicar(valor)
-      .then(
-        (strSucesso) =>
-          strSucesso && alerta.adicionaAlerta(undefined, strSucesso)
-      )
-      .catch((err) => alerta.adicionaAlerta(err))
+      .then((msg) => msg && sucesso(msg))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => setSalvando(false));
     setValor("");
   };
 
   return (
     <div
-      className={"input-group " + className}
+      className={"input-group z-0 " + className}
       style={{ height: `${altura}px`, maxWidth: `${maximaLargura}px` }}
     >
       <input

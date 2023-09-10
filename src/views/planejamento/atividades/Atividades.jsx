@@ -1,13 +1,9 @@
-import { useContext, useRef } from "react";
-import { useEffect, useState } from "react";
-import InputBotao from "../../../componentes/inputs/InputBotao";
-import { UsuarioContext } from "../../../filters/Usuario";
+import { useContext, useRef, useEffect, useState } from "react";
 import apiSFE from "../../../service/api";
-import { gerarChaveUnica, transformarStringAMDEmData } from "../../../utils";
-import { AlertaContext } from "../../../filters/alerta/Alerta";
 import uuid from "react-uuid";
-import { CardAtividade } from "../../../componentes";
-import { SistemaContext } from "../../../filters/sistema/Sistema";
+import { CardAtividade, InputBotao } from "../../../componentes";
+import { UsuarioContext, SistemaContext } from "../../../contexts";
+import { amdEmData, errors } from "../../../utils";
 
 export default function Atividades() {
   const [alunos, setAlunos] = useState([]);
@@ -17,9 +13,8 @@ export default function Atividades() {
   const [locais, setLocais] = useState([]);
   const [coordenadores, setCoordeandores] = useState([]);
 
-  const { carregando } = useRef(useContext(SistemaContext)).current;
+  const { carregando, error } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
-  const alerta = useRef(useContext(AlertaContext)).current;
   const token = usuario.token;
 
   let dataInicialSemestre = estagios[0]?.grupos[0]?.data_inicial;
@@ -74,8 +69,8 @@ export default function Atividades() {
           ...e,
           grupos: e.grupos.map((g) => ({
             ...g,
-            data_inicial: transformarStringAMDEmData(g.data_inicial),
-            data_final: transformarStringAMDEmData(g.data_final),
+            data_inicial: amdEmData(g.data_inicial),
+            data_final: amdEmData(g.data_final),
           })),
         }));
         const atividades = res[4].data;
@@ -86,9 +81,9 @@ export default function Atividades() {
         setAtividades(atividades);
         setCoordeandores(res[6].data);
       })
-      .catch((err) => alerta.adicionaAlerta(err))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => carregando(false));
-  }, [token, alerta, carregando]);
+  }, [token, error, carregando]);
 
   const aoAlocarAtividade = async (id_estagio, nome) => {
     try {
@@ -187,7 +182,7 @@ export default function Atividades() {
       {gruposDeEstagios?.map((estagio) => (
         <div
           className="row w-100 m-0 p-0 justify-content-center mb-4"
-          key={gerarChaveUnica()}
+          key={uuid()}
         >
           <div className="col-sm-12 col-xl-8 mb-1">
             <span className="fs-5 fw-bold">{estagio.nome_estagio}</span>
@@ -201,7 +196,7 @@ export default function Atividades() {
             <div className="col-sm-12 col-xl-8 mb-2" key={uuid()}>
               <div className="ms-1">
                 <CardAtividade
-                  key={gerarChaveUnica()}
+                  key={uuid()}
                   atividade={atividades.find(
                     (a) => a.id_atividade === atividade.id_atividade
                   )}

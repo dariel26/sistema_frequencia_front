@@ -1,21 +1,17 @@
 import { useEffect, useState, useContext, useRef } from "react";
 import { Col } from "react-bootstrap";
-import BotaoDrop from "../../../componentes/botoes/BotaoDrop";
-import BotaoTexto from "../../../componentes/botoes/BotaoTexto";
-import TabelaPadrao from "../../../componentes/tabelas/TabelaPadrao";
-import { AlertaContext } from "../../../filters/alerta/Alerta";
-import { UsuarioContext } from "../../../filters/Usuario";
+import { TabelaPadrao, BotaoTexto, BotaoDrop } from "../../../componentes";
+import { UsuarioContext, SistemaContext } from "../../../contexts";
 import apiSFE from "../../../service/api";
-import { SistemaContext } from "../../../filters/sistema/Sistema";
+import { errors } from "../../../utils";
 
 export default function GruposEdicao({ atualizarGrupos }) {
   const [grupos, setGrupos] = useState([]);
   const [alunos, setAlunos] = useState([]);
   const [alunosSelecionados, setAlunosSelecionados] = useState([]);
 
-  const { carregando } = useRef(useContext(SistemaContext)).current;
+  const { carregando, error } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
-  const alerta = useRef(useContext(AlertaContext)).current;
 
   const nenhumAlunoSelecionado = alunosSelecionados.length === 0;
   const todosOsAlunosSelecionados = alunosSelecionados.length === alunos.length;
@@ -36,9 +32,9 @@ export default function GruposEdicao({ atualizarGrupos }) {
         setGrupos(grupos);
         setAlunos(alunos);
       })
-      .catch((err) => alerta.adicionaAlerta(err))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => carregando(false));
-  }, [token, alerta, carregando]);
+  }, [token, error, carregando]);
 
   const editarAluno = async (novosDados) => {
     try {

@@ -1,7 +1,8 @@
-import { useContext, useRef, useState } from "react";
-import { InputGroup, Spinner } from "react-bootstrap";
+import { useContext, useState } from "react";
+import { Button, Form, InputGroup, Spinner } from "react-bootstrap";
 import { Typeahead } from "react-bootstrap-typeahead";
-import { AlertaContext } from "../../filters/alerta/Alerta";
+import { SistemaContext } from "../../contexts";
+import { errors } from "../../utils";
 
 export default function InputSelecao({
   textoReferencia,
@@ -16,7 +17,7 @@ export default function InputSelecao({
   const [valor, setValor] = useState({});
   const [salvando, setSalvado] = useState(false);
 
-  const alerta = useRef(useContext(AlertaContext)).current;
+  const { sucesso, error } = useContext(SistemaContext);
 
   const aoMudar = (valor) => {
     if (valor.length < 1) {
@@ -29,19 +30,23 @@ export default function InputSelecao({
     e.preventDefault();
     setSalvado(true);
     aoSubmeter(valor)
-      .then((strSucesso) => alerta.adicionaAlerta(undefined, strSucesso))
-      .catch((err) => alerta.adicionaAlerta(err))
+      .then((msg) => msg && sucesso(msg))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => setSalvado(false));
   };
 
+  function aoFocar(e) {
+    setTimeout(() => {
+      e.target?.setSelectionRange(0, e.target.value?.length);
+    }, 200);
+  }
+
   return (
-    <form
-      className="row w-100 align-items-end"
-      style={{ maxWidth: `${larguraMaxima}px` }}
-    >
-      <InputGroup size="sm">
+    <Form className="row align-items-end me-0">
+      <InputGroup size="sm" className="z-0">
         <Typeahead
           id="typeahead"
+          onFocus={aoFocar}
           placeholder={textoReferencia}
           labelKey={campoSelecao}
           emptyLabel={textoVazio}
@@ -49,17 +54,16 @@ export default function InputSelecao({
           options={opcoesSelecao}
           defaultInputValue={textoInicial ?? ""}
         />
-        <button
+        <Button
           disabled={valor[campoSelecao] === undefined || salvando}
-          className="btn btn-secondary"
           onClick={aoClicar}
         >
           {salvando ? (
             <Spinner animation="grow" size="sm" className="me-2" />
           ) : undefined}
           {textoBotao}
-        </button>
+        </Button>
       </InputGroup>
-    </form>
+    </Form>
   );
 }

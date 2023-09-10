@@ -1,9 +1,9 @@
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { Col, OverlayTrigger, Spinner, Tooltip } from "react-bootstrap";
-import { AlertaContext } from "../../filters/alerta/Alerta";
 import Calendario from "./Calendario";
-import { amdEmData, dataEmAmd, dataEmDma } from "../../utils/datas";
+import { amdEmData, dataEmAmd, dataEmDma, errors } from "../../utils";
 import uuid from "react-uuid";
+import { SistemaContext } from "../../contexts";
 
 const corEscolhida = "#48E866";
 const corAnulada = "#E84862";
@@ -13,7 +13,7 @@ export default function TextoCalendario({ aoMudar, eventos }) {
   const [salvando, setSalvando] = useState(false);
   const [mudando, setMudando] = useState(false);
 
-  const alerta = useRef(useContext(AlertaContext)).current;
+  const { sucesso, error } = useContext(SistemaContext);
 
   const datasExcluidas = eventos ? eventos.filter((e) => e.excluida) : [];
 
@@ -47,11 +47,8 @@ export default function TextoCalendario({ aoMudar, eventos }) {
 
     setSalvando(true);
     aoMudar(eventoClicado)
-      .then(
-        (strSucesso) =>
-          strSucesso && alerta.adicionaAlerta(undefined, strSucesso)
-      )
-      .catch((err) => alerta.adicionaAlerta(err))
+      .then((msg) => msg && sucesso(msg))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => setSalvando(false));
   }
 

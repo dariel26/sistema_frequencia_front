@@ -1,6 +1,7 @@
 import { useContext, useRef, useState } from "react";
 import { Button, Col, Form, Row, Spinner, ToggleButton } from "react-bootstrap";
-import { AlertaContext } from "../../../filters/alerta/Alerta";
+import { SistemaContext } from "../../../contexts";
+import { errors } from "../../../utils";
 
 export default function CoordenadorEdicao({
   coordenador,
@@ -15,7 +16,7 @@ export default function CoordenadorEdicao({
   );
   const [salvando, setSalvando] = useState(false);
 
-  const alerta = useRef(useContext(AlertaContext)).current;
+  const { error } = useRef(useContext(SistemaContext)).current;
 
   const houveMudanca =
     trocarSenha ||
@@ -37,7 +38,7 @@ export default function CoordenadorEdicao({
     setSalvando(true);
     aoSalvar(novosDados)
       .then(() => setCoordenadorEmEdicao({}))
-      .catch((err) => alerta.adicionaAlerta(err))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => {
         setSalvando(false);
       });

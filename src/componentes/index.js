@@ -24,6 +24,11 @@ import IntervaloInput from "./inputs/IntervaloInput";
 import NumeroInput from "./inputs/NumeroInput";
 import ModalConcorda from "./modals/ModalConcorda";
 import ModalCarregando from "./modals/ModalCarregando";
+import CardRadios from "./cards/CardRadios";
+import { CardRadiosBarraFixa } from "./cards/CardRadios";
+import { CardSimplesBarraFixa } from "./cards/CardSimples";
+import AlertaToast from "./toasts/AlertaToast";
+import TextoCalendario from "./calendario/TextoCalendario";
 
 export {
   BotaoDrop,
@@ -53,4 +58,9 @@ export {
   NumeroInput,
   ModalConcorda,
   ModalCarregando,
+  CardRadios,
+  CardRadiosBarraFixa,
+  CardSimplesBarraFixa,
+  AlertaToast,
+  TextoCalendario,
 };

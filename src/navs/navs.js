@@ -1,12 +1,11 @@
 import { FaUsers } from "react-icons/fa";
 import { MdManageAccounts } from "react-icons/md";
 import { IoIosCreate } from "react-icons/io";
-import { FaMapMarkedAlt } from "react-icons/fa";
+import { FaMapMarkedAlt, FaClipboardCheck } from "react-icons/fa";
 import {
   BsFillCalendarWeekFill,
   BsFileEarmarkSpreadsheetFill,
 } from "react-icons/bs";
-import { HiClipboardDocumentCheck } from "react-icons/hi2";
 
 import links from "../links";
 
@@ -32,6 +31,11 @@ const adminPreceptorCoordenador = [
     icon: <IoIosCreate size={18} />,
   },
   {
+    path: links.gerirPresenca,
+    name: "Gerir Presenças",
+    icon: <FaClipboardCheck size={18} />,
+  },
+  {
     path: links.relatorio,
     name: "Relatório",
     icon: <BsFileEarmarkSpreadsheetFill size={18} />,
@@ -42,7 +46,7 @@ const alunos = [
   {
     path: links.presencas,
     name: "Presenças",
-    icon: <HiClipboardDocumentCheck size={18} />,
+    icon: <FaClipboardCheck size={18} />,
   },
 ];
 

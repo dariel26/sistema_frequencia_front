@@ -16,8 +16,9 @@ import Planejamento, {
 import Local from "../views/Local";
 import Cronograma from "../views/Cronograma/Cronograma";
 import Relatorio from "../views/Relatorio";
-import FiltroUsuario from "../filters/Usuario";
+import { UsuarioProvider } from "../contexts";
 import Presencas from "../views/presenca/Presencas";
+import GerirPresencas from "../views/gerir_presenca/GerirPresencas";
 
 function Router() {
   return (
@@ -28,9 +29,9 @@ function Router() {
         <Route
           path={links.sistemaFrequencia}
           element={
-            <FiltroUsuario>
+            <UsuarioProvider>
               <Home />
-            </FiltroUsuario>
+            </UsuarioProvider>
           }
         >
           <Route path={links.usuarios} element={<Usuarios />}>
@@ -48,6 +49,8 @@ function Router() {
             <Route path={links.atividades} element={<Atividades />} />
             <Route index element={<Navigate to={links.grupos} />} />
           </Route>
+
+          <Route path={links.gerirPresenca} element={<GerirPresencas />} />
 
           <Route path={links.conta} element={<MinhaConta />} />
           <Route path={links.locais} element={<Local />} />

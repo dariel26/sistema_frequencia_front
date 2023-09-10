@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Dropdown, Spinner } from "react-bootstrap";
 import { Typeahead } from "react-bootstrap-typeahead";
-import { gerarChaveUnica } from "../../utils";
+import uuid from "react-uuid";
 
 export default function FormSelecao({
   titulo,
@@ -61,7 +61,7 @@ export default function FormSelecao({
           <Dropdown.Menu>
             {opcoesDrop.map((opcao) => (
               <Dropdown.Item
-                key={gerarChaveUnica()}
+                key={uuid()}
                 as="button"
                 onClick={(e) => aoClicar(e, opcao)}
               >

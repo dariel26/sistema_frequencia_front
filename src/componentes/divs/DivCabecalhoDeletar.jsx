@@ -1,6 +1,7 @@
-import { useContext, useRef, useState } from "react";
+import { useContext, useState } from "react";
 import { Spinner } from "react-bootstrap";
-import { AlertaContext } from "../../filters/alerta/Alerta";
+import { SistemaContext } from "../../contexts";
+import { errors } from "../../utils";
 
 export default function DivCabecalhoDeletar({
   titulo,
@@ -11,21 +12,19 @@ export default function DivCabecalhoDeletar({
 }) {
   const [salvando, setSalvando] = useState(false);
 
-  const alerta = useRef(useContext(AlertaContext)).current;
+  const { sucesso, error } = useContext(SistemaContext);
 
   const aoClicar = () => {
     if (salvando) return;
     setSalvando(true);
     aoDeletar()
-      .then(
-        (strSucesso) =>
-          strSucesso && alerta.adicionaAlerta(undefined, strSucesso)
-      )
-      .catch((err) => alerta.adicionaAlerta(err))
+      .then((msg) => msg && sucesso(msg))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => {
         setSalvando(false);
       });
   };
+
   return (
     <div className={className ?? "border-bottom border-4 border-primary"}>
       <div className="d-flex align-items-center justify-content-between">

@@ -1,6 +1,4 @@
-import { useContext, useRef } from "react";
-import { useState } from "react";
-import { useEffect } from "react";
+import { useContext, useRef, useState, useEffect } from "react";
 import {
   Button,
   Col,
@@ -9,33 +7,32 @@ import {
   Table,
   Tooltip,
 } from "react-bootstrap";
-import CardRadios from "../components/cards/CardRadios";
-import { AlertaContext } from "../filters/alerta/Alerta";
-import { UsuarioContext } from "../filters/Usuario";
+import { UsuarioContext, SistemaContext } from "../contexts";
 import apiSFE from "../service/api";
-import { formatarDataDM } from "../utils";
 import {
   agruparDatasPorMes,
   amdEmData,
+  dataEmDm,
   encontrarMinEMaxDatas,
   obterPeriodoDoDia,
   periodos,
   todasAsDatasNoIntervalo,
-} from "../utils/datas";
-import gerarChaveUnica from "../utils/indexAleatorio";
+  errors,
+  gerarArquivoXLSX,
+} from "../utils";
 import { FaFileDownload } from "react-icons/fa";
-import { gerarArquivoXLSX } from "../utils/xlsx";
-import { SistemaContext } from "../filters/sistema/Sistema";
+import { CardRadios } from "../componentes";
+import uuid from "react-uuid";
+import { presencaEstados } from "./gerir_presenca/GerirPresencas";
 
 export default function Relatorio() {
   const [grupos, setGrupos] = useState([]);
   const [alunos, setAlunos] = useState([]);
   const [indexTabela, setIndexTabela] = useState(0);
 
-  const { carregando } = useRef(useContext(SistemaContext)).current;
+  const { carregando, error } = useRef(useContext(SistemaContext)).current;
   const usuario = useContext(UsuarioContext);
   const token = usuario.token;
-  const alerta = useRef(useContext(AlertaContext)).current;
 
   const nenhumDadoAMostrar =
     grupos.length === 0 ||
@@ -55,7 +52,7 @@ export default function Relatorio() {
   const datasPorMes = agruparDatasPorMes(todasDatas);
 
   const cabecalhosTabelas = datasPorMes.map((datasNoMes) =>
-    ["Datas", " "].concat(datasNoMes.map((data) => formatarDataDM(data)))
+    ["Datas", " "].concat(datasNoMes.map((data) => dataEmDm(data)))
   );
 
   const corposTabelas = [];
@@ -72,7 +69,7 @@ export default function Relatorio() {
           .find((a) => a.id_usuario === aluno.id_usuario)
           ?.datas?.map(
             ({ data, hora_inicial, hora_final, estado, excluida }) => ({
-              dataDM: formatarDataDM(amdEmData(data)),
+              dataDM: dataEmDm(amdEmData(data)),
               hora_inicial,
               hora_final,
               estado,
@@ -101,7 +98,8 @@ export default function Relatorio() {
                 linhaManha.push(
                   dataDMAluno.excluida
                     ? "livre"
-                    : dataDMAluno.estado === "CRIADA"
+                    : dataDMAluno.estado === presencaEstados.CRIADA ||
+                      dataDMAluno.estado === presencaEstados.REJEITADA
                     ? 0
                     : 1
                 );
@@ -110,7 +108,8 @@ export default function Relatorio() {
                 linhaTarde.push(
                   dataDMAluno.excluida
                     ? "livre"
-                    : dataDMAluno.estado === "CRIADA"
+                    : dataDMAluno.estado === presencaEstados.CRIADA ||
+                      dataDMAluno.estado === presencaEstados.REJEITADA
                     ? 0
                     : 1
                 );
@@ -119,7 +118,8 @@ export default function Relatorio() {
                 linhaNoite.push(
                   dataDMAluno.excluida
                     ? "livre"
-                    : dataDMAluno.estado === "CRIADA"
+                    : dataDMAluno.estado === presencaEstados.CRIADA ||
+                      dataDMAluno.estado === presencaEstados.REJEITADA
                     ? 0
                     : 1
                 );
@@ -179,9 +179,9 @@ export default function Relatorio() {
         setGrupos(res[0].data);
         setAlunos(res[1].data);
       })
-      .catch((err) => alerta.adicionaAlerta(err))
+      .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => carregando(false));
-  }, [token, alerta, carregando]);
+  }, [token, error, carregando]);
 
   const aoMudarRadio = (radioIndex) => {
     setIndexTabela(radios[radioIndex].indexCabecalho);
@@ -227,7 +227,7 @@ export default function Relatorio() {
                 <tr>
                   {cabecalhosTabelas[indexTabela]?.map((dado, index) => (
                     <th
-                      key={gerarChaveUnica()}
+                      key={uuid()}
                       style={estiloStickyTd(index)}
                       className="bg-white text-center"
                     >
@@ -241,11 +241,11 @@ export default function Relatorio() {
                   const segundoElem = linha[1];
                   if (typeof segundoElem === typeof String()) {
                     return (
-                      <tr key={gerarChaveUnica()}>
+                      <tr key={uuid()}>
                         {linha?.map((str, index) => (
                           <td
                             className="text-nowrap fw-bold bg-primary text-light"
-                            key={gerarChaveUnica()}
+                            key={uuid()}
                             style={estiloStickyTd(index)}
                           >
                             {str}
@@ -257,16 +257,16 @@ export default function Relatorio() {
                     return linha?.map((dado) => {
                       const blString = typeof dado === typeof String();
                       return blString ? (
-                        <tr key={gerarChaveUnica()}>
+                        <tr key={uuid()}>
                           <td rowSpan={4} style={estiloStickyTd(0)}>
                             {dado}
                           </td>
                         </tr>
                       ) : (
                         dado.map((linha) => (
-                          <tr key={gerarChaveUnica()} className="text-center">
+                          <tr key={uuid()} className="text-center">
                             {linha?.map((str) => (
-                              <td key={gerarChaveUnica()}>{str}</td>
+                              <td key={uuid()}>{str}</td>
                             ))}
                           </tr>
                         ))
