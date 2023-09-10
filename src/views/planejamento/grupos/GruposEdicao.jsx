@@ -140,11 +140,22 @@ export default function GruposEdicao({ atualizarGrupos }) {
             nome_grupo: a.nome_grupo ?? "-",
           }))}
           camposCabecalho={[
+            { texto: "#", visivel: alunosSelecionados.length > 0 },
             { texto: "Nome aluno", visivel: true },
             { texto: "Grupo alocado", visivel: true },
             { texto: "Selecionar", visivel: true },
           ]}
           camposDados={[
+            {
+              funcaoComponente: (aluno) => {
+                const indexAluno =
+                  alunosSelecionados.findIndex(
+                    (a) => a.id_usuario === aluno.id_usuario
+                  ) + 1;
+                return indexAluno !== 0 ? indexAluno.toString() : "";
+              },
+              visivel: alunosSelecionados.length > 0,
+            },
             { texto: "nome", visivel: true },
             { texto: "nome_grupo", visivel: true },
             {
