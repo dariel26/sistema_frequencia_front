@@ -16,8 +16,18 @@ import {
   comparaObjComDataInicial,
   diferencaAbsEmHoras,
   horarioEmData,
+  separaDatasEmSemanas,
+  DOMINGO,
+  SEGUNDA,
+  TERCA,
+  QUARTA,
+  QUINTA,
+  SEXTA,
+  SABADO,
+  sortDatas,
 } from "./datas";
 import { gerarArquivoXLSX } from "./xlsx";
+import { extenderArray, moverParaPrimeiraPosicao } from "./arrays";
 
 export {
   errors,
@@ -38,4 +48,15 @@ export {
   diferencaAbsEmHoras,
   horarioEmData,
   gerarArquivoXLSX,
+  separaDatasEmSemanas,
+  DOMINGO,
+  SEGUNDA,
+  TERCA,
+  QUARTA,
+  QUINTA,
+  SEXTA,
+  SABADO,
+  sortDatas,
+  extenderArray,
+  moverParaPrimeiraPosicao,
 };

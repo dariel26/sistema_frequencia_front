@@ -1,6 +1,5 @@
 import { useContext, useRef, useEffect, useState } from "react";
 import apiSFE from "../../../service/api";
-import uuid from "react-uuid";
 import { CardAtividade, InputBotao } from "../../../componentes";
 import { UsuarioContext, SistemaContext } from "../../../contexts";
 import { amdEmData, errors } from "../../../utils";
@@ -83,7 +82,7 @@ export default function Atividades() {
       })
       .catch((err) => error(errors.filtraMensagem(err)))
       .finally(() => carregando(false));
-  }, [token, error, carregando]);
+  }, [token, carregando, error]);
 
   const aoAlocarAtividade = async (id_estagio, nome) => {
     try {
@@ -92,7 +91,16 @@ export default function Atividades() {
       ).data;
       const estagiosAtualizados = (await apiSFE.listarEstagios(token)).data;
       setAtividades(novasAtividades);
-      setEstagios(estagiosAtualizados);
+      setEstagios(
+        estagiosAtualizados.map((e) => ({
+          ...e,
+          grupos: e.grupos.map((g) => ({
+            ...g,
+            data_inicial: amdEmData(g.data_inicial),
+            data_final: amdEmData(g.data_final),
+          })),
+        }))
+      );
     } catch (err) {
       throw err;
     }
@@ -120,54 +128,6 @@ export default function Atividades() {
     }
   };
 
-  const aoAlocarPreceptor = async ({ id_usuario, id_atividade }) => {
-    try {
-      await apiSFE.adicionarPreceptoresAAtividades(token, [
-        { id_usuario, id_atividade },
-      ]);
-    } catch (err) {
-      throw err;
-    }
-  };
-
-  const aoAlocarLocal = async ({ id_local, id_atividade }) => {
-    try {
-      await apiSFE.adicionarLocaisAAtividades(token, [
-        { id_local, id_atividade },
-      ]);
-    } catch (err) {
-      throw err;
-    }
-  };
-
-  const aoAdicionarDatas = async ({ datas, id_atividade }) => {
-    try {
-      await apiSFE.adicionarDatasAAtividade(token, datas, id_atividade);
-      const atividadesAtualizadas = await apiSFE.listarAtividades(token);
-      return atividadesAtualizadas.data.find(
-        (a) => a.id_atividade === id_atividade
-      );
-    } catch (err) {
-      throw err;
-    }
-  };
-
-  const aoEditarAtividade = async (dado) => {
-    try {
-      return await apiSFE.editarAtividades(token, dado);
-    } catch (err) {
-      throw err;
-    }
-  };
-
-  const aoEditarDataDeAtividade = async (dado) => {
-    try {
-      await apiSFE.editarDatasDeAtividade(token, [dado]);
-    } catch (err) {
-      throw err;
-    }
-  };
-
   const totalAlunosEstagio = (estagio) => {
     let maiorNumero = 0;
     estagio.grupos.forEach((g) => {
@@ -182,7 +142,7 @@ export default function Atividades() {
       {gruposDeEstagios?.map((estagio) => (
         <div
           className="row w-100 m-0 p-0 justify-content-center mb-4"
-          key={uuid()}
+          key={estagio.id_estagio ?? -1}
         >
           <div className="col-sm-12 col-xl-8 mb-1">
             <span className="fs-5 fw-bold">{estagio.nome_estagio}</span>
@@ -193,26 +153,19 @@ export default function Atividades() {
             </span>
           </div>
           {estagio.atividades.map((atividade) => (
-            <div className="col-sm-12 col-xl-8 mb-2" key={uuid()}>
+            <div
+              className="col-sm-12 col-xl-8 mb-2"
+              key={atividade.id_atividade}
+            >
               <div className="ms-1">
                 <CardAtividade
-                  key={uuid()}
-                  atividade={atividades.find(
-                    (a) => a.id_atividade === atividade.id_atividade
-                  )}
-                  dataInicial={dataInicialSemestre}
-                  dataFinal={dataFinalSemestre}
+                  atividade={atividade}
                   preceptores={preceptores}
                   coordenadores={coordenadores}
                   locais={locais}
-                  aoAlocarPreceptor={aoAlocarPreceptor}
-                  aoAlocarLocal={aoAlocarLocal}
                   aoDeletarAtividade={aoDeletarAtividade}
-                  aoAdicionarDatas={aoAdicionarDatas}
-                  aoEditarAtividade={aoEditarAtividade}
                   grupos={estagio.grupos}
                   numMaxDeAlunos={totalAlunosEstagio(estagio)}
-                  aoEditarDataDeAtividade={aoEditarDataDeAtividade}
                 />
               </div>
             </div>

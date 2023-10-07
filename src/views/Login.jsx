@@ -5,6 +5,7 @@ import apiSFE from "../service/api";
 import { Spinner } from "react-bootstrap";
 import { errors } from "../utils";
 import { SistemaContext } from "../contexts";
+import "./views.css";
 
 export default function Login(props) {
   const [login, setLogin] = useState("");
@@ -38,11 +39,8 @@ export default function Login(props) {
   }
 
   return (
-    <div
-      className="d-flex bg-light justify-content-center align-items-center"
-      style={{ height: "100vh", width: "100vw" }}
-    >
-      <div className="card" style={{ width: "18rem", height: "18rem" }}>
+    <div className="d-flex bg-light justify-content-center align-items-center dimensoes-tela">
+      <div className="card card-login">
         <div className="card-body">
           <h5 className="card-title">Faça Login</h5>
           <form>

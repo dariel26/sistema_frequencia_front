@@ -178,6 +178,10 @@ const apiSFE = {
       { novosDados },
       { headers: { token } }
     ),
+  deletarDatasDeAtividade: async (token, ids) =>
+    await api.delete("/api/v1/data-atividade/" + ids.join(", "), {
+      headers: { token },
+    }),
 
   //ALUNO-DATA-ATIVIDADE
   adicionarAlunoADataAtividade: async (token, dados) =>
@@ -185,6 +189,13 @@ const apiSFE = {
       "/api/v1/aluno-data-atividade",
       { dados },
       { headers: { token } }
+    ),
+  deletarAlunoDataAtividade: async (token, id_atividade) =>
+    await api.delete(
+      "/api/v1/aluno-data-atividade/"+id_atividade,
+      {
+        headers: { token },
+      }
     ),
   buscarPresencasPorAluno: async (token, id_aluno) =>
     await api.get("/api/v1/aluno-data-atividade/id_aluno/" + id_aluno, {

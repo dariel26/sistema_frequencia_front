@@ -2,6 +2,7 @@ import { useContext, useEffect, useState, useRef } from "react";
 import { Button, Form, InputGroup, Spinner } from "react-bootstrap";
 import { SistemaContext } from "../../contexts";
 import { errors } from "../../utils";
+import "./input.css";
 
 export default function HoraInput({ texto, size, larguraMaxima, aoMudar }) {
   const [valor, setValor] = useState("");
@@ -66,6 +67,7 @@ export default function HoraInput({ texto, size, larguraMaxima, aoMudar }) {
   ) : mudando ? (
     <InputGroup>
       <Form.Control
+        className="hora-input"
         ref={inputRef}
         onBlur={aoCancelar}
         size={size}
@@ -73,7 +75,6 @@ export default function HoraInput({ texto, size, larguraMaxima, aoMudar }) {
         value={valor ?? ""}
         onKeyUp={(e) => (e.key === "Enter" ? aoSubmeter(e) : undefined)}
         onChange={aoEscrever}
-        style={{ maxWidth: `${larguraMaxima}px` }}
       />
       <Button
         onClick={aoSubmeter}

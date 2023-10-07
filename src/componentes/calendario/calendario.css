@@ -1,3 +1,7 @@
-.fc .fc-toolbar-title{
-    font-size: 1.2em;
+.fc .fc-toolbar-title {
+  font-size: 1.2em;
+}
+
+.my-calendario {
+  height: 500px;
 }

@@ -1,3 +1,107 @@
+.dimensoes-externas {
+  height: 100vh;
+  width: 100vw;
+}
+
+.dimensoes-lateral {
+  width: 200px;
+  flex-shrink: 0;
+  transition: width 300ms;
+}
+
+.dimensoes-altura {
+  height: calc(100% - 50px);
+}
+
+.botao-inferior {
+  height: 50px;
+  border-radius: 0px;
+  border: none;
+}
+
+.botao-aberto {
+  width: calc(100% - 50px);
+  border: none;
+  transition: width 300ms;
+}
+.botao-fechado {
+  width: 0px;
+  border: none;
+  transition: width 300ms;
+}
+
+.icone-botao-aberto {
+  width: 50px;
+  transition: transform 300ms;
+}
+.icone-botao-fechado {
+  width: 50px;
+  transition: transform 300ms;
+  transform: rotateY(180deg);
+}
+
+.barra-fixa-aberta {
+  display: none;
+  width: 200px;
+  transform: translate(0px, 0px);
+  transition: transform 100ms;
+  z-index: 1090;
+  box-shadow: 2px 0px 20px var(--bs-menu-dark-dark);
+}
+.barra-fixa-fechada {
+  display: none;
+  width: 200px;
+  transform: translate(-200px, 0px);
+  transition: transform 100ms;
+  z-index: 1090;
+}
+
+.sombra-visivel {
+  display: flex;
+  z-index: 50;
+}
+
+.sombra-invisivel {
+  display: none;
+}
+
+.corpo-aberto {
+  width: calc(100% - 50px);
+  transition: width 300ms;
+}
+.corpo-fechado {
+  width: calc(100% - 50px);
+  transition: width 300ms;
+}
+
+.header-aberto {
+  height: 0px;
+  transition: height 300ms;
+  filter: brightness(50%);
+}
+.header-fechado {
+  height: 0px;
+  transition: height 300ms;
+}
+
+.top-close {
+  width: 50px;
+}
+.top-button {
+  width: calc(100% - 50px);
+}
+
+.link-nome {
+  width: calc(100% - 40px);
+}
+.link-icon {
+  width: 40px;
+}
+
+.bottom {
+  filter: brightness(50%);
+}
+
 @media screen and (max-width: 900px) {
   #my-left {
     width: 0px !important;

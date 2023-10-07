@@ -1,0 +1,64 @@
+.header {
+  height: 100px;
+}
+
+.header-pequeno {
+  height: 50px;
+  transition: height 300ms;
+}
+
+.header-grande {
+  height: 150px;
+  transition: height 300ms;
+}
+
+.image {
+  object-fit: scale-down;
+}
+
+.corpo {
+  height: calc(100vh - 100px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+.corpo-variavel {
+  height: calc(100vh - 150px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  transition: heigth 300ms;
+}
+
+.titulo {
+  height: 30px;
+  flex-shrink: 0;
+}
+.titulo-aberto {
+  height: 30px;
+  flex-shrink: 0;
+  transition: height 300ms;
+}
+.titulo-fechado {
+  height: 0px;
+  transition: height 300ms;
+}
+
+.navs {
+  height: 50px;
+  text-decoration: none;
+  flex-shrink: 0;
+}
+.navs-icon {
+  width: 50px;
+}
+.navs-fechada {
+  width: 0px;
+  transition: width 300ms;
+}
+.navs-aberta {
+  width: calc(100% - 50px);
+  transition: width 300ms;
+}
+
+.footer{
+  height: max-content;
+}

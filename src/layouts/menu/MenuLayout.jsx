@@ -36,14 +36,11 @@ export default function MenuLayout(props) {
   }, [handleClickOutside]);
 
   const handleCloseLeftMenu = () => {
-    const right = document.getElementById("my-right");
     const left = document.getElementById("my-left");
     if (isClosed) {
       left.style.width = "200px";
-      right.style.width = "calc(100% - 200px)";
     } else {
       left.style.width = "50px";
-      right.style.width = "calc(100% - 50px)";
     }
     setIsClosed(!isClosed);
   };
@@ -82,10 +79,9 @@ export default function MenuLayout(props) {
 
   const CustomToggle = React.forwardRef(({ children, onClick }, ref) => (
     <button
-      className="btn pe-1"
+      className="btn pe-1 border-0"
       type="button"
       ref={ref}
-      style={{ border: "none" }}
       onClick={(e) => {
         e.preventDefault();
         onClick(e);
@@ -96,82 +92,48 @@ export default function MenuLayout(props) {
   ));
 
   return (
-    <div
-      className="d-flex bg-light"
-      style={{ height: "100vh", width: "100vw" }}
-    >
+    <div className="d-flex bg-light dimensoes-externas">
       <div
-        className="d-flex flex-column bg-menu-primary h-100"
+        className="d-flex flex-column bg-menu-primary h-100 dimensoes-lateral"
         id="my-left"
-        style={{ width: "200px", flexShrink: 0, transition: "width 300ms" }}
       >
-        <div className="d-flex w-100" style={{ height: "calc(100% - 50px)" }}>
+        <div className="d-flex w-100 dimensoes-altura">
           <Menu actions={props.actions} isClosed={isClosed} navs={props.navs} />
         </div>
         <button
-          className="btn btn-menu-dark-dark d-flex w-100 p-0"
-          style={{ height: "50px", borderRadius: "0px", border: "none" }}
+          className="btn btn-menu-dark-dark d-flex w-100 p-0 botao-inferior rounded-0"
           onClick={handleCloseLeftMenu}
         >
           <div
-            className="btn p-0 d-flex h-100 justify-content-center align-items-center"
+            className={`btn p-0 d-flex h-100 justify-content-center align-items-center ${
+              isClosed ? "botao-fechado" : "botao-aberto"
+            }`}
             id="my-left-close"
-            style={
-              isClosed
-                ? { width: "0px", border: "none", transition: "width 300ms" }
-                : {
-                    width: "calc(100% - 50px)",
-                    border: "none",
-                    transition: "width 300ms",
-                  }
-            }
           >
             <span
-              style={isClosed ? { display: "none" } : {}}
-              className="text-light fw-bold text-nowrap"
+              className={`text-light fw-bold text-nowrap ${
+                isClosed ? "d-none" : ""
+              }`}
             >
               Fechar Menu
             </span>
           </div>
           <div
-            className="d-flex h-100 text-light justify-content-center align-items-center"
+            className={`d-flex h-100 text-light justify-content-center align-items-center ${
+              isClosed ? "icone-botao-fechado" : "icone-botao-aberto"
+            }`}
             id="my-left-icon"
-            style={
-              isClosed
-                ? {
-                    width: "50px",
-                    transition: "transform 300ms",
-                    transform: "rotateY(180deg)",
-                  }
-                : { width: "50px", transition: "transform 300ms" }
-            }
           >
             <FaAngleDoubleLeft size={20} />
           </div>
         </button>
       </div>
       <div
-        className="position-fixed h-100 bg-menu-dark row m-0"
+        className={`position-fixed h-100 bg-menu-dark row m-0 ${
+          isClosedFixed ? "barra-fixa-fechada" : "barra-fixa-aberta"
+        }`}
         ref={wrapperRef}
         id="my-fixed-left"
-        style={
-          isClosedFixed
-            ? {
-                display: "none",
-                width: "200px",
-                transform: "translate(-200px, 0px)",
-                transition: "transform 100ms",
-                zIndex: 1090,
-              }
-            : {
-                display: "none",
-                width: "200px",
-                transform: "translate(0px, 0px)",
-                transition: "transform 100ms",
-                zIndex: 1090,
-                boxShadow: "2px 0px 20px var(--bs-menu-dark-dark)",
-              }
-        }
       >
         <div className="col-12 p-0">
           <FixedMenu
@@ -192,43 +154,32 @@ export default function MenuLayout(props) {
         />
       </div>
       <div
-        className="h-100 w-100 position-absolute"
-        style={
-          isClosedFixed
-            ? { display: "none" }
-            : { display: "flex", zIndex: "50" }
-        }
+        className={`h-100 w-100 position-absolute ${
+          isClosedFixed ? "sombra-invisivel" : "sombra-visivel"
+        }`}
       />
       <div
-        className="d-flex flex-column h-100"
+        className={`d-flex flex-column h-100 ${
+          isClosed ? "corpo-fechado" : "corpo-aberto"
+        }`}
         id="my-right"
-        style={{ width: "calc(100% - 200px)", transition: "width 300ms" }}
       >
         <div
-          className="d-flex bg-menu-primary w-100 border-bottom"
+          className={`d-flex bg-menu-primary w-100 border-bottom ${
+            isClosedFixed ? "header-fechado" : "header-aberto"
+          }`}
           id="my-top"
-          style={
-            isClosedFixed
-              ? { height: "0px", transition: "height 300ms" }
-              : {
-                  height: "0px",
-                  transition: "height 300ms",
-                  filter: "brightness(50%)",
-                }
-          }
         >
           <button
-            className="btn p-0 h-100 text-dark justify-content-center align-items-center"
+            className="btn p-0 h-100 text-dark justify-content-center align-items-center border-0 d-none top-close"
             id="my-top-close"
-            style={{ display: "none", width: "50px", border: "none" }}
             onClick={handleOpenFixedMenu}
           >
             <IoMenu size={29} className="text-light" />
           </button>
           <div
-            className="justify-content-end h-100 align-items-center pe-2"
+            className="justify-content-end h-100 align-items-center pe-2 top-button d-none"
             id="my-top-button"
-            style={{ display: "none", width: "calc(100% - 50px)" }}
           >
             {props.actions ? (
               <Dropdown>
@@ -243,16 +194,10 @@ export default function MenuLayout(props) {
                       onClick={action.onClick}
                       className="d-flex align-items-center bg-menu-dark-dark text-light"
                     >
-                      <div
-                        className="d-flex h-100"
-                        style={{ width: "calc(100% - 40px)" }}
-                      >
+                      <div className="d-flex h-100 link-nome">
                         {action.name}
                       </div>
-                      <div
-                        className="d-flex justify-content-center align-items-center h-100"
-                        style={{ width: "40px" }}
-                      >
+                      <div className="d-flex justify-content-center align-items-center h-100 link-icon">
                         {action.icon}
                       </div>
                     </Dropdown.Item>
@@ -263,9 +208,10 @@ export default function MenuLayout(props) {
           </div>
         </div>
         <div
-          className="d-flex w-100 h-100 bg-light"
+          className={`d-flex w-100 h-100 bg-light ${
+            isClosedFixed ? "" : "bottom"
+          }`}
           id="my-bottom"
-          style={isClosedFixed ? {} : { filter: "brightness(50%)" }}
         >
           <Outlet />
         </div>

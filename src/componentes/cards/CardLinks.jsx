@@ -9,10 +9,7 @@ export const idComponenteEscrol = "componente-scroll";
 export default function CardLinks({ children, navs }) {
   return (
     <Card className="rounded-0 border-0 w-100 h-100">
-      <Card.Header
-        className="text-nowrap overflow-auto p-2 d-flex align-items-center"
-        style={{ height: "57px" }}
-      >
+      <Card.Header className="text-nowrap overflow-auto p-2 d-flex align-items-center my-card-header">
         {navs.map(({ valor, texto }) => (
           <NavLink
             to={valor}
@@ -31,14 +28,13 @@ export default function CardLinks({ children, navs }) {
           </NavLink>
         ))}
       </Card.Header>
-      <Card.Body style={{ height: "calc(100% - 57px)" }}>
+      <Card.Body className="my-card-body">
         <div
           id={idComponenteEscrol}
-          className="d-flex flex-column h-100"
-          style={{ overflowY: "auto" }}
+          className="d-flex flex-column h-100 my-overflow-y"
         >
           {children}
-          <div className="col-12 w-100" style={{ height: "300px" }} />
+          <div className="col-12 w-100 my-card-margin" />
         </div>
       </Card.Body>
     </Card>

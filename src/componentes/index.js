@@ -10,9 +10,6 @@ import CheckDias from "./inputs/CheckDias";
 import CheckPadrao from "./inputs/CheckPadrao";
 import InputBotao from "./inputs/InputBotao";
 import InputChave from "./inputs/InputChave";
-import InputHora from "./inputs/InputHora";
-import InputIntervalo from "./inputs/InputIntervalo";
-import InputNumero from "./inputs/InputNumero";
 import InputSelecao from "./inputs/InputSelecao";
 import Mapa from "./mapa/Mapa";
 import TabelaPadrao from "./tabelas/TabelaPadrao";
@@ -24,11 +21,11 @@ import IntervaloInput from "./inputs/IntervaloInput";
 import NumeroInput from "./inputs/NumeroInput";
 import ModalConcorda from "./modals/ModalConcorda";
 import ModalCarregando from "./modals/ModalCarregando";
+import ModalConfirma from "./modals/ModalConfirma";
 import CardRadios from "./cards/CardRadios";
 import { CardRadiosBarraFixa } from "./cards/CardRadios";
 import { CardSimplesBarraFixa } from "./cards/CardSimples";
 import AlertaToast from "./toasts/AlertaToast";
-import TextoCalendario from "./calendario/TextoCalendario";
 
 export {
   BotaoDrop,
@@ -44,9 +41,6 @@ export {
   CheckPadrao,
   InputBotao,
   InputChave,
-  InputHora,
-  InputIntervalo,
-  InputNumero,
   InputSelecao,
   Mapa,
   TabelaPadrao,
@@ -62,5 +56,5 @@ export {
   CardRadiosBarraFixa,
   CardSimplesBarraFixa,
   AlertaToast,
-  TextoCalendario,
+  ModalConfirma,
 };

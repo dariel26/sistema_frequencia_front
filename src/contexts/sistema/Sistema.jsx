@@ -1,10 +1,16 @@
 import { createContext, useState } from "react";
-import { AlertaToast, ModalCarregando, ModalConcorda } from "../../componentes";
+import {
+  AlertaToast,
+  ModalCarregando,
+  ModalConcorda,
+  ModalConfirma,
+} from "../../componentes";
 import uuid from "react-uuid";
 
 export const SistemaContext = createContext({
   concorda: (mensagem) => {},
   carregando: (estado) => {},
+  confirma: async (mensagem) => {},
   sucesso: (msg) => {},
   error: (msg) => {},
   aviso: (msg) => {},
@@ -18,6 +24,7 @@ export default function SistemaProvider(props) {
   const [mensagem, setMensagem] = useState("");
   const [mostrarModalConcorda, setMostrarModalConcorda] = useState(false);
   const [mostrarModalCarregando, setMostrarModalCarregando] = useState(false);
+  const [mostrarModalConfirma, setMostrarModalConfirma] = useState(false);
   const [alertas, setAlertas] = useState([]);
 
   function concorda(mensagem) {
@@ -30,6 +37,18 @@ export default function SistemaProvider(props) {
       setMensagem("");
       setMostrarModalConcorda(false);
     });
+  }
+
+  async function confirma(mensagem) {
+    setMostrarModalConfirma(true);
+    setMensagem(mensagem);
+
+    const res = await new Promise((resolve) => {
+      setResAviso(() => resolve);
+    });
+    setMensagem("");
+    setMostrarModalConfirma(false);
+    return res;
   }
 
   function carregando(estado) {
@@ -60,6 +79,7 @@ export default function SistemaProvider(props) {
       value={{
         concorda,
         carregando,
+        confirma,
         alertas,
         sucesso: (msg) => adicionaAlerta(msg, "success"),
         aviso: (msg) => adicionaAlerta(msg, "warning"),
@@ -69,6 +89,11 @@ export default function SistemaProvider(props) {
       <AlertaToast />
       <ModalConcorda
         show={mostrarModalConcorda}
+        resAviso={resAviso}
+        mensagem={mensagem}
+      />
+      <ModalConfirma
+        show={mostrarModalConfirma}
         resAviso={resAviso}
         mensagem={mensagem}
       />

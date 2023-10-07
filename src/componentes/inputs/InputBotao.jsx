@@ -2,6 +2,7 @@ import { useContext, useState } from "react";
 import { Spinner } from "react-bootstrap"; //TODO componentizar
 import { SistemaContext } from "../../contexts";
 import { errors } from "../../utils";
+import "./input.css";
 
 export default function InputBotao({
   textoReferencia,
@@ -37,8 +38,7 @@ export default function InputBotao({
 
   return (
     <div
-      className={"input-group z-0 " + className}
-      style={{ height: `${altura}px`, maxWidth: `${maximaLargura}px` }}
+      className={"input-group z-0 input-botao " + className}
     >
       <input
         className="form-control"

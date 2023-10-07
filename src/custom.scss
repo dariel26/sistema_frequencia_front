@@ -1,13 +1,13 @@
-$primary: #376D49;
-$secondary: #AFB6C0;
-$light: #F1F8F4;
-$dark: #0E1B11;
+$primary: #376d49;
+$secondary: #afb6c0;
+$light: #f1f8f4;
+$dark: #0e1b11;
 $success: #137547;
-$danger: #EF5B5B;
-$warning: #FFBA49;
+$danger: #ef5b5b;
+$warning: #ffba49;
 $success-text: #062315;
-$danger-text: #4A0808;
-$warning-text: #3D2600;
+$danger-text: #4a0808;
+$warning-text: #3d2600;
 $box-shadow-sm: 0px 4px 4px -1px rgba($dark, 0.075);
 
 @import "~bootstrap/scss/functions";
@@ -15,12 +15,12 @@ $box-shadow-sm: 0px 4px 4px -1px rgba($dark, 0.075);
 @import "~bootstrap/scss/mixins";
 
 $menu-theme-colors: (
-  "menu-dark-dark": #1A2223,
-  "menu-dark": #232D2F,
-  "menu-dark-light": #2C383A,
-  "menu-light": #718F94,
+  "menu-dark-dark": #1a2223,
+  "menu-dark": #232d2f,
+  "menu-dark-light": #2c383a,
+  "menu-light": #718f94,
   "menu-primary": $primary,
-  "menu-active": #E6AF2E,
+  "menu-active": #e6af2e,
 );
 
 $custom-theme-colors: (

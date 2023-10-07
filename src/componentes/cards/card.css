@@ -1,0 +1,19 @@
+.my-card-header {
+  height: 57px;
+}
+.my-card-body {
+  height: calc(100% - 57px);
+}
+.my-card-margin {
+  height: 300px;
+}
+.my-card-title {
+  height: 40px;
+}
+.my-card-content {
+  height: calc(100% - 40px);
+  overflow: auto;
+}
+.my-overflow-y {
+  overflow-y: auto;
+}

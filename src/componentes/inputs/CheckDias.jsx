@@ -1,44 +1,43 @@
 import { useEffect, useState } from "react";
 import { Spinner } from "react-bootstrap";
+import {
+  DOMINGO,
+  QUARTA,
+  QUINTA,
+  SABADO,
+  SEGUNDA,
+  SEXTA,
+  TERCA,
+} from "../../utils";
 
-const segunda = 1;
-const terca = 2;
-const quarta = 3;
-const quinta = 4;
-const sexta = 5;
-const sabado = 6;
-const domingo = 0;
-
-export default function CheckDias({ dias = {}, aoMudar, id, desabilitado }) {
-  const [diasSelecionados, setDiasSelecionados] = useState({
-    segunda: false,
-    terca: false,
-    quarta: false,
-    quinta: false,
-    sexta: false,
-    sabado: false,
-    domingo: false,
-  });
+export default function CheckDias({
+  dias,
+  aoMudar,
+  id,
+  desabilitado,
+  assincrono = true,
+}) {
+  const [diasSelecionados, setDiasSelecionados] = useState([]);
   const [salvando, setSalvando] = useState(false);
 
   useEffect(() => {
-    if (dias.segunda === undefined) return;
-    setDiasSelecionados(dias);
+    setDiasSelecionados(dias ?? []);
   }, [dias]);
 
-  const aoSelecionar = (valor, selecionado) => {
-    let dado = {};
-    if (valor === 0) dado.domingo = selecionado;
-    else if (valor === 1) dado.segunda = selecionado;
-    else if (valor === 2) dado.terca = selecionado;
-    else if (valor === 3) dado.quarta = selecionado;
-    else if (valor === 4) dado.quinta = selecionado;
-    else if (valor === 5) dado.sexta = selecionado;
-    else if (valor === 6) dado.sabado = selecionado;
+  const aoSelecionar = (valor) => {
+    let dadosAtuais = [...diasSelecionados];
+    if (dadosAtuais.includes(valor))
+      dadosAtuais = dadosAtuais.filter((d) => d !== valor);
+    else dadosAtuais.push(valor);
+
+    if (!assincrono) {
+      aoMudar(dadosAtuais);
+      return setDiasSelecionados(dadosAtuais);
+    }
 
     setSalvando(true);
-    aoMudar(dado).finally(() => setSalvando(false));
-    setDiasSelecionados(Object.assign(dias, dado));
+    aoMudar(dadosAtuais).finally(() => setSalvando(false));
+    setDiasSelecionados(dadosAtuais);
   };
 
   const MeuSpinner = () => {
@@ -63,11 +62,23 @@ export default function CheckDias({ dias = {}, aoMudar, id, desabilitado }) {
       <input
         type="checkbox"
         className="btn-check"
+        id={"domingo" + id}
+        autoComplete="off"
+        disabled={desabilitado || salvando}
+        checked={diasSelecionados.includes(DOMINGO)}
+        onChange={(e) => aoSelecionar(DOMINGO, e.target.checked)}
+      />
+      <label className="btn btn-outline-primary" htmlFor={"domingo" + id}>
+        Domingo
+      </label>
+      <input
+        type="checkbox"
+        className="btn-check"
         id={"segunda" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.segunda ?? false}
-        onChange={(e) => aoSelecionar(segunda, e.target.checked)}
+        checked={diasSelecionados.includes(SEGUNDA)}
+        onChange={(e) => aoSelecionar(SEGUNDA, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"segunda" + id}>
         Segunda
@@ -78,8 +89,8 @@ export default function CheckDias({ dias = {}, aoMudar, id, desabilitado }) {
         id={"terca" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.terca ?? false}
-        onChange={(e) => aoSelecionar(terca, e.target.checked)}
+        checked={diasSelecionados.includes(TERCA)}
+        onChange={(e) => aoSelecionar(TERCA, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"terca" + id}>
         Terca
@@ -90,8 +101,8 @@ export default function CheckDias({ dias = {}, aoMudar, id, desabilitado }) {
         id={"quarta" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.quarta ?? false}
-        onChange={(e) => aoSelecionar(quarta, e.target.checked)}
+        checked={diasSelecionados.includes(QUARTA)}
+        onChange={(e) => aoSelecionar(QUARTA, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"quarta" + id}>
         Quarta
@@ -102,8 +113,8 @@ export default function CheckDias({ dias = {}, aoMudar, id, desabilitado }) {
         id={"quinta" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.quinta ?? false}
-        onChange={(e) => aoSelecionar(quinta, e.target.checked)}
+        checked={diasSelecionados.includes(QUINTA)}
+        onChange={(e) => aoSelecionar(QUINTA, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"quinta" + id}>
         Quinta
@@ -114,8 +125,8 @@ export default function CheckDias({ dias = {}, aoMudar, id, desabilitado }) {
         id={"sexta" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.sexta ?? false}
-        onChange={(e) => aoSelecionar(sexta, e.target.checked)}
+        checked={diasSelecionados.includes(SEXTA)}
+        onChange={(e) => aoSelecionar(SEXTA, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"sexta" + id}>
         Sexta
@@ -126,23 +137,11 @@ export default function CheckDias({ dias = {}, aoMudar, id, desabilitado }) {
         id={"sabado" + id}
         autoComplete="off"
         disabled={desabilitado || salvando}
-        checked={diasSelecionados.sabado ?? false}
-        onChange={(e) => aoSelecionar(sabado, e.target.checked)}
+        checked={diasSelecionados.includes(SABADO)}
+        onChange={(e) => aoSelecionar(SABADO, e.target.checked)}
       />
       <label className="btn btn-outline-primary" htmlFor={"sabado" + id}>
         Sábado
-      </label>
-      <input
-        type="checkbox"
-        className="btn-check"
-        id={"domingo" + id}
-        autoComplete="off"
-        disabled={desabilitado || salvando}
-        checked={diasSelecionados.domingo ?? false}
-        onChange={(e) => aoSelecionar(domingo, e.target.checked)}
-      />
-      <label className="btn btn-outline-primary" htmlFor={"domingo" + id}>
-        Domingo
       </label>
       <MeuSpinner />
     </div>

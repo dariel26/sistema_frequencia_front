@@ -2,13 +2,17 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { Button, Form, InputGroup, Spinner } from "react-bootstrap";
 import { errors } from "../../utils";
 import { SistemaContext } from "../../contexts";
+import "./input.css";
 
 export default function IntervaloInput({
   aoMudar,
   texto = "",
+  valorReal = "",
   maximoValor = 10,
   size,
   larguraMaxima,
+  assincrono = true,
+  sinalizaErro = false,
 }) {
   const [valor, setValor] = useState("");
   const [salvando, setSalvando] = useState(false);
@@ -28,8 +32,8 @@ export default function IntervaloInput({
     !/^\d+-\d+$/.test(valor) || valorInicialInvalido || valorFinalInvalido;
 
   useEffect(() => {
-    setValor(texto ?? "");
-  }, [texto]);
+    setValor(valorReal ?? "");
+  }, [valorReal]);
 
   const aoEscrever = (e) => {
     e.preventDefault();
@@ -41,6 +45,10 @@ export default function IntervaloInput({
   const aoSubmeter = (e) => {
     if (valorIncompleto) return;
     e.preventDefault();
+    if (!assincrono) {
+      setMudando(false);
+      return aoMudar(valor);
+    }
     setSalvando(true);
     aoMudar(valor)
       .then((msg) => msg && sucesso(msg))
@@ -65,10 +73,11 @@ export default function IntervaloInput({
   }
 
   return salvando ? (
-    <Spinner animation="grow" size="sm" className="p-0" />
+    <Spinner animation="grow" size="sm" className="p-0" variant="primary" />
   ) : mudando ? (
     <InputGroup hasValidation>
       <Form.Control
+        className="intervalo-input"
         isInvalid={valorIncompleto}
         ref={inputRef}
         onBlur={aoCancelar}
@@ -77,14 +86,9 @@ export default function IntervaloInput({
         value={valor ?? ""}
         onKeyUp={(e) => (e.key === "Enter" ? aoSubmeter(e) : undefined)}
         onChange={aoEscrever}
-        style={{ maxWidth: `${larguraMaxima}px` }}
       />
       <Form.Control.Feedback tooltip type="invalid">
-        {valorInicialInvalido
-          ? "O valor inicial deve ser maior que 0 e menor ou igual ao valor Final"
-          : valorFinalInvalido
-          ? "O valor final deve ser maior que 0"
-          : "O formato da resposta deve ser algo como 1-5"}
+        {valorIncompleto ? `Os limites são: 1-${maximoValor}` : ""}
       </Form.Control.Feedback>
       <Button
         onClick={aoSubmeter}
@@ -97,7 +101,7 @@ export default function IntervaloInput({
   ) : (
     <label
       role="button"
-      className={`${!texto && "text-danger"} fw-bold`}
+      className={`${!texto || (sinalizaErro && "text-danger")} fw-bold`}
       onClick={aoClicar}
     >
       {texto ?? "INDEFINDO"}

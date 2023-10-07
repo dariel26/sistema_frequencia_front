@@ -2,6 +2,14 @@ const MANHA = "Manhã";
 const TARDE = "Tarde";
 const NOITE = "Noite";
 
+export const DOMINGO = 0;
+export const SEGUNDA = 1;
+export const TERCA = 2;
+export const QUARTA = 3;
+export const QUINTA = 4;
+export const SEXTA = 5;
+export const SABADO = 6;
+
 export const periodos = { MANHA, TARDE, NOITE };
 
 export function encontrarMinEMaxDatas(datas) {
@@ -22,6 +30,10 @@ export function encontrarMinEMaxDatas(datas) {
   }
 
   return [dataMinima, dataMaxima];
+}
+
+export function sortDatas(a, b) {
+  return a < b ? -1 : a > b ? 1 : 0;
 }
 
 export function amdEmData(string) {
@@ -128,6 +140,34 @@ export function todasAsDatasNoIntervalo(dataInicio, dataFim) {
   }
 
   return datas;
+}
+
+export function separaDatasEmSemanas(datas) {
+  if (typeof datas !== typeof []) return [];
+  if (datas.some((d) => typeof d !== typeof new Date())) return [];
+
+  const datasSeparadasPorSemana = [[], []];
+  const datasOrganizadas = datas.sort(sortDatas);
+  const dataInicial = datasOrganizadas[0];
+  const dataFinal = datasOrganizadas[datasOrganizadas.length - 1];
+  const datasNoIntervalo = todasAsDatasNoIntervalo(dataInicial, dataFinal);
+
+  let domingos = 0;
+  for (const data of datasNoIntervalo) {
+    if (datas.some((d) => dataEmDma(data) === dataEmDma(d))) {
+      if (datasSeparadasPorSemana[domingos])
+        datasSeparadasPorSemana[domingos].push(data);
+      else {
+        datasSeparadasPorSemana.push([]);
+        datasSeparadasPorSemana[domingos].push(data);
+      }
+    }
+
+    const diaDaSemana = data.getDay();
+    if (diaDaSemana === DOMINGO) domingos += 1;
+  }
+
+  return datasSeparadasPorSemana.filter((semana) => semana.length > 0);
 }
 
 export function agruparDatasPorMes(datas) {

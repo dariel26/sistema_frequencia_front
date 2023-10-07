@@ -3,6 +3,7 @@ import { Typeahead } from "react-bootstrap-typeahead";
 import { Spinner } from "react-bootstrap";
 import { SistemaContext } from "../../contexts";
 import { errors } from "../../utils";
+import "./input.css";
 
 export default function TextoInput({
   texto,
@@ -14,7 +15,6 @@ export default function TextoInput({
   emptyLabel,
   aoMudar,
   opcoes,
-  larguraMaxima,
 }) {
   const [mudando, setMudando] = useState(false);
   const [salvando, setSalvando] = useState(false);
@@ -52,8 +52,7 @@ export default function TextoInput({
     <Typeahead
       ref={inputRef}
       onBlur={aoCancelar}
-      style={{ maxWidth: `${larguraMaxima}px` }}
-      className={className}
+      className={"texto-input " + className}
       size={size}
       id={id}
       defaultInputValue={texto ?? ""}

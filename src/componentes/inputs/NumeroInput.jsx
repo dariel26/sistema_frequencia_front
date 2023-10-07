@@ -2,13 +2,17 @@ import { useContext, useEffect, useRef, useState } from "react";
 import { Button, Form, InputGroup, Spinner } from "react-bootstrap";
 import { SistemaContext } from "../../contexts";
 import { errors } from "../../utils";
+import "./input.css";
 
 export default function NumeroInput({
   aoMudar,
   texto = "",
+  valorReal = "",
   maximoValor = 10,
+  minimoValor = 1,
   size,
-  larguraMaxima,
+  assincrono = true,
+  sinalizarErro = false,
 }) {
   const [valor, setValor] = useState("");
   const [salvando, setSalvando] = useState(false);
@@ -19,12 +23,12 @@ export default function NumeroInput({
 
   const valorInvalido =
     isNaN(parseInt(valor)) ||
-    parseInt(valor) <= 0 ||
+    parseInt(valor) < minimoValor ||
     parseInt(valor) > maximoValor;
 
   useEffect(() => {
-    setValor(texto ?? "");
-  }, [texto]);
+    setValor(valorReal ?? "");
+  }, [valorReal]);
 
   const aoEscrever = (e) => {
     e.preventDefault();
@@ -36,6 +40,10 @@ export default function NumeroInput({
   const aoSubmeter = (e) => {
     if (valorInvalido) return;
     e.preventDefault();
+    if (!assincrono) {
+      setMudando(false);
+      return aoMudar(parseInt(valor));
+    }
     setSalvando(true);
     aoMudar(parseInt(valor))
       .then((msg) => msg && sucesso(msg))
@@ -64,6 +72,7 @@ export default function NumeroInput({
   ) : mudando ? (
     <InputGroup hasValidation>
       <Form.Control
+        className="numero-input"
         isInvalid={valorInvalido}
         ref={inputRef}
         onBlur={aoCancelar}
@@ -71,11 +80,10 @@ export default function NumeroInput({
         value={valor ?? ""}
         onKeyUp={(e) => (e.key === "Enter" ? aoSubmeter(e) : undefined)}
         onChange={aoEscrever}
-        style={{ maxWidth: `${larguraMaxima}px` }}
       />
       <Form.Control.Feedback tooltip type="invalid">
         {valorInvalido &&
-          `O número deve ser maior que 0 e menor ou igual a ${maximoValor}`}
+          `O número deve estar entre ${minimoValor} e ${maximoValor}`}
       </Form.Control.Feedback>
       <Button
         onClick={aoSubmeter}
@@ -88,7 +96,7 @@ export default function NumeroInput({
   ) : (
     <label
       role="button"
-      className={`${!texto && "text-danger"} fw-bold`}
+      className={`${(!texto || sinalizarErro) && "text-danger"} fw-bold`}
       onClick={aoClicar}
     >
       {texto ?? "INDEFINDO"}

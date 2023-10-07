@@ -223,7 +223,7 @@ export default function Relatorio() {
               size="sm"
               className="position-relative table-hover table-hover-column table-striped-columns"
             >
-              <thead className="sticky t-0">
+              <thead>
                 <tr>
                   {cabecalhosTabelas[indexTabela]?.map((dado, index) => (
                     <th

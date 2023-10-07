@@ -1,0 +1,9 @@
+.dimensoes-tela {
+  height: 100vh;
+  width: 100vw;
+}
+
+.card-login {
+  height: 18rem;
+  width: 18rem;
+}

@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { Card } from "react-bootstrap";
+import "./card.css";
 
 const idComponenteEscrol = "id-simples-escrol";
 
@@ -7,21 +8,19 @@ export default function CardSimples({ children, titulo, tituloCentralizado }) {
   return (
     <div className="card w-100 h-100 rounded-0 border-0">
       <div
-        className={`card-header ${
+        className={`card-header my-card-header ${
           tituloCentralizado ? "" : "text-start"
         } d-flex align-items-center`}
-        style={{ height: "57px" }} //TODO Padronizar
       >
         <h4 className="col mb-0">{titulo}</h4>
       </div>
-      <Card.Body style={{ height: "calc(100% - 57px)" }}>
+      <Card.Body className="my-card-body">
         <div
           id={idComponenteEscrol}
-          className="d-flex flex-column h-100"
-          style={{ overflowY: "auto" }}
+          className="d-flex flex-column h-100 my-overflow-y"
         >
           {children}
-          <div className="col-12 w-100" style={{ height: "300px" }} />
+          <div className="col-12 w-100 my-card-margin" />
         </div>
       </Card.Body>
     </div>
