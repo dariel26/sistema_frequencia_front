@@ -9,6 +9,18 @@ const apiSFE = {
   editarUsuario: async (token, novosDados) =>
     await api.put("/api/v1/usuario", { novosDados }, { headers: { token } }),
 
+  //PUSH-NOTIFICATION
+  subscrever: async (token, dados) =>
+    await api.post("/api/v1/subscricao", { dados }, { headers: { token } }),
+  revogaSubscricao: async (token, id_usuario) =>
+    await api.delete("/api/v1/subscricao/" + id_usuario, {
+      headers: { token },
+    }),
+  possuiSubscricao: async (token) =>
+    await api.get("/api/v1/subscricao", {
+      headers: { token },
+    }),
+
   //ALUNOS
   listarAlunos: async (token) =>
     await api.get("/api/v1/aluno", { headers: { token } }),
@@ -191,12 +203,9 @@ const apiSFE = {
       { headers: { token } }
     ),
   deletarAlunoDataAtividade: async (token, id_atividade) =>
-    await api.delete(
-      "/api/v1/aluno-data-atividade/"+id_atividade,
-      {
-        headers: { token },
-      }
-    ),
+    await api.delete("/api/v1/aluno-data-atividade/" + id_atividade, {
+      headers: { token },
+    }),
   buscarPresencasPorAluno: async (token, id_aluno) =>
     await api.get("/api/v1/aluno-data-atividade/id_aluno/" + id_aluno, {
       headers: { token },

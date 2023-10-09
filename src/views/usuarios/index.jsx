@@ -7,7 +7,7 @@ import Coordenadores from "./coordenadores/Coordenadores";
 
 const navsUsuario = [
   { valor: links.coordenadores, texto: "Coordenadores" },
-  { valor: links.preceptores, texto: "Preceptores" },
+  { valor: links.preceptores, texto: "Preceptores/Professores" },
   { valor: links.alunos, texto: "Alunos" },
 ];
 

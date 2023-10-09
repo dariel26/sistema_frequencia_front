@@ -19,7 +19,9 @@ export default function Preceptores() {
   const [preceptorEmEdicao, setPreceptorEmEdicao] = useState({});
   const [preceptoresSelecionados, setPreceptoresSelecionados] = useState([]);
 
-  const { carregando, error } = useRef(useContext(SistemaContext)).current;
+  const { carregando, error, confirma } = useRef(
+    useContext(SistemaContext)
+  ).current;
   const usuario = useContext(UsuarioContext);
   const token = usuario.token;
 
@@ -68,6 +70,14 @@ export default function Preceptores() {
   }
 
   async function aoDeletar() {
+    const resposta = await confirma(
+      `Ao excluir estes preceptores/professores, todas as 
+      conexões entre as atividades associadas a eles serão perdidas. 
+      Isso significa que, uma vez que os preceptores/professores 
+      sejam removidos, as atividades ficarão sem um preceptor/professor
+      definido.`
+    );
+    if (!resposta) return;
     const ids = preceptoresSelecionados.map((p) => p.id_usuario);
     const preceptoresRestantes = preceptores.filter(
       (pr) => !preceptorSelecionado(pr)

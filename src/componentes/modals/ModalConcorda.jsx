@@ -5,7 +5,7 @@ function ModalConcorda({ show, mensagem, resAviso }) {
   return (
     <>
       <Modal show={show} backdrop="static" keyboard={false} className="z-n">
-        <Modal.Header closeButton>
+        <Modal.Header>
           <Modal.Title>Aviso</Modal.Title>
         </Modal.Header>
         <Modal.Body>{mensagem}</Modal.Body>

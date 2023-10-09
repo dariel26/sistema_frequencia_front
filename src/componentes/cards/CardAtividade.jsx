@@ -34,12 +34,11 @@ export default function CardAtividade({
   grupos,
   numMaxDeAlunos,
 }) {
-  const { confirma } = useContext(SistemaContext);
   const calendarDataRef = useRef();
   const calendarAlunoRef = useRef();
 
   const { token } = useContext(UsuarioContext);
-  const { error } = useContext(SistemaContext);
+  const { error, confirma } = useContext(SistemaContext);
 
   const [estaAtividade, setEstaAtividade] = useState(
     normalizaAtividade(atividade)
@@ -85,15 +84,9 @@ export default function CardAtividade({
     a.data < b.data ? -1 : b.data < a.data ? 1 : 0
   );
 
-  const todosOsAlunos = grupos.flatMap((g) => g.alunos);
-  const alunosAlocados = todosOsAlunos.filter((a) =>
-    estaAtividade.datas.some(({ alunos }) =>
-      alunos.some((aluno) => aluno.id_aluno === a.id_usuario)
-    )
-  );
-  const alunosNAlocados = todosOsAlunos.filter(
-    (a) => !alunosAlocados.some((aluno) => aluno.id_usuario === a.id_usuario)
-  );
+  const todasAsDatas = estaAtividade.datas;
+  const datasAlocadas = todasAsDatas.filter((d) => d.alunos.length > 0);
+  const datasNAlocadas = todasAsDatas.filter((d) => d.alunos.length < 1);
 
   const eventosComAlunos = estaAtividade.datas
     .map(({ data: start }) => ({
@@ -170,7 +163,7 @@ export default function CardAtividade({
   };
 
   const mudarHoraInicial = async (hora_inicial) => {
-    if (alunosAlocados.length > 0) {
+    if (datasAlocadas.length > 0) {
       const resposta = await confirma(
         "Realizar esta mudança irá apagar os alunos alocados."
       );
@@ -194,7 +187,7 @@ export default function CardAtividade({
   };
 
   const mudarHoraFinal = async (hora_final) => {
-    if (alunosAlocados.length > 0) {
+    if (datasAlocadas.length > 0) {
       const resposta = await confirma(
         "Realizar esta mudança irá apagar os alunos alocados."
       );
@@ -236,12 +229,23 @@ export default function CardAtividade({
 
     try {
       if (selecionada) {
+        let possuiAlunos = false;
         const idsExcluir = estaAtividade.datas
-          .filter(({ data }) =>
-            datasModificadas.some((d) => dataEmAmd(d.data) === dataEmAmd(data))
-          )
+          .filter(({ data, alunos }) => {
+            const incluida = datasModificadas.some(
+              (d) => dataEmAmd(d.data) === dataEmAmd(data)
+            );
+            if (incluida && alunos.length > 0) possuiAlunos = true;
+            return incluida;
+          })
           .map(({ id_dataatividade }) => id_dataatividade);
-
+        if (possuiAlunos) {
+          const resposta = await confirma(
+            `Existem alunos alocados nestas datas que serão
+             desassociados. Todas as presenças serão perdidas.`
+          );
+          if (!resposta) return;
+        }
         await apiSFE.deletarDatasDeAtividade(token, idsExcluir);
         setEstaAtividade((estaAtividade) => ({
           ...estaAtividade,
@@ -372,17 +376,20 @@ export default function CardAtividade({
     const datasAtividadeComAlunos = [];
 
     if (
-      datasSelecionadas.length > 0 && data &&
+      datasSelecionadas.length > 0 &&
+      data &&
       !datasSelecionadas.some((d) => dataEmAmd(d) === dataEmAmd(data))
     )
       return { distribuicao, datasAtividadeComAlunos };
 
     grupos.forEach((g, index) => {
       distribuicao.push({ nome: g.nome, alunosPorData: [] });
-      const numMaxAlunos = g.alunos.length;
+      const numMaxAlunos = g.alunos.filter(
+        (_, index) => index >= indexPrimeiroAluno && index <= indexUltimoAluno
+      ).length;
       const indexFinal =
-        indexUltimoAluno > numMaxAlunos - 1
-          ? numMaxAlunos - 1
+        indexUltimoAluno > indexPrimeiroAluno + numMaxAlunos - 1
+          ? indexPrimeiroAluno + numMaxAlunos - 1
           : indexUltimoAluno;
       const maxAlunosNoDia =
         alunosNoDia > numMaxAlunos ? numMaxAlunos : alunosNoDia;
@@ -423,7 +430,10 @@ export default function CardAtividade({
           distribuicao[index].alunosPorData.push(`[${array}]`);
         });
       } else {
-        const idxAlunosExtendido = extenderArray(idxAlunos, maxAlunosNoDia);
+        const idxAlunosExtendido =
+          idxAlunos.length > maxAlunosNoDia
+            ? extenderArray(idxAlunos, maxAlunosNoDia)
+            : idxAlunos;
         const array = moverParaPrimeiraPosicao(
           idxAlunosExtendido,
           alunoInicial
@@ -453,7 +463,7 @@ export default function CardAtividade({
   return (
     <DivCabecalhoDeletar
       className={`border rounded p-2 position-relative pb-1 border-2 ${
-        alunosNAlocados.length > 0 ? "border-secondary" : "border-primary"
+        datasNAlocadas.length > 0 ? "border-secondary" : "border-primary"
       }`}
       textoBotao="Deletar Atividade"
       titulo={estaAtividade.nome_atividade}
@@ -531,12 +541,17 @@ export default function CardAtividade({
           </Accordion.Header>
           <Accordion.Body>
             <div className="overflow-hidden">
-              <InputChave
-                textoVerdade="Modificando colunas de datas"
-                textoFalso="Modificando data específica"
-                aoMudar={(mudou) => setDiasNoPeriodo(mudou)}
-                valorInicial={diasNoPeriodo}
-              />
+              <Row className="overflow-hidden m-0">
+                <Col sm="12">
+                  <InputChave
+                    textoVerdade="Modificando colunas de datas"
+                    textoFalso="Modificando data específica"
+                    aoMudar={(mudou) => setDiasNoPeriodo(mudou)}
+                    valorInicial={diasNoPeriodo}
+                  />
+                </Col>
+              </Row>
+
               <Calendario
                 altura={500}
                 callendarRef={calendarDataRef}
@@ -669,7 +684,7 @@ export default function CardAtividade({
         <ProgressBar
           now={
             ((estaAtividade.nome_preceptor ? 1 : 0) * 100) /
-              todosOsAlunos.length +
+              todasAsDatas.length +
             4
           }
           variant={estaAtividade.nome_preceptor ? "primary" : "secondary"}
@@ -679,8 +694,7 @@ export default function CardAtividade({
         />
         <ProgressBar
           now={
-            ((estaAtividade.nome_local ? 1 : 0) * 100) / todosOsAlunos.length +
-            4
+            ((estaAtividade.nome_local ? 1 : 0) * 100) / todasAsDatas.length + 4
           }
           variant={estaAtividade.nome_local ? "primary" : "secondary"}
           animated
@@ -692,7 +706,7 @@ export default function CardAtividade({
             (((estaAtividade.hora_inicial ? 1 : 0) +
               (estaAtividade.hora_final ? 1 : 0)) *
               100) /
-              todosOsAlunos.length +
+              todasAsDatas.length +
             4
           }
           variant={
@@ -702,17 +716,22 @@ export default function CardAtividade({
           }
           animated
           key={3}
-          label={`Horarios: ${
+          label={`Horários: ${
             (estaAtividade.hora_inicial ? 1 : 0) +
             (estaAtividade.hora_final ? 1 : 0)
           }/2`}
         />
         <ProgressBar
-          now={(alunosAlocados.length * 100) / todosOsAlunos.length + 4}
+          now={(datasAlocadas.length * 100) / todasAsDatas.length + 4}
           animated
           key={4}
-          variant={alunosNAlocados.length > 0 ? "secondary" : "primary"}
-          label={`Alunos: ${alunosAlocados.length}/${todosOsAlunos.length}`}
+          variant={
+            datasAlocadas.length < todasAsDatas.length ||
+            todasAsDatas.length === 0
+              ? "secondary"
+              : "primary"
+          }
+          label={`Datas com alunos: ${datasAlocadas.length}/${todasAsDatas.length}`}
         />
       </ProgressBar>
     </DivCabecalhoDeletar>

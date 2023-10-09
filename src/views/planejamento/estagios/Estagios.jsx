@@ -17,7 +17,9 @@ export default function Estagios() {
   const [estagios, setEstagios] = useState([]);
   const [editando, setEditando] = useState(false);
 
-  const { carregando, error } = useRef(useContext(SistemaContext)).current;
+  const { carregando, error, confirma } = useRef(
+    useContext(SistemaContext)
+  ).current;
   const usuario = useContext(UsuarioContext);
   const token = usuario.token;
 
@@ -39,20 +41,24 @@ export default function Estagios() {
     try {
       const res = await apiSFE.adicionarEstagios(token, [{ nome }]);
       setEstagios(res.data);
-      return "Estágio salvo!";
     } catch (err) {
       throw err;
     }
   };
 
   const aoDeletarEstagio = async ({ id_estagio }) => {
+    const resposta = await confirma(
+      `Ao excluir este estágio, as atividades ligadas a
+       ele serão excluidas, assim como todos os dados 
+       ligados às atividades.`
+    );
+    if (!resposta) return;
     try {
       const ids = [id_estagio];
       await apiSFE.deletarEstagios(token, ids);
       setEstagios((existentes) =>
         existentes.filter((e) => e.id_estagio !== id_estagio)
       );
-      return "Estágio deletado!";
     } catch (err) {
       throw err;
     }

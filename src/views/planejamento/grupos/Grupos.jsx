@@ -28,7 +28,9 @@ export default function Grupos() {
       : "Cancelar"
     : "Selecionar";
 
-  const { carregando, error } = useRef(useContext(SistemaContext)).current;
+  const { carregando, error, confirma } = useRef(
+    useContext(SistemaContext)
+  ).current;
   const usuario = useContext(UsuarioContext);
   const token = usuario.token;
 
@@ -45,7 +47,6 @@ export default function Grupos() {
     try {
       const res = await apiSFE.adicionarGrupos(token, [{ nome }]);
       setGrupos(res.data);
-      return "Grupo salvo!";
     } catch (err) {
       throw err;
     }
@@ -66,12 +67,16 @@ export default function Grupos() {
   };
 
   const aoDeletarGrupo = async ({ id_grupo }) => {
+    const resposta = await confirma(
+      `Ao excluir este grupo, os alunos assim como
+       suas datas de atividades serão perdidos.`
+    );
+    if (!resposta) return;
     try {
       await apiSFE.deletarGrupos(token, [id_grupo]);
       setGrupos((existentes) =>
         existentes.filter((g) => g.id_grupo !== id_grupo)
       );
-      return "Grupo deletado!";
     } catch (err) {
       throw err;
     }

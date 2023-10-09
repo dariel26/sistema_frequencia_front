@@ -19,7 +19,9 @@ export default function Alunos() {
   const [alunoEmEdicao, setAlunoEmEdicao] = useState({});
   const [alunosSelecionados, setAlunosSelecionados] = useState([]);
 
-  const { carregando, error } = useRef(useContext(SistemaContext)).current;
+  const { carregando, error, confirma } = useRef(
+    useContext(SistemaContext)
+  ).current;
   const usuario = useContext(UsuarioContext);
   const token = usuario.token;
 
@@ -64,6 +66,14 @@ export default function Alunos() {
   }
 
   async function aoDeletar() {
+    const resposta = await confirma(
+      `Ao excluir esses alunos, todas as presenças marcadas
+      e não marcadas associadas a eles serão perdidas.
+      Recomenda-se realizar essa ação apenas após baixar
+      e salvar todos os relatórios de presença, caso deseje
+      iniciar um novo planejamento.`
+    );
+    if (!resposta) return;
     const ids = alunosSelecionados.map((p) => p.id_usuario);
     const alunosRestantes = alunos.filter((pr) => !alunoSelecionado(pr));
     try {

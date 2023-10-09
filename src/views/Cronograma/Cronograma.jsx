@@ -67,26 +67,29 @@ export default function Cronograma() {
       <Row className="justify-content-center m-0">
         <Col sm="12">
           <div className="cronograma" ref={ref}>
-            <FullCalendar
-              plugins={[
-                dayGridPlugin,
-                interactionPlugin,
-                bootstrap5Plugin,
-                timeGridPlugin,
-              ]}
-              eventClick={aoClicarEmEvento}
-              height="100%"
-              themeSystem="bootstrap5"
-              locale={brLocale}
-              headerToolbar={{
-                start: "dayGridMonth,timeGridWeek,timeGridDay",
-                center: "title",
-                end: "today prev,next",
-              }}
-              initialView="dayGridMonth"
-              events={eventos}
-              stickyHeaderDates={true}
-            />
+            {eventos[0] && (
+              <FullCalendar
+                plugins={[
+                  dayGridPlugin,
+                  interactionPlugin,
+                  bootstrap5Plugin,
+                  timeGridPlugin,
+                ]}
+                eventClick={aoClicarEmEvento}
+                height="100%"
+                themeSystem="bootstrap5"
+                locale={brLocale}
+                headerToolbar={{
+                  start: "dayGridMonth,timeGridWeek,timeGridDay",
+                  center: "title",
+                  end: "today prev,next",
+                }}
+                initialView="dayGridMonth"
+                events={eventos}
+                initialDate={eventos[0].start}
+                stickyHeaderDates={true}
+              />
+            )}
           </div>
         </Col>
       </Row>

@@ -7,7 +7,14 @@ import {
 } from "../../componentes";
 import uuid from "react-uuid";
 
+export const IPHONE = ["iPhone"];
+export const ANDROID = ["Linux armv81"];
+export const WINDOWS = ["Win32"];
+export const LINUX = ["Linux x86_64", "Linux"];
+export const MAC = ["MAC"]; //TODO verificar o certo
+
 export const SistemaContext = createContext({
+  tipoDeSistema: (arrSistemaValores) => {},
   concorda: (mensagem) => {},
   carregando: (estado) => {},
   confirma: async (mensagem) => {},
@@ -74,9 +81,21 @@ export default function SistemaProvider(props) {
     setAlertas((antigos) => antigos.filter((a) => a.id !== id));
   }
 
+  function tipoDeSistema(arrSistemaValores) {
+    const osDeprecated = navigator?.platform; //TODO abrange todos os navegadores 08/10/2023 DEPRECATED.
+    const os = navigator.userAgentData?.platform; //TODO não abrange muitos navegadores 08/10/2023 NOVO.
+    if (
+      arrSistemaValores.some((v) => v === osDeprecated) ||
+      arrSistemaValores.some((v) => v === os)
+    )
+      return true;
+    return false;
+  }
+
   return (
     <SistemaContext.Provider
       value={{
+        tipoDeSistema,
         concorda,
         carregando,
         confirma,

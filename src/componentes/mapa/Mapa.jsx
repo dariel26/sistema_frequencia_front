@@ -2,32 +2,10 @@ import L from "leaflet";
 import { useEffect } from "react";
 import "leaflet-geosearch/dist/geosearch.css";
 import { GeoSearchControl, OpenStreetMapProvider } from "leaflet-geosearch";
+import { obterCor } from "../../utils";
 
 export default function Mapa({ locais, aoClicar }) {
   useEffect(() => { //TODO Refatorar retirando funções de dentro do useEffect
-    const cores = [
-      "#FF0000",
-      "#00FF00",
-      "#0000FF",
-      "#FFFF00",
-      "#FF00FF",
-      "#00FFFF",
-      "#FFA500",
-      "#800080",
-      "#008000",
-      "#000080",
-      "#FFC0CB",
-      "#800000",
-      "#FFD700",
-      "#FF1493",
-      "#8B0000",
-      "#00FF7F",
-      "#FF4500",
-      "#008080",
-      "#FF6347",
-      "#800080",
-    ];
-
     const divMapa =
       '<div id="map" style="height: 500px; border-radius: 0.2rem"></div>';
     const ararangua = [-28.943054, -49.489547];
@@ -52,18 +30,18 @@ export default function Mapa({ locais, aoClicar }) {
 
     locais?.forEach((c, i) => {
       var circulo = L.circle(c.coordenadas, {
-        color: cores[i % cores.length],
-        fillColor: cores[i % cores.length],
+        color: obterCor(i),
+        fillColor: obterCor(i),
         fillOpacity: 0.5,
         radius: 100,
       }).addTo(mapa);
       circulo.bindPopup(c.nome);
     });
 
-    const indexColor = locais?.length % cores.length;
+    const indexColor = locais?.length;
     const circle = L.circle([0, 0], {
-      color: cores[indexColor],
-      fillColor: cores[indexColor],
+      color: obterCor(indexColor),
+      fillColor: obterCor(indexColor),
       fillOpacity: 0.5,
       radius: 100,
     }).addTo(mapa);

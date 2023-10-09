@@ -22,8 +22,9 @@ export default function Local() {
   const [nome, setNome] = useState("");
 
   const usuario = useContext(UsuarioContext);
-  const { error } = useRef(useContext(SistemaContext)).current;
-  const { carregando } = useRef(useContext(SistemaContext)).current;
+  const { error, confirma, carregando } = useRef(
+    useContext(SistemaContext)
+  ).current;
 
   const token = usuario.token;
   const camposInvalidos = latLon.lat === "" || latLon.lon === "" || nome === "";
@@ -55,7 +56,17 @@ export default function Local() {
     setLatLon({ lat, lon: lng });
   }, []);
 
-  const aoDeletar = (local) => {
+  const aoDeletar = async (local) => {
+    const resposta = await confirma(
+      `Ao excluir este local, todas as conexões entre as
+      atividades associadas a ele e os alunos vinculados
+      a essas atividades serão perdidas. Isso significa
+      que, uma vez que o local seja removido, as
+      atividades ficarão sem um local definido,
+      e os alunos perderão a associação com esse
+      local específico.`
+    );
+    if (!resposta) return;
     setIdLocalDeletando(local.id_local);
     apiSFE
       .deletarLocais(token, [local.id_local])

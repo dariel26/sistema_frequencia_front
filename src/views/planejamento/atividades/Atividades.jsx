@@ -3,6 +3,7 @@ import apiSFE from "../../../service/api";
 import { CardAtividade, InputBotao } from "../../../componentes";
 import { UsuarioContext, SistemaContext } from "../../../contexts";
 import { amdEmData, errors } from "../../../utils";
+import uuid from "react-uuid";
 
 export default function Atividades() {
   const [alunos, setAlunos] = useState([]);
@@ -12,7 +13,10 @@ export default function Atividades() {
   const [locais, setLocais] = useState([]);
   const [coordenadores, setCoordeandores] = useState([]);
 
-  const { carregando, error } = useRef(useContext(SistemaContext)).current;
+  const { carregando, error, confirma } = useRef(
+    useContext(SistemaContext)
+  ).current;
+
   const usuario = useContext(UsuarioContext);
   const token = usuario.token;
 
@@ -107,10 +111,17 @@ export default function Atividades() {
   };
 
   const aoDeletarAtividade = async ({ id_atividade }) => {
+    const resposta = await confirma(
+      `Ao excluir esta atividade, todas as datas
+       associadas a ela e os respectivos alunos 
+       designados para essas datas serão removidos permanentemente.`
+    );
+    if (!resposta) return;
     try {
       await apiSFE.deletarAtividades(token, [id_atividade]);
-      const atividadesAtualizadas = (await apiSFE.listarAtividades(token)).data;
-      setAtividades(atividadesAtualizadas);
+      setAtividades((existentes) =>
+        existentes.filter((a) => a.id_atividade !== id_atividade)
+      );
       setEstagios((existentes) =>
         existentes.map((estagio) => {
           if (!estagio.atividades.some((a) => a.id_atividade === id_atividade))
@@ -142,7 +153,7 @@ export default function Atividades() {
       {gruposDeEstagios?.map((estagio) => (
         <div
           className="row w-100 m-0 p-0 justify-content-center mb-4"
-          key={estagio.id_estagio ?? -1}
+          key={estagio.id_estagio >> uuid()}
         >
           <div className="col-sm-12 col-xl-8 mb-1">
             <span className="fs-5 fw-bold">{estagio.nome_estagio}</span>

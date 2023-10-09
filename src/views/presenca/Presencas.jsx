@@ -19,6 +19,10 @@ import {
 } from "../../utils";
 import PresencaAMarcar from "./PresencaAMarcar";
 import { presencaEstados } from "../gerir_presenca/GerirPresencas";
+import { ANDROID, IPHONE } from "../../contexts/sistema/Sistema";
+import { BsThreeDotsVertical } from "react-icons/bs";
+import { GrSettingsOption } from "react-icons/gr";
+import { RiSafariLine } from "react-icons/ri";
 
 export default function Presencas() {
   const [presencas, setPresencas] = useState([]);
@@ -26,7 +30,7 @@ export default function Presencas() {
   const [presencaAMarcar, setPresencaAMarcar] = useState();
   const [coordenadas, setCoordenadas] = useState({ lat: null, lon: null });
 
-  const { concorda, carregando, error, aviso } = useRef(
+  const { concorda, carregando, error, aviso, tipoDeSistema } = useRef(
     useContext(SistemaContext)
   ).current;
   const usuario = useContext(UsuarioContext);
@@ -38,17 +42,37 @@ export default function Presencas() {
           const { latitude, longitude } = posicao.coords;
           setCoordenadas({ lat: latitude, lon: longitude });
         },
-        (_) => {
+        (err) => {
           setCoordenadas({ lat: null, lon: null });
-          concorda(
-            "Não foi possível acessar suas coordenadas. Tente fechar o aplicativo, verifique as configurações de permissão do aplicativo e abra-o novamente."
-          );
+          switch (err.code) {
+            case 1:
+              concorda(
+                tipoDeSistema(ANDROID)
+                  ? textoAndroid
+                  : tipoDeSistema(IPHONE)
+                  ? textoIOS
+                  : textoOutro
+              );
+              break;
+            case 2:
+              concorda(
+                "Algo deu errado ao tentar obter sua localização, tente mais tarde."
+              );
+              break;
+            case 3:
+              concorda(
+                "Foi ultrapassado o tempo de espera para obter acesso à sua localização."
+              );
+              break;
+            default:
+              break;
+          }
         }
       );
     } else {
       aviso("O navegador usado não suporta geolocalização.");
     }
-  }, [aviso, concorda]);
+  }, [aviso, concorda, tipoDeSistema]);
 
   useEffect(() => {
     carregando(true);
@@ -158,7 +182,7 @@ export default function Presencas() {
                     );
 
                     const dataPassou = diferencaEmHoras < -2;
-                    const muitoCedo = diferencaEmHoras > 0.3;
+                    const muitoCedo = diferencaEmHoras > 0.34;
 
                     return dado.excluida === 1 ? (
                       "Livre"
@@ -204,3 +228,54 @@ export default function Presencas() {
     </CardSimples>
   );
 }
+
+const textoAndroid = (
+  <span>
+    A aplicação precisa de permisão para acessar sua localização.{" "}
+    <p>
+      1- Abra o navegador e acesse o site da aplicação.
+    </p>
+    <p>
+      2- Clique nos <strong>três pontos</strong> <BsThreeDotsVertical /> no
+      canto superior direito do navegador.
+    </p>{" "}
+    <p>
+      3- Siga os passos: <strong> Configurações</strong> -{" "}
+      <strong>Configurações do site</strong> - <strong>Local</strong>.
+    </p>
+    <p>
+      4- Permita o acesso (Perguntar antes de permitir que sites saibam o seu
+      local).
+    </p>
+    <p>5- Feche este aplicativo e abra-o novamente.</p>
+  </span>
+);
+const textoIOS = (
+  <span>
+    A aplicação precisa de permisão para acessar sua localização.{" "}
+    <p>
+      1- Vá até as <strong>configurações</strong> <GrSettingsOption /> do seu
+      dispositivo.
+    </p>
+    <p>
+      2- Busque pelo aplicativo <strong>Safari</strong>{" "}
+      <RiSafariLine size={18} />.
+    </p>
+    <p>
+      3- Busque por <strong>Localização</strong>.
+    </p>
+    <p>
+      4- Selecione <strong>Perguntar</strong>.
+    </p>
+    <p>5- Feche este aplicativo e abra-o novamente.</p>
+  </span>
+);
+const textoOutro = (
+  <span>
+    A aplicação precisa de permisão para acessar sua localização.
+    <p>
+      Entre nas configurações do seu dispositivo ou do seu browser e ative o
+      acesso à localização por parte deste site.
+    </p>
+  </span>
+);

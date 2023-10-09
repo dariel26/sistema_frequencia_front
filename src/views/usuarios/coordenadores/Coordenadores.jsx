@@ -11,10 +11,7 @@ import {
 import CoordenadoresAdicao from "./CoordenadoresAdicao";
 import { FaUserEdit } from "react-icons/fa";
 import CoordenadorEdicao from "./CoordenadoresEdicao";
-import {
-  SistemaContext,
-  UsuarioContext,
-} from "../../../contexts";
+import { SistemaContext, UsuarioContext } from "../../../contexts";
 import { errors } from "../../../utils";
 
 export default function Coordenadores() {
@@ -26,7 +23,9 @@ export default function Coordenadores() {
     []
   );
 
-  const { carregando, error } = useRef(useContext(SistemaContext)).current;
+  const { carregando, error, confirma } = useRef(
+    useContext(SistemaContext)
+  ).current;
   const usuario = useContext(UsuarioContext);
   const token = usuario.token;
 
@@ -75,6 +74,15 @@ export default function Coordenadores() {
   }
 
   async function aoDeletar() {
+    const resposta = await confirma(
+      `Ao excluir estes coordenadores, todas as conexões
+      entre as atividades associadas a eles e/ou os 
+      estágios associados a eles serão perdidas. Isso 
+      significa que, uma vez que os coordenadores sejam 
+      removidos, as atividades e/ou os estágios ficarão 
+      sem um preceptor/coordenador definido.`
+    );
+    if (!resposta) return;
     const ids = coordenadoresSelecionados.map((c) => c.id_usuario);
     const coordenadoresRestantes = coordenadores.filter(
       (cr) => !coordenadorSelecionado(cr)

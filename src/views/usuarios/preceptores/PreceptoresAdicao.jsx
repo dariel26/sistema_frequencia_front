@@ -27,9 +27,9 @@ export default function PreceptoresAdicao({
 
   const { error } = useRef(useContext(SistemaContext)).current;
 
-  const textoValido = "Preceptor válido";
+  const textoValido = "Preceptor/Professor válido";
   const textoInvalido =
-    "Um preceptor com esse e-mail já existe portanto este preceptor não será adicionado";
+    "Um preceptor/professor com esse e-mail já existe portanto este preceptor não será adicionado";
 
   const preceptoresNaoRepetidos = novosPreceptores.filter(
     (c) => !preceptorExistente(c)
@@ -109,7 +109,7 @@ export default function PreceptoresAdicao({
           onSubmit={aoAdicionarPreceptorManualmente}
         >
           <Col sm="12" xl="5" className="mb-2">
-            <Form.Label htmlFor="E-mail">E-mail do preceptor</Form.Label>
+            <Form.Label htmlFor="E-mail">E-mail do preceptor/professor</Form.Label>
             <Form.Control
               id="E-mail"
               value={email}
@@ -117,7 +117,7 @@ export default function PreceptoresAdicao({
             />
           </Col>
           <Col sm="12" xl="5" className="mb-2">
-            <Form.Label htmlFor="Nome">Nome do preceptor</Form.Label>
+            <Form.Label htmlFor="Nome">Nome do preceptor/professor</Form.Label>
             <Form.Control
               id="Nome"
               value={nome}
@@ -139,10 +139,10 @@ export default function PreceptoresAdicao({
           {salvando ? (
             <>
               <Spinner size="sm" animation="grow" className="me-2" />{" "}
-              Cadastrando preceptores...
+              Cadastrando preceptores/professores...
             </>
           ) : (
-            "Cadastrar preceptores"
+            "Cadastrar preceptores/professores"
           )}
         </Button>
       </Col>
